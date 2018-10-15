@@ -869,84 +869,67 @@ Week 3: Python for geo-scripting
 <div class="container">
 <div class="row row-offcanvas row-offcanvas-right">
 <div class="contents col-xs-12 col-md-10">
-<h1 id="wur-geoscripting-wur-logo"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="http://www.wageningenur.nl/upload/f9a0b5f2-15c5-4b84-9e14-20ef02f5e265_wur-logo.png" alt="WUR logo" /></h1>
+<h1 id="wur-geoscripting-wur-logo"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="https://www.wur.nl/upload/b43b7095-e452-482a-8969-fed9a50393a8_WUR_RGB_standard.png" alt="WUR logo" /></h1>
 <h1 id="vector-data-handling-with-python">Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas</em> - 22 January, 2018</p>
-<h2 id="gdalogr-using-python">GDAL/OGR using Python</h2>
-<p>By now you should know what the following abbreviations stand for, and what can you do with the software:</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas</em> - 16 October, 2018</p>
+<h2 id="introduction">Introduction</h2>
+<p>Good morning today! Today we will have fun by exploring Python packages for vector data handling. One very good vector Python package is <a href="http://geopandas.org/">GeoPandas</a>. The open-source project strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other prominent Python packages: <a href="http://pandas.pydata.org/">Pandas</a> for dataframes and data analysis, <a href="http://toblerity.org/shapely/">Shapely</a> for geometric operations, <a href="http://toblerity.org/fiona/">Fiona</a> for geodata access and conversions, <a href="https://github.com/jswhit/pyproj">pyproj</a> for re-projecting, <a href="https://matplotlib.org/">matplotlib</a> for plotting, <a href="https://pypi.org/project/psycopg2/">psycopg2</a> for PostgreSQL database connection and <a href="https://geopy.readthedocs.io/en/stable/">GeoPy</a> for geocoding web services. Together these packages are quite powerful and build on other packages too. Fiona builds on GDAL/OGR packages to read and write data. GDAL/OGR/OSR are the backbone of spatial processing in Python and have high performance, but are not that intuitive to use.</p>
+<h2 id="geoseries">GeoSeries</h2>
+<p>Like a Pandas Series, a GeoSeries is the building block for the more broadly useful and powerful GeoDataFrame. A GeoSeries is made up of an index and a GeoPandas geometry data type. This data type is a shapely.geometry object, and therefore inherits their attributes and methods such as area, bounds, distance, etc.</p>
+<p>GeoPandas has six classes of geometric objects, corresponding to the three basic single-entity geometric types and their associated homogeneous collections of multiple entities:</p>
 <ul>
-<li>GDAL</li>
-<li>OGR</li>
+<li>Single entity (core, basic types):</li>
+<li>Point</li>
+<li>Line (formally known as a LineString)</li>
+<li>Polygon</li>
+<li>Homogeneous entity collections:</li>
+<li>Multi-Point</li>
+<li>Multi-Line (MultiLineString)</li>
+<li>Multi-Polygon</li>
 </ul>
-<p>Whereas the following may be new to you:</p>
-<ul>
-<li>OSR: spatial reference (projections!)</li>
-</ul>
-<h2 id="ogr-and-the-data-drivers">OGR and the data drivers</h2>
-<p>OGR supports many different vector formats:</p>
-<ul>
-<li>ESRI formats such as shapefiles, personal geodatabases and ArcSDE</li>
-<li>Other software such as MapInfo, GRASS, Microstation</li>
-<li>Open formats such TIGER/Line, SDTS, GML, KML</li>
-<li>Databases such as MySQL, PostgreSQL, Oracle Spatial, etc.</li>
-<li>Webservices such as Web Feature Service 1.0,1.1,2.0 (WFS output as GML)</li>
-</ul>
-<p><strong>OGR Data drivers:</strong> A driver is an object that knows how to interact with a certain data type (e.g. a shapefile). You need to know the right driver to read or write data. Some drivers might only be able to read content, but the majority can read and write.</p>
-Start a terminal and see if you can load osgeo in Python.
-<div class="row">
-<button class="source bash toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> bash source
-</button>
-<pre style=""><code class="source bash">python</code></pre>
-</div>
+<h2 id="fionageopandas-drivers">Fiona/GeoPandas drivers</h2>
+<p>GeoPandas mostly uses Fiona for file access. You can find out what file formats Fiona supports with a simple script.</p>
 <div class="row">
 <button class="source python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> python source
 </button>
-<pre style=""><code class="source python">try:
-  from osgeo import ogr
-except:
-  import ogr</code></pre>
+<pre style=""><code class="source python">import fiona
+fiona.supported_drivers</code></pre>
 </div>
-From the terminal you can also type the following to obtain an overview of supported formats:
-<div class="row">
-<button class="source bash toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> bash source
-</button>
-<pre style=""><code class="source bash">echo "Terminal command to obtain an overview of supported formats"
-ogrinfo --formats</code></pre>
-</div>
-<p><a href="http://www.gdal.org/ogr_formats.html">More info about the different OGR formats</a>.</p>
+<p>Fiona has drivers for: * Open formats such as GeoJSON and GPX * ESRI formats such as shapefiles and OpenFileGDB * Other formats such as MapInfo File, DGN</p>
+<p>But Fiona lacks some other popular file formats * Open formats such as <a href="https://github.com/Toblerity/Fiona/issues/97">KML</a> or <a href="https://github.com/Toblerity/Fiona/pull/96">GML</a> based on the XML format. Solution: <a href="https://docs.python.org/3/library/xml.etree.elementtree.html">xml.etree.ElementTree</a>. * Databases such as PostgreSQL. Solution: <a href="https://pypi.org/project/psycopg2/">psycopg2</a>. * Webservices such as Web Feature Service [WFS] or Web Map Service [WMS]. Solution: <a href="https://geopython.github.io/OWSLib/">OWSLib</a>.</p>
+<p>If none of these packages are helpful to access your files, <a href="http://www.gdal.org/ogr_formats.html">OGR might still be able to help</a>.</p>
 <h2 id="setting-up-environment">Setting up environment</h2>
-<p>Before we continue with scripting, you need to setup your Python environment. In the previous Python lesson you learned about Conda and Jupyter Notebooks. We will use both again today. Check if you have made any conda environment named geoscripting.</p>
+<p>Before we continue with scripting, the Python environment needs to be setup. Today we will use Conda again. Check in Bash what environments are available.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
-<pre style=""><code class="source bash">## Display all your conda environments
-conda info --envs</code></pre>
+<pre style=""><code class="source bash">conda info --envs</code></pre>
 </div>
-<p>If you don't have a conda environment called 'geoscripting', create it first.</p>
+<p>Now we will create a new Conda environment for todays project called vectorpython and install the required packages for today.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
-<pre style=""><code class="source bash">## Create conda environment called geoscripting
-conda create --name geoscripting python=3 numpy jupyter</code></pre>
+<pre style=""><code class="source bash">conda create --name vectorpython python=3 geopandas spyder owslib
+source activate vectorpython
+conda install --channel conda-forge folium geopy osmnx</code></pre>
 </div>
-<p>Then install todays modules in your conda environment and start your Jupyter Notebook.</p>
+<p>Most of the installed software were Python packages. One was not. Can you tell which one? It was <a href="https://docs.spyder-ide.org/">Spyder</a>! A simple yet powerful Python IDE. Let's start it up. Run some bash code below to setup your file system and start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
-<pre style=""><code class="source bash">## Install gdal and folium
-conda install --name geoscripting --channel conda-forge gdal folium
-source activate geoscripting
-jupyter notebook</code></pre>
+<pre style=""><code class="source bash">cd ~/Documents/
+mkdir PythonVector #or give the directory a name to your liking
+cd ./PythonVector
+mkdir scripts
+mkdir data
+spyder</code></pre>
 </div>
-<p>Open a new Ipython Notebook in an appropriate location. Output of the Python scripts from Jupyter Notebook will be saved in the repository where the .ipynb is stored.</p>
-<h2 id="points">Points</h2>
-<p>Now we continue with the tutorial. Try the script below and find out what &quot;WKT&quot; means.</p>
+<p>In Spyder you should see an editor, a file explorer and a console. Open a new file and save your Python script in the main directory you just made and name it main.py.</p>
+<h2 id="geopandas">GeoPandas</h2>
 <div class="row">
 <button class="source python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> python source
