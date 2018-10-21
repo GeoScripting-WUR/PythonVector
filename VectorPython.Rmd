@@ -11,6 +11,10 @@ output:
     highlight.chooser: TRUE
 ---
 
+```{r, include=FALSE}
+knitr::opts_chunk$set(engine.path = list(python = "/home/WUR/swink019/miniconda3/envs/vectorpython/bin/python"))
+```
+
 # [WUR Geoscripting](https://geoscripting-wur.github.io/) ![WUR logo](https://www.wur.nl/upload/b43b7095-e452-482a-8969-fed9a50393a8_WUR_RGB_standard.png)
 
 # Vector data handling with Python
@@ -19,24 +23,36 @@ _Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David 
 
 ## Introduction
 
-Good morning today! Today we will have fun by exploring Python packages for vector data handling. One very good vector Python package is [GeoPandas](http://geopandas.org/). This open-source project strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other prominent Python packages: [Pandas ](http://pandas.pydata.org/) for dataframes and data analysis, [Shapely](http://toblerity.org/shapely/) for geometric operations, [Fiona](http://toblerity.org/fiona/) for geodata access and conversions, [pyproj](https://github.com/jswhit/pyproj) for re-projecting, [matplotlib](https://matplotlib.org/) for plotting, [psycopg2](https://pypi.org/project/psycopg2/) for PostgreSQL database connection and [GeoPy](https://geopy.readthedocs.io/en/stable/) for geocoding web services. Together these packages are quite powerful and build on other packages too. Fiona builds on GDAL/OGR packages to read and write data. GDAL/OGR/OSR are the backbone of spatial processing in Python and have high performance, but are not that intuitive to use.
+Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is [GeoPandas](http://geopandas.org/). GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:
 
-## Setting up environment
-Before we continue with scripting, the Python environment needs to be setup. Today we will use Conda again. Check in Bash what environments are available.
+* [Pandas](http://pandas.pydata.org/) for dataframes and data analysis
+* [Shapely](http://toblerity.org/shapely/) for geometric operations
+* [Fiona](http://toblerity.org/fiona/) for geodata access and conversions
+* [pyproj](https://github.com/jswhit/pyproj) for re-projecting
+* [matplotlib](https://matplotlib.org/) for plotting
+* [psycopg2](https://pypi.org/project/psycopg2/) for PostgreSQL database connection 
+* [GeoPy](https://geopy.readthedocs.io/en/stable/) for geocoding
+
+By bundling the tools of these packages, GeoPandas provides powerful tools to perform spatial analysis in Python. Other packages, such as [Folium](https://python-visualization.github.io/folium/docs-v0.6.0/) and [OSMnx](https://osmnx.readthedocs.io/en/stable/), build on the GeoDataFrames capablities of GeoPandas. Fiona builds on GDAL/OGR packages to read and write data. GDAL/OGR/OSR are the backbone of spatial processing in Python and have high performance, but are not that intuitive to use. GeoPandas made it easier to perform spatial processing.
+
+## Setting up the Python Environment
+Before we continue with scripting, the Python environment needs to be setup. Let's use Conda. Check in Bash what environments are available.
 
 ```{r, eval=FALSE,engine='bash'}
 conda info --envs
 ```
 
-Now we will create a new Conda environment for todays project called vectorpython and install the required packages for today.
+We won't use the existing environment, but it is a good practice to be aware of all available Conda environments. Now create a new Conda environment called vectorpython and install the required packages for today.
 
-```{r, eval=FALSE,engine='bash'}
+```{r, eval=FALSE, engine='bash'}
 conda create --name vectorpython python=3 geopandas spyder owslib
 source activate vectorpython
 conda install --channel conda-forge folium matplotlib geopy osmnx
 ```
 
-Most of the installed software were Python packages. One was not. Can you tell which one? It was the [Spyder IDE](https://docs.spyder-ide.org/)! Let's start it up. Run some bash code below to setup your file system and start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment.
+Most of the installed software were Python packages. One was not. Can you tell which one? 
+
+It was the [Spyder IDE](https://docs.spyder-ide.org/)! Run the bash code below to setup your file system and start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment.
 
 ```{r, eval=FALSE,engine='bash'}
 cd ~/Documents/
@@ -48,45 +64,49 @@ spyder
 ```
 
 In Spyder you should see an editor, a file explorer and a console. Have a look at the toolbar. Some important shortcuts are:
+
 * F5 to run your script
 * CTRL + S to save your script
 * CTRL + 1 to comment/uncomment your code
 * TAB to indent your code
 * SHIFT + TAB to unindent your code
 
-Open a new file and save your Python script in the main directory you just made and name it main.py.
+Open a new file and save your Python script in the main directory you just made and name it main.py (File -- > New File --> Save As).
 
-## Creating geometries, GeoSeries and GeoDataFrames
-Shapely performs geometric operations and can be used to create geometries. GeoPandas uses the geometries from Shapely to store geometries in GeoSeries and GeoDataFrames.
+## Creating Geometries, GeoSeries and GeoDataFrames
+Geometries in Python can be created and stored as a data type by using Shapely. Shapely can create geometries and performs geometric operations. GeoPandas uses the geometries from Shapely to store geometries in GeoSeries and GeoDataFrames. Copy the code below in the Spyder Editor and press run (F5):
 
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
 from shapely.geometry import Point
 import geopandas as gpd
 wageningenCampus = Point([173994.1578792833, 444133.60329471016])
+print(type(wageningenCampus))
 gs = gpd.GeoSeries([wageningenCampus])
 print(type(gs), len(gs))
 ```
 
-A GeoSeries is essentially a vector where each entry in the vector is a set of shapes corresponding to one observation. GeoPandas implements two main data structures, a GeoSeries and a GeoDataFrame. These are subclasses of pandas Series and DataFrame, respectively.
+You just created a point in shapely and a GeoSeries in GeoPandas. A GeoSeries is a vector (a column of values) where each entry in the vector is a set of shapes corresponding to one observation. GeoPandas implements two main data structures, a GeoSeries and a GeoDataFrame. If you are familiar with Pandas, then know that these are subclasses of pandas Series and DataFrame, respectively.
 
-A GeoSeries is the building block for the more broadly useful and powerful GeoDataFrame. A GeoSeries is made up of an index and a GeoPandas geometry data type. This data type is a shapely.geometry object, and therefore inherits attributes and methods from shapely geometries, such as area, bounds, distance, etc. A GeoDataFrame is a tabular data structure with multiple columns that contains one column that is a GeoSeries.
+A GeoSeries is made up of an index and a GeoPandas geometry data type. This data type is a shapely.geometry object, and therefore inherits attributes and methods from shapely geometries, such as area, bounds, distance, etc. A GeoDataFrame is a tabular data structure with multiple columns that contains one column that is a GeoSeries.
 
 GeoPandas has six classes of geometric objects, corresponding to the three basic single-entity geometric types and their associated homogeneous collections of multiple entities:
 
 * Single entity (core, basic types):
-  * Point
-  * Line (formally known as a LineString)
-  * Polygon
+    * Point
+    * Line (formally known as a LineString)
+    * Polygon
 * Homogeneous entity collections:
-  * Multi-Point
-  * Multi-Line (MultiLineString)
-  * Multi-Polygon
+    * Multi-Point
+    * Multi-Line (MultiLineString)
+    * Multi-Polygon
 
-Another way to load data is from WKT strings. WKT ([Well Known Text](https://en.wikipedia.org/wiki/Well-known_text)) is a markup language that describes spatial information in a clean text format, there is an equivalent in binary format called WKB (easier for computers to process and more efficient for data transfer). Printing geometries of GeoSeries also shows the WKT string.
+Often geometries are represented in WKT strings. WKT ([Well Known Text](https://en.wikipedia.org/wiki/Well-known_text)) is a markup language that describes spatial information in a clean text format, there is an equivalent in binary format called WKB (easier for computers to process and more efficient for data transfer). Printing geometries of GeoSeries also shows the WKT string.
 
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
+import geopandas as gpd
 from shapely.wkt import loads
-gs = gpd.GeoSeries([loads('POINT(173994.1578792833 444133.6032947102)')])
+WKTstring='POINT(173994.1578792833 444133.6032947102)'
+gs = gpd.GeoSeries([loads(WKTstring)])
 gs.crs = {'init': 'epsg:28992'}
 gsBuffer = gs.buffer(100)
 print(gs.geometry)
@@ -95,10 +115,12 @@ print(gsBuffer.geometry)
 
 > **Question 1**: What does WKB mean? (hint: think about WKT)
 
-More commonly data is loaded from a Pandas dataframe, which has two columns filled with coordinate pairs These columns are converted to a list of Point geometries and can then be converted into a GeoSeries or directly to a GeoDataframe.
+GeoDataFrames can be loaded from a file, created with data or loaded from a Pandas dataframe. A Pandas DataFrame is the dataframe equivalent of R in Python. If a Pandas dataframe has two columns filled with coordinate pairs, then these columns can be converted to a list of Point geometries and can then be converted into a GeoSeries or directly to a GeoDataFrame.
 
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
 import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
 data = {'name': ['a', 'b', 'c'],
         'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
         'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
@@ -107,16 +129,16 @@ geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
 wageningenGDF.crs = {'init': 'epsg:28992'}
 wageningenGDF.plot(marker='*', color='green', markersize=50)
-print(type(gdf), len(gdf))
+print(type(wageningenGDF), len(wageningenGDF))
 ```
 
 > **Question 2**: What is the difference between a GeoSeries and a GeoDataFrame?
 
 ## Geocoding
 
-Geocoding is the practice of locating the coordinates of addresses, cities, countries, and landmarks across the globe. Python has Geopy to perform geocoding. It has a lot of [geocoders available](https://geopy.readthedocs.io/en/stable/) from Bing, Google, HERE, TomTom, MapBox and others. Often you need to have an API key to use the geocoders, which is used by the provider to limit the amount of request to be able to keep the geocoding service running for everyone. There are some open geocoders available, such as Nominatim, which is made and used by OpenStreetMap. Paste the code below in spyder and run it:
+Geocoding is the practice of locating the coordinates of addresses, cities, countries, and landmarks across the globe. Python has Geopy to perform geocoding. GeoPy has a lot of [geocoders available](https://geopy.readthedocs.io/en/stable/) from Bing, Google, HERE, TomTom, MapBox and others. Often you need to have an API key to use the geocoders, which is used by the provider to limit the amount of requests to be able to keep the geocoding service running for everyone. Some geocoders are publicly available, such as Nominatim. Nominatim is made and used by OpenStreetMap. Paste the code below in Spyder and run the geocoder:
 
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
 from geopy.geocoders import Nominatim
 geolocator = Nominatim(user_agent="specify_random_user_agent")
 location = geolocator.geocode("Wageningen University")
@@ -126,80 +148,117 @@ print((location.latitude, location.longitude))
 
 ## Re-projecting
 
-From the geocoder you got a latitude and longitude. On the web it is very common to use latitude and longitude in [WGS84 geographic coordinate system]([http://spatialreference.org](http://spatialreference.org/ref/epsg/wgs-84/). In local projects often projected coordinate systems are required to perform accurate calculations. PyProj reprojects your coordinates from any input projection to an output projection. Now we use PyProj to do a simple conversion on one coordinate. 
+From the geocoder you got a latitude and longitude. On the web it is very common to use latitude and longitude in [WGS84 geographic coordinate system](http://spatialreference.org/ref/epsg/wgs-84). In local projects often projected coordinate systems are required to perform accurate calculations. PyProj reprojects your coordinates from any input projection to an output projection. Use PyProj to do a simple conversion on a coordinate pair:
 
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
 from pyproj import Proj, transform
+from geopy.geocoders import Nominatim
+geolocator = Nominatim(user_agent="specify_random_user_agent")
+location = geolocator.geocode("Wageningen University")
 inProj = Proj(init='epsg:4326') #WGS84
 outProj = Proj(init='epsg:28992') #RD New
 x, y = transform(inProj, outProj, location.longitude, location.latitude)
 print([x, y])
 ```
 
-GeoPandas uses PyProj on the backend to reproject whole geometry columns of the dataframe. Reproject from Dutch RD New (EPSG:28992) to WGS84 (EPSG:4326):
+GeoPandas uses PyProj on the backend to reproject geometry columns of the dataframe. Reproject your GeoDataFrame from Dutch RD New (EPSG:28992) to WGS84 (EPSG:4326):
 
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
+data = {'name': ['a', 'b', 'c'],
+        'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
+        'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
+df = pd.DataFrame(data)
+geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
+wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
 print(wageningenGDF.crs)
-wageningenGDF.to_crs({'init': 'epsg:4326'})
+wageningenGDF.crs = {'init': 'epsg:28992'}
+print(wageningenGDF.crs)
+wageningenGDF = wageningenGDF.to_crs({'init': 'epsg:4326'})
 print(wageningenGDF.crs)
 ```
 
-## Writing and reading files
+## Writing and Reading Files
 
-GeoPandas mostly uses Fiona for file access. You can find out what file formats Fiona supports with a simple script.
+GeoPandas uses Fiona for file access. You can find out what file formats Fiona supports with a simple script.
 
-```{r, engine='python', eval = FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
 import fiona
-fiona.supported_drivers
+print(fiona.supported_drivers)
 ```
 
 Fiona has drivers for:
+
 * Open formats such as GeoJSON and GPX
 * ESRI formats such as shapefiles and OpenFileGDB
-* Other formats such as MapInfo File, DGN
+* Other formats such as MapInfo and DGN
 
-But Fiona lacks some other popular file formats
+But Fiona lacks some other popular file formats:
+
 * Open formats such as [KML](https://github.com/Toblerity/Fiona/issues/97) or [GML](https://github.com/Toblerity/Fiona/pull/96) based on the XML format. Solution: [xml.etree.ElementTree](https://docs.python.org/3/library/xml.etree.elementtree.html).
 * Databases such as PostgreSQL. Solution: [psycopg2](https://pypi.org/project/psycopg2/).
-* Webservices such as Web Feature Service [WFS] or Web Map Service [WMS]. Solution: [OWSLib](https://geopython.github.io/OWSLib/). 
+* Webservices such as Web Feature Service [WFS] or Web Map Service [WMS]. Solution: [OWSLib](https://geopython.github.io/OWSLib/).
+* Columnar formats, such as CSV or xls. Solution: Pandas can read [csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html) or [excel](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_excel.html) columns. Loaded DataFrame with geometry columns can be converted to a GeoDataFrame.
 
 If none of these packages are helpful to access your files, [OGR might still be able to help](http://www.gdal.org/ogr_formats.html).
 
-A GeoDataFrame can be written directly to a GeoJSON file or a shapefile. A JSON is a dictionary to store data on the web. [GeoJSON](http://geojson.org/) builds on the JSON format and is a standard format to encode Geographic data structures in a dictionary.
+A GeoDataFrame can be written directly to a GeoJSON file or a shapefile. GeoJSON is a recommended format to use since JSON dictionaries are easy to read and use on the web, and GeoJSON is supported in popular GIS software. [GeoJSON](http://geojson.org/) is a standard format to encode Geographic data structures in a dictionary. Write some files to a GeoJSON and shapefile:
 
-```{r, engine='python', eval=FALSE}
-gdf.to_file(filename='./data/test.geojson', driver='GeoJSON')
-gdf.to_file(filename='./data/test.shp', driver='ESRI Shapefile')
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
+data = {'name': ['a', 'b', 'c'],
+        'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
+        'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
+df = pd.DataFrame(data)
+geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
+wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
+wageningenGDF.to_file(filename='./wageningenPOI.geojson', driver='GeoJSON')
+wageningenGDF.to_file(filename='./wageningenPOI.shp', driver='ESRI Shapefile')
 ```
 
-Reading files is just as intuitive.
 
-```{r, engine='python', eval=FALSE}
-jsonGDF = gpd.read_file('./data/test.geojson')
-shpGDF = gpd.read_file('./data/test.shp')
+Reading files is just as intuitive:
+
+
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
+import geopandas as gpd
+jsonGDF = gpd.read_file('./wageningenPOI.geojson')
+shpGDF = gpd.read_file('./wageningenPOI.shp')
 ```
 
-## Reading from Web services
+## Reading from Web Services
 
-The web has a lot of geodata available. The OpenGeoSpatial Consortium has specified standard protocols for geo web services, such as [Web Feature Service](http://www.opengeospatial.org/standards/wfs) [WFS] and [Web Map Service](http://www.opengeospatial.org/standards/wms). The standard web services make it easy to access all types of data with the same protocol.
+The web has a lot of geodata available. The OpenGeoSpatial Consortium has specified standard protocols for geo web services, such as [Web Feature Service](http://www.opengeospatial.org/standards/wfs) [WFS] and [Web Map Service](http://www.opengeospatial.org/standards/wms) [WMS]. The standard web service protocols make it easy to access all types of data with the same protocol.
 
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
 from owslib.wfs import WebFeatureService
-topographicalMapWFS = WebFeatureService(url='https://geodata.nationaalgeoregister.nl/beta/bgt/wfs', version='2.0.0')
+bgtWfsUrl = 'https://geodata.nationaalgeoregister.nl/beta/bgt/wfs'
+topographicalMapWFS = WebFeatureService(url=bgtWfsUrl, version='2.0.0')
 topographicalMapWFS.identification.title
 print(list(topographicalMapWFS.contents))
 ```
 
-Okay that gives an idea of the content of this WFS. WFS are created to make a webmap, to quickly get an idea of the data and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from available repositories and not from WFS. Web Feature Services have limits on the amount of features, such as 100 or 1000 features, that can be requested. The BGT is a dataset with topographical features of The Netherlands and has a limit of 100 features.
+You might have an idea of the content of this WFS. This WFS stores all sorts of topographical features from the Basisregistratie Grootschalige Topografie [BGT] in the Netherlands. 
 
-Load some roads and plot it.
+WFS are useful to make webmaps, to quickly get an idea of the data and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from available repositories and not from a WFS. Web Feature Services have limits on the amount of features that can be requested, such as 100 or 1000 features. The BGT WFS has a max feature limit of 100 features.
 
-```{r, engine='python', eval=FALSE}
-# x, y = (173994.1578792833, 444133.60329471016) # uncomment and use it if you lost Wageningen Campus geocode
+Load some roads from the WFS and plot it.
+
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
 import json
+from owslib.wfs import WebFeatureService
+import geopandas as gpd
+x, y = (173994.1578792833, 444133.60329471016)
+bgtWfsUrl = 'https://geodata.nationaalgeoregister.nl/beta/bgt/wfs'
+topographicalMapWFS = WebFeatureService(url=bgtWfsUrl, version='2.0.0')
 xmin, xmax, ymin, ymax = x-450, x+350, y-300, y+350
-responseRoads = topographicalMapWFS.getfeature(typename='bgt:wegdeel', bbox=(xmin, ymin, xmax, ymax), 
-                                          maxfeatures=100, outputFormat='json', startindex=0)
+responseRoads = topographicalMapWFS.getfeature(typename='bgt:wegdeel', 
+                                               bbox=(xmin, ymin, xmax, ymax), 
+                                               maxfeatures=100, outputFormat='json', startindex=0)
 data = json.loads(responseRoads.read())
 print(type(data))
 print(data.keys())
@@ -209,9 +268,10 @@ roadsGDF.plot()
 
 Do the same with some buildings.
 
-```{r, engine='python', eval=FALSE}
-responseBuildings = topographicalMapWFS.getfeature(typename='bgt:pand', bbox=(xmin, ymin, xmax, ymax), 
-                                          maxfeatures=100, outputFormat='json', startindex=0)
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
+responseBuildings = topographicalMapWFS.getfeature(typename='bgt:pand', 
+                                                   bbox=(xmin, ymin, xmax, ymax), 
+                                                   maxfeatures=100, outputFormat='json', startindex=0)
 data = json.loads(responseBuildings.read())
 
 buildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
@@ -220,53 +280,67 @@ buildingsGDF.plot()
 
 And the same with parcels.
 
-```{r, engine='python', eval=FALSE}
-parcelsWFS = WebFeatureService(url='https://geodata.nationaalgeoregister.nl/kadastralekaartv3/wfs', version='2.0.0')
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
+import json
+from owslib.wfs import WebFeatureService
+import geopandas as gpd
+x, y = (173994.1578792833, 444133.60329471016)
+xmin, xmax, ymin, ymax = x-450, x+350, y-300, y+350
+parcelsWFSUrl = 'https://geodata.nationaalgeoregister.nl/kadastralekaartv3/wfs'
+parcelsWFS = WebFeatureService(url=parcelsWFSUrl, version='2.0.0')
 print(list(parcelsWFS.contents))
 
-responseParcels = parcelsWFS.getfeature(typename='kadastralekaartv3:perceel', bbox=(xmin, ymin, xmax, ymax), 
-                                 maxfeatures=100, outputFormat='json', startindex=0)
+responseParcels = parcelsWFS.getfeature(typename='kadastralekaartv3:perceel', 
+                                        bbox=(xmin, ymin, xmax, ymax), 
+                                        maxfeatures=100, outputFormat='json', startindex=0)
 data = json.loads(responseParcels.read())
 parcelsGDF = gpd.GeoDataFrame.from_features(data['features'])
 parcelsGDF.plot()
 ```
 
-## Selecting data
+## Selecting Data
 
-GeoDataFrames store rows and columns in a tabular format. To select specific rows, you can make use of the dataframe functionality of Pandas. 
+GeoDataFrames store rows and columns in a tabular format. To select specific rows, you can make use of the DataFrame functionality of Pandas. Inspect the content of your data:
 
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 print(parcelsGDF.columns)
 print(parcelsGDF.head())
+```
+
+Then based on the surface area, select parcels with a larger surface area of 100,000 m2:
+
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 print(parcelsGDF.area > 100000)
-largeParcelsGDF = parcelsGDF[parcelsGDF.area > 100000]
+largeParcelsGDF = parcelsGDF.loc[parcelsGDF.area > 100000]
 largeParcelsGDF.plot()
 ```
 
-To select rows based on certain specific values:
-```{r, engine='python', eval=FALSE}
+Rows can also be selected on specific values:
+
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 print(parcelsGDF['perceelnummer'].isin(['11185', '11593']))
 campusParcelsGDF = parcelsGDF[parcelsGDF['perceelnummer'].isin(['11185', '11593'])]
 campusParcelsGDF.plot()
 ```
 
-As you saw columns can be selected too:
-```{r, engine='python', eval=FALSE}
+As you saw above columns can be selected too:
+
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 print(parcelsGDF['perceelnummer'])
 ```
 
 ## Geometric Manipulations
 
-Before you already created a buffer around a point. GeoDataFrames and GeoSeries have several [constructive methods](http://geopandas.org/geometric_manipulations.html) to modify the geometry: buffer, boundary, centroid, convex hull, envelope, simplify, unary union, rotate, scale, skew and translate. When modifying your geometries, it is a good practice to keep track of your geometry types and your geometry data.
+GeoDataFrames and GeoSeries have several [constructive methods](http://geopandas.org/geometric_manipulations.html) to modify the geometry: buffer, boundary, centroid, convex hull, envelope, simplify, unary union, rotate, scale, skew and translate. When modifying the geometries in the DataFrames, it is a good practice to keep track of your geometry types and your geometry data.Have a look at the geometry types.
 
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 print(type(largeParcelsGDF))
 print(type(largeParcelsGDF.geometry))
 print(type(largeParcelsGDF['geometry']))
 ```
 
 Bind some parcels together with a union.
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 parcelsUnionGS = gpd.GeoSeries(largeParcelsGDF.unary_union)
 parcelsUnionGS.plot()
 ```
@@ -276,21 +350,21 @@ parcelsUnionGS.plot()
 > **Question 4**: What coordinate system does parcelsUnionGS have?
 
 There is still some holes between the parcels. Create a convex around the merged features.
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 parcelsConvexGDF = gpd.GeoDataFrame(parcelsUnionGS.convex_hull)
 parcelsConvexGDF = parcelsConvexGDF.rename(columns={0:'geometry'}).set_geometry('geometry')
 parcelsConvexGDF.plot()
 ```
 
-GeoPandas can perform different [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels.
-```{r, engine='python', eval=FALSE}
+GeoPandas can perform different [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels by using intersection.
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 roadsIntersectionGDF = gpd.overlay(roadsGDF,parcelsConvexGDF, how="intersection")
 roadsIntersectionGDF.plot()
 ```
 
-The big advantage of GeoPandas compared to shapely or fiona on itself is that GeoPandas allows both geometric manipulations as dataframe manipulations. For example, GeoPandas can select parking spots out of all types of roads.
+The big advantage of GeoPandas is that GeoPandas allows both geometric and dataframe manipulations. For example, GeoPandas can select parking spots out of all types of roads and calculate areas.
 
-```{r, engine='python', eval=FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 parkingspotsGDF = roadsIntersectionGDF.loc[roadsIntersectionGDF['bgt-functie']=='parkeervlak']
 print(sum(parkingspotsGDF.area))
 ```
@@ -299,9 +373,9 @@ print(sum(parkingspotsGDF.area))
 
 There are multiple solutions to visualize your geodata: GIS software (QGIS), web platforms (leaflet/Folium) and images (matplotlib). 
 
-Folium uses leaflet on the backend to make webmaps. With leaflet your geodata can be easily vizualized inside a webpage. The Python script below makes a html file in your working directory, which you can open in your browser: 
+Folium uses leaflet on the backend to make webmaps. With leaflet your geodata can be easily vizualized inside a webpage. Folium works with GeoDataFrames or JSON files. The Python script below makes a html file in your working directory, which you can open in your browser: 
 
-```{r, engine='python', eval = FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 import folium
 campusMap = folium.Map([location.latitude, location.longitude], zoom_start=15)
 parkingspotsGDF.crs = {'init': 'epsg:28992'}
@@ -316,7 +390,7 @@ campusMap.save('./data/campusMap.html')
 
 Matplotlib allows you to make static maps for reports or publications.
 
-```{r, engine='python', eval = FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python", eval=FALSE}
 from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 f, ax = plt.subplots(1, figsize=(10, 10))
@@ -340,9 +414,9 @@ plt.show()
 
 ## Network analysis
 
-There are a lot of Python packages available to help you with your specific analysis. One package, that we could not leave out is OSMnx. Network analysis are often performed with Open Street Map data since it is globally available, has well connected networks and has multiple travel modes (walking, cycling, driving etc.). [OSMnx](https://osmnx.readthedocs.io/en/stable/) retrieves, constructs, analyzes and visualizes street networks from OpenStreetMap.
+There are a lot of Python packages available to help you with your specific spatial analysis. One package, that we could not leave out is OSMnx. [OSMnx](https://osmnx.readthedocs.io/en/stable/) retrieves, constructs, analyzes and visualizes street networks from OpenStreetMap. In general, a network analysis is often performed with Open Street Map data since it is globally available, has well connected networks and has multiple travel modes (walking, cycling, driving et cetera). Download the street network of Wageningen and plot it.
 
-```{r, engine='python', eval = FALSE}
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
 import osmnx as ox
 city = ox.gdf_from_place('Wageningen, Netherlands')
 ox.plot_shape(ox.project_gdf(city))
@@ -354,15 +428,16 @@ print(gdf_nodes.info())
 print(gdf_edges.info())
 ```
 
-```{r, engine='python', eval = FALSE}
-start = ox.get_nearest_node(WageningenRoadsGraph, (51.987817, 5.665779))
-end = ox.get_nearest_node(WageningenRoadsGraph, (51.964870, 5.662409))
+OSMnx can store the downloaded street network (the Graph) as a shapefile or as a GeoDataFrame. Furthermore, the main purpose is to perform a network analysis, such as a shortest path from source to target location.
+
+```{python, engine.path="~/miniconda3/envs/vectorpython/bin/python"}
+source = ox.get_nearest_node(WageningenRoadsGraph, (51.987817, 5.665779))
+target = ox.get_nearest_node(WageningenRoadsGraph, (51.964870, 5.662409))
 shortestroute = ox.nx.shortest_path(G=WageningenRoadsGraph, 
-                                    source=start, target=end, weight='length')
+                                    source=source, target=target, weight='length')
 ox.plot_graph_route(WageningenRoadsGraph, shortestroute, 
                     fig_height=20, fig_width=20)
 ```
-
 
 # What have we learned?
 
@@ -377,26 +452,31 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 9. Network analysis
 
 # Assignment
-Wageningen University & Research wants to determine the percentage of water on some parcels at the campus.
-Can you help?
+Wageningen University wants to determine the percentage of water on some parcels at the campus. Can you help?
 
-Determine how much area (m2 and percentage) of the combined WUR parcels are covered by water by using the BGT WFS (type = bgt:waterdeel).
+Determine how much area (m2 and percentage) of the combined WUR parcels are covered by water by using the BGT WFS (typename = bgt:waterdeel) and visualize both the water area and parcels in a map.
+
 Wageningen University are specifically interested in parcels with "perceelnummer": 
 ['10709', '10905', '10906', '10907', '10908', '10909', '11184', '11185', '11208', '11593']
 
-Work with a project structure, make a main.py and make several small functions: 
+Work with a project structure, make a main.py module that imports functions from another Python module. 
+You can create these functions:
+
 * geocodePlacenameToCoordinate
 * reproject
 * downloadWFSToGeoDataFrame
 * calculatePercentageArea
-* makeWebmap or makeMap
+* makeWebmap or makeMap (for visualization you can choose to make a map with Folium or matplotlib)
 * Optional: getBoundingBox
 
-For visualization you can choose to make a map with Folium or matplotlib.
-Optional bonus: After downloading and selecting correct parcels, make a bounding box of the parcels to download water areas (hint .envelope, .exterior).
-Go easy on webservices! Don't use for loops or while statements to call web services multiple times!
+Go easy on webservices! There is no need to use for loops or while statements to call web services multiple times!
+Upload your documented and well structured Python scripts to a GitLab repository.
 
-Upload your documented and well structured python scripts to a GitLab repository.
+Optional bonus: After downloading and selecting correct parcels, make a bounding box of the parcels to download water areas (hint .envelope, .exterior).
+
+Hint: If you need some help how to make functions or how to import modules, have a look at the Python refresher.
+
+
 
 # More information
 
