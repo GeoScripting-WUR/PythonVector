@@ -898,7 +898,7 @@ Week 3: Python for geo-scripting
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
 <pre style=""><code class="source bash">conda create --name vectorpython python=3 geopandas spyder owslib
-activate vectorpython
+conda activate vectorpython
 conda install --channel conda-forge folium matplotlib geopy osmnx</code></pre>
 </div>
 <p>Most of the installed software were Python packages. One was not. Can you tell which one?</p>
@@ -1253,7 +1253,8 @@ campusMap.save('./data/campusMap.html')</code></pre>
 <button class="source python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> python source
 </button>
-<pre style=""><code class="source python">from matplotlib.colors import ListedColormap
+<pre style=""><code class="source python">from matplotlib import pyplot as plt
+from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 f, ax = plt.subplots(1, figsize=(10, 10))
 ax.set_title('Road types on the WUR campus')
@@ -1274,7 +1275,7 @@ plt.axis('equal');
 plt.show()</code></pre>
 </div>
 <h2 id="network-analysis">Network analysis</h2>
-<p>There are a lot of Python packages available to help you with your specific spatial analysis. One package, that we could not leave out is OSMnx. <a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a> retrieves, constructs, analyzes and visualizes street networks from <a href="https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368">OpenStreetMap</a>. A network analysis is quite often performed with Open Street Map data since it is globally available, has well connected networks and has multiple travel modes (walking, cycling, driving et cetera). Download the street network of Wageningen and plot it.</p>
+<p>There are a lot of Python packages available to help you with your specific spatial analysis. One package, that we could not leave out is OSMnx. <a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a> retrieves, constructs, analyzes and visualizes street networks from <a href="https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368">OpenStreetMap</a>. In short, a network analysis is quite often performed with Open Street Map data since it is globally available, has well connected networks and has multiple travel modes (walking, cycling, driving et cetera). Download the street network of Wageningen and plot it.</p>
 <div class="row">
 <button class="source python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> python source
