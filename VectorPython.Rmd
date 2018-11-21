@@ -402,7 +402,7 @@ plt.show()
 
 ## Network analysis
 
-There are a lot of Python packages available to help you with your specific spatial analysis. One package, that we could not leave out is OSMnx. [OSMnx](https://osmnx.readthedocs.io/en/stable/) retrieves, constructs, analyzes and visualizes street networks from [OpenStreetMap](https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368). In general, a network analysis is quite often performed with Open Street Map data since it is globally available, has well connected networks and has multiple travel modes (walking, cycling, driving et cetera). Download the street network of Wageningen and plot it.
+There are a lot of Python packages available to help you with your specific spatial analysis. One package, that we could not leave out is OSMnx. [OSMnx](https://osmnx.readthedocs.io/en/stable/) retrieves, constructs, analyzes and visualizes street networks from [OpenStreetMap](https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368). A network analysis is quite often performed with Open Street Map data since it is globally available, has well connected networks and has multiple travel modes (walking, cycling, driving et cetera). Download the street network of Wageningen and plot it.
 
 ```{python, eval=FALSE}
 import osmnx as ox
