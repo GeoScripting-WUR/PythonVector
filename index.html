@@ -871,7 +871,7 @@ Week 3: Python for geo-scripting
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="http://www.wur.nl/upload/b43b7095-e452-482a-8969-fed9a50393a8_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="vector-data-handling-with-python">Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels</em> - 21 november, 2018</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels</em> - 16 december, 2018</p>
 <h2 id="introduction">Introduction</h2>
 <p>Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is <a href="http://geopandas.org/">GeoPandas</a>. GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:</p>
 <ul>
@@ -992,6 +992,7 @@ wageningenGDF.crs = {'init': 'epsg:28992'}
 wageningenGDF.plot(marker='*', color='green', markersize=50)
 print(type(wageningenGDF), len(wageningenGDF))</code></pre>
 </div>
+<p><img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen", width = "60%"></p>
 <blockquote>
 <p><strong>Question 2</strong>: What is the difference between a GeoSeries and a GeoDataFrame?</p>
 </blockquote>
@@ -1059,7 +1060,7 @@ print(fiona.supported_drivers)</code></pre>
 <li>Open formats such as <a href="https://github.com/Toblerity/Fiona/issues/97">KML</a> or <a href="https://github.com/Toblerity/Fiona/pull/96">GML</a> based on the XML format. Solution: <a href="https://docs.python.org/3/library/xml.etree.elementtree.html">xml.etree.ElementTree</a>.</li>
 <li>Databases such as PostgreSQL. Solution: <a href="https://pypi.org/project/psycopg2/">psycopg2</a>.</li>
 <li>Webservices such as Web Feature Service [WFS] or Web Map Service [WMS]. Solution: <a href="https://geopython.github.io/OWSLib/">OWSLib</a>.</li>
-<li>Columnar formats, such as CSV or xls. Solution: Pandas can read <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html">csv</a> or <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_excel.html">excel</a> columns. Loaded DataFrame with geometry columns can be converted to a GeoDataFrame.</li>
+<li>Columnar formats, such as CSV or xls. Solution: Pandas can read <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html">csv</a> or <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_excel.html">excel</a> columns. The DataFrame with geometry columns can be converted to a GeoDataFrame.</li>
 </ul>
 <p>If none of these packages are helpful to access your files, <a href="http://www.gdal.org/ogr_formats.html">OGR might still be able to help</a>.</p>
 <p>A GeoDataFrame can be written directly to a GeoJSON file or a shapefile. <a href="http://switchfromshapefile.org/">GeoJSON is a recommended format to use for geographic data in WGS84 coordinate system</a> since JSON dictionaries are easy to read and use on the web, and GeoJSON is supported in popular GIS software. <a href="http://geojson.org/">GeoJSON</a> is a standard format to encode Geographic data structures in a dictionary. We assume that you are working in the main repository in which you have a data repository. Write some files to a GeoJSON and shapefile:</p>
@@ -1117,6 +1118,7 @@ print(data.keys())
 roadsGDF = gpd.GeoDataFrame.from_features(data['features'])
 roadsGDF.plot()</code></pre>
 </div>
+<p><img src="./images/roadsGDF.png" alt="Roads in Wageningen", width = "60%"></p>
 <p>How many roads are there in the resulting GeoDataFrame (hint: <em>len()</em> or <em>.info()</em>)? Do we miss roads in the extent? How can we extract missing roads in our extent?</p>
 <p>Load some building and plot them too. Do you think you will get all buildings?</p>
 <div class="row">
@@ -1127,10 +1129,10 @@ roadsGDF.plot()</code></pre>
                                                    bbox=(xmin, ymin, xmax, ymax), 
                                                    maxfeatures=100, outputFormat='json', startindex=0)
 data = json.loads(responseBuildings.read())
-
 buildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
 buildingsGDF.plot()</code></pre>
 </div>
+<p><img src="./images/buildingsGDF.png" alt="Buildings in Wageningen", width = "60%"></p>
 <p>Let us also load the administrative parcels for this area.</p>
 <div class="row">
 <button class="source python toggle btn btn-xs btn-primary">
@@ -1139,7 +1141,6 @@ buildingsGDF.plot()</code></pre>
 <pre style=""><code class="source python">parcelsWFSUrl = 'https://geodata.nationaalgeoregister.nl/kadastralekaartv3/wfs'
 parcelsWFS = WebFeatureService(url=parcelsWFSUrl, version='2.0.0')
 print(list(parcelsWFS.contents))
-
 responseParcels = parcelsWFS.getfeature(typename='kadastralekaartv3:perceel', 
                                         bbox=(xmin, ymin, xmax, ymax), 
                                         maxfeatures=100, outputFormat='json', startindex=0)
@@ -1147,6 +1148,7 @@ data = json.loads(responseParcels.read())
 parcelsGDF = gpd.GeoDataFrame.from_features(data['features'])
 parcelsGDF.plot()</code></pre>
 </div>
+<p><img src="./images/parcelsGDF.png" alt="Parcels in Wageningen", width = "60%"></p>
 <h2 id="selecting-data">Selecting Data</h2>
 <p>GeoDataFrames store rows and columns in a tabular format. To select specific rows, you can make use of the DataFrame functionality of Pandas. Inspect the content of your data:</p>
 <div class="row">
@@ -1174,6 +1176,7 @@ largeParcelsGDF.plot()</code></pre>
 campusParcelsGDF = parcelsGDF[parcelsGDF['perceelnummer'].isin(['11185', '11593'])]
 campusParcelsGDF.plot()</code></pre>
 </div>
+<p><img src="./images/campusParcelsGDF.png" alt="Parcels at Wageningen University Campus", width = "60%"></p>
 <p>As you saw above columns can be selected too:</p>
 <div class="row">
 <button class="source python toggle btn btn-xs btn-primary">
@@ -1199,6 +1202,7 @@ Bind some parcels together with a union.
 <pre style=""><code class="source python">parcelsUnionGS = gpd.GeoSeries(largeParcelsGDF.unary_union)
 parcelsUnionGS.plot()</code></pre>
 </div>
+<p><img src="./images/parcelsUnionGDF.png" alt="Unioned parcels at Wageningen University Campus", width = "60%"></p>
 <blockquote>
 <p><strong>Question 3</strong>: What is the geometry type of geometries in parcelsUnionGS?</p>
 </blockquote>
@@ -1214,6 +1218,7 @@ There is still some holes between the parcels. Create a convex around the merged
 parcelsConvexGDF = parcelsConvexGDF.rename(columns={0:'geometry'}).set_geometry('geometry')
 parcelsConvexGDF.plot()</code></pre>
 </div>
+<p><img src="./images/parcelsConvexGDF.png" alt="Convexed parcels at Wageningen University Campus", width = "60%"></p>
 GeoPandas can perform different <a href="http://geopandas.org/set_operations.html">overlay operations</a>: intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels by using intersection.
 <div class="row">
 <button class="source python toggle btn btn-xs btn-primary">
@@ -1222,6 +1227,7 @@ GeoPandas can perform different <a href="http://geopandas.org/set_operations.htm
 <pre style=""><code class="source python">roadsIntersectionGDF = gpd.overlay(roadsGDF,parcelsConvexGDF, how="intersection")
 roadsIntersectionGDF.plot()</code></pre>
 </div>
+<p><img src="./images/roadsIntersectionGDF.png" alt="Roads at Wageningen University Campus", width = "60%"></p>
 <p>The big advantage of GeoPandas is that GeoPandas allows both geometric and dataframe manipulations. For example, GeoPandas can select parking spots out of all types of roads and calculate areas.</p>
 <div class="row">
 <button class="source python toggle btn btn-xs btn-primary">
@@ -1246,8 +1252,10 @@ parcelsConvexGDF.to_crs({'init': 'epsg:4326'})
 campusMap.choropleth(parkingspotsGDF)
 campusMap.choropleth(parcelsConvexGDF)
 folium.LayerControl().add_to(campusMap)
-campusMap.save('./data/campusMap.html')</code></pre>
+campusMap.save('./data/campusMap.html')
+campusMap</code></pre>
 </div>
+<p><img src="./images/wageningenFoliumMap.png" alt="Folium map of Wageningen University Campus", width = "100%"></p>
 <p>Matplotlib allows you to make good quality maps for reports or publications.</p>
 <div class="row">
 <button class="source python toggle btn btn-xs btn-primary">
@@ -1261,7 +1269,6 @@ ax.set_title('Road types on the WUR campus')
 cmap = ListedColormap(['#7fc97f', '#e31a1c', '#636363', '#80b1d3', '#636363', '#636363', '#a65628'])
 roadsGDF.plot(ax=ax, column='bgt-functie', cmap=cmap, categorical=True)
 buildingsGDF.plot(ax=ax, color='#fdb462', linewidth=0.3, edgecolor='black')
-
 BusLanePatch = Patch(color='#7fc97f', label='Bus lane')
 CyclingPathPatch = Patch(color='#e31a1c', label='Cycling path')
 CarLanePatch = Patch(color='#636363', label='Car lane')
@@ -1274,6 +1281,7 @@ ax.set_facecolor("white")
 plt.axis('equal');
 plt.show()</code></pre>
 </div>
+<p><img src="./images/campusmap.png" alt="Road types at Wageningen University Campus", width = "100%"></p>
 <h2 id="network-analysis">Network analysis</h2>
 <p>There are a lot of Python packages available to help you with your specific spatial analysis. One package, that we could not leave out is OSMnx. <a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a> retrieves, constructs, analyzes and visualizes street networks from <a href="https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368">OpenStreetMap</a>. In short, a network analysis is quite often performed with Open Street Map data since it is globally available, has well connected networks and has multiple travel modes (walking, cycling, driving et cetera). Download the street network of Wageningen and plot it.</p>
 <div class="row">
@@ -1290,6 +1298,7 @@ gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=WageningenRoadsGraph)
 print(gdf_nodes.info())
 print(gdf_edges.info())</code></pre>
 </div>
+<p><img src="./images/osmnxGraph.png" alt="Roads in Wageningen", width = "100%"></p>
 <p>OSMnx can store the downloaded street network (the Graph) as a shapefile or as a GeoDataFrame. Furthermore, the main purpose is to perform a network analysis, such as a shortest path from source to target location. Let us calculate the shortest path from Wageningen campus to Wageningen city center. Is this the route you would take?</p>
 <div class="row">
 <button class="source python toggle btn btn-xs btn-primary">
@@ -1302,6 +1311,7 @@ shortestroute = ox.nx.shortest_path(G=WageningenRoadsGraph,
 ox.plot_graph_route(WageningenRoadsGraph, shortestroute, 
                     fig_height=20, fig_width=20)</code></pre>
 </div>
+<p><img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center", width = "100%"></p>
 <h1 id="what-have-we-learned">What have we learned?</h1>
 <ol style="list-style-type: decimal">
 <li>Creating geometries, GeoSeries and GeoDataFrames</li>

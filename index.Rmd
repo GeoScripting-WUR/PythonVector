@@ -130,6 +130,7 @@ wageningenGDF.crs = {'init': 'epsg:28992'}
 wageningenGDF.plot(marker='*', color='green', markersize=50)
 print(type(wageningenGDF), len(wageningenGDF))
 ```
+<img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen", width = "60%">
 
 > **Question 2**: What is the difference between a GeoSeries and a GeoDataFrame?
 
@@ -197,7 +198,7 @@ But Fiona lacks some other popular file formats:
 * Open formats such as [KML](https://github.com/Toblerity/Fiona/issues/97) or [GML](https://github.com/Toblerity/Fiona/pull/96) based on the XML format. Solution: [xml.etree.ElementTree](https://docs.python.org/3/library/xml.etree.elementtree.html).
 * Databases such as PostgreSQL. Solution: [psycopg2](https://pypi.org/project/psycopg2/).
 * Webservices such as Web Feature Service [WFS] or Web Map Service [WMS]. Solution: [OWSLib](https://geopython.github.io/OWSLib/).
-* Columnar formats, such as CSV or xls. Solution: Pandas can read [csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html) or [excel](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_excel.html) columns. Loaded DataFrame with geometry columns can be converted to a GeoDataFrame.
+* Columnar formats, such as CSV or xls. Solution: Pandas can read [csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html) or [excel](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_excel.html) columns. The DataFrame with geometry columns can be converted to a GeoDataFrame.
 
 If none of these packages are helpful to access your files, [OGR might still be able to help](http://www.gdal.org/ogr_formats.html).
 
@@ -214,9 +215,7 @@ wageningenGDF.to_file(filename='./data/wageningenPOI.geojson', driver='GeoJSON')
 wageningenGDF.to_file(filename='./data/wageningenPOI.shp', driver='ESRI Shapefile')
 ```
 
-
 Reading files is just as intuitive:
-
 
 ```{python, eval=FALSE}
 jsonGDF = gpd.read_file('./data/wageningenPOI.geojson')
@@ -256,6 +255,7 @@ print(data.keys())
 roadsGDF = gpd.GeoDataFrame.from_features(data['features'])
 roadsGDF.plot()
 ```
+<img src="./images/roadsGDF.png" alt="Roads in Wageningen", width = "60%">
 
 How many roads are there in the resulting GeoDataFrame (hint: _len()_ or _.info()_)? Do we miss roads in the extent? How can we extract missing roads in our extent? 
 
@@ -271,6 +271,8 @@ buildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
 buildingsGDF.plot()
 ```
 
+<img src="./images/buildingsGDF.png" alt="Buildings in Wageningen", width = "60%">
+
 Let us also load the administrative parcels for this area.
 
 ```{python, eval=FALSE}
@@ -285,6 +287,8 @@ data = json.loads(responseParcels.read())
 parcelsGDF = gpd.GeoDataFrame.from_features(data['features'])
 parcelsGDF.plot()
 ```
+
+<img src="./images/parcelsGDF.png" alt="Parcels in Wageningen", width = "60%">
 
 ## Selecting Data
 
@@ -311,6 +315,8 @@ campusParcelsGDF = parcelsGDF[parcelsGDF['perceelnummer'].isin(['11185', '11593'
 campusParcelsGDF.plot()
 ```
 
+<img src="./images/campusParcelsGDF.png" alt="Parcels at Wageningen University Campus", width = "60%">
+
 As you saw above columns can be selected too:
 
 ```{python, eval=FALSE}
@@ -333,6 +339,8 @@ parcelsUnionGS = gpd.GeoSeries(largeParcelsGDF.unary_union)
 parcelsUnionGS.plot()
 ```
 
+<img src="./images/parcelsUnionGDF.png" alt="Unioned parcels at Wageningen University Campus", width = "60%">
+
 > **Question 3**: What is the geometry type of geometries in parcelsUnionGS?
 
 > **Question 4**: What coordinate system does parcelsUnionGS have?
@@ -344,11 +352,15 @@ parcelsConvexGDF = parcelsConvexGDF.rename(columns={0:'geometry'}).set_geometry(
 parcelsConvexGDF.plot()
 ```
 
+<img src="./images/parcelsConvexGDF.png" alt="Convexed parcels at Wageningen University Campus", width = "60%">
+
 GeoPandas can perform different [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels by using intersection.
 ```{python, eval=FALSE}
 roadsIntersectionGDF = gpd.overlay(roadsGDF,parcelsConvexGDF, how="intersection")
 roadsIntersectionGDF.plot()
 ```
+
+<img src="./images/roadsIntersectionGDF.png" alt="Roads at Wageningen University Campus", width = "60%">
 
 The big advantage of GeoPandas is that GeoPandas allows both geometric and dataframe manipulations. For example, GeoPandas can select parking spots out of all types of roads and calculate areas.
 
@@ -374,7 +386,10 @@ campusMap.choropleth(parkingspotsGDF)
 campusMap.choropleth(parcelsConvexGDF)
 folium.LayerControl().add_to(campusMap)
 campusMap.save('./data/campusMap.html')
+campusMap
 ```
+
+<img src="./images/wageningenFoliumMap.png" alt="Folium map of Wageningen University Campus", width = "100%">
 
 Matplotlib allows you to make good quality maps for reports or publications.
 
@@ -401,6 +416,8 @@ plt.axis('equal');
 plt.show()
 ```
 
+<img src="./images/campusmap.png" alt="Road types at Wageningen University Campus", width = "100%">
+
 ## Network analysis
 
 There are a lot of Python packages available to help you with your specific spatial analysis. One package, that we could not leave out is OSMnx. [OSMnx](https://osmnx.readthedocs.io/en/stable/) retrieves, constructs, analyzes and visualizes street networks from [OpenStreetMap](https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368). In short, a network analysis is quite often performed with Open Street Map data since it is globally available, has well connected networks and has multiple travel modes (walking, cycling, driving et cetera). Download the street network of Wageningen and plot it.
@@ -417,6 +434,8 @@ print(gdf_nodes.info())
 print(gdf_edges.info())
 ```
 
+<img src="./images/osmnxGraph.png" alt="Roads in Wageningen", width = "100%">
+
 OSMnx can store the downloaded street network (the Graph) as a shapefile or as a GeoDataFrame. Furthermore, the main purpose is to perform a network analysis, such as a shortest path from source to target location. Let us calculate the shortest path from Wageningen campus to Wageningen city center. Is this the route you would take?
 
 ```{python, eval=FALSE}
@@ -427,6 +446,8 @@ shortestroute = ox.nx.shortest_path(G=WageningenRoadsGraph,
 ox.plot_graph_route(WageningenRoadsGraph, shortestroute, 
                     fig_height=20, fig_width=20)
 ```
+
+<img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center", width = "100%">
 
 # What have we learned?
 
