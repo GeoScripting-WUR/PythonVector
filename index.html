@@ -871,7 +871,7 @@ Week 3: Python for geo-scripting
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="http://www.wur.nl/upload/b43b7095-e452-482a-8969-fed9a50393a8_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="vector-data-handling-with-python">Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels</em> - 16 december, 2018</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels</em> - 19 December, 2018</p>
 <h2 id="introduction">Introduction</h2>
 <p>Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is <a href="http://geopandas.org/">GeoPandas</a>. GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:</p>
 <ul>
@@ -1324,10 +1324,10 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 <li>Geo-visualization</li>
 <li>Network analysis</li>
 </ol>
-<h1 id="assignment">Assignment</h1>
+<h1 id="exercise-11">Exercise 11</h1>
 <p>Wageningen University wants to determine the percentage of water on some parcels at the campus. Can you help?</p>
 <p>Determine how much area (m2 and percentage) of the combined WUR parcels are covered by water by using the BGT WFS (typename = bgt:waterdeel) and visualize both the water area and parcels in a map.</p>
-<p>Wageningen University are specifically interested in parcels with &quot;perceelnummer&quot;: ['10709', '10905', '10906', '10907', '10908', '10909', '11184', '11185', '11208', '11593']</p>
+<p>Wageningen University is specifically interested in parcels with &quot;perceelnummer&quot;: ['10709', '10905', '10906', '10907', '10908', '10909', '11184', '11185', '11208', '11593']</p>
 <p>Work with a project structure, make a main.py module that imports functions from another Python module. You can create these functions:</p>
 <ul>
 <li>geocodePlacenameToCoordinate</li>
@@ -1338,6 +1338,12 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 <li>Optional: getBoundingBox</li>
 </ul>
 <p>Go easy on webservices! There is no need to use for loops or while statements to call web services multiple times! Upload your documented and well structured Python scripts to a GitLab repository.</p>
+<p>You will be reviewed mainly on the following three tasks and expected output:</p>
+<ol style="list-style-type: decimal">
+<li>Functions that provide the necessary functionality for this exercise.</li>
+<li>Calculate how much area (m2 and %) is water, per parcel and for all parcels together. Present result nicely summarized in one table.</li>
+<li>A nice-looking map visualization of the relevant parcels and (at least) the watered area.</li>
+</ol>
 <p>Optional bonus: After downloading and selecting correct parcels, make a bounding box of the parcels to download water areas (hint .envelope, .exterior).</p>
 Hint: If you need some help how to make functions or how to import modules, have a look at the code in the Python refresher or in the cheat sheets mentioned in the Python refresher.
 </div>

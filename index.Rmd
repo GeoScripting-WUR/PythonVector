@@ -461,12 +461,12 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 8. Geo-visualization
 9. Network analysis
 
-# Assignment
+# Exercise 11
 Wageningen University wants to determine the percentage of water on some parcels at the campus. Can you help?
 
 Determine how much area (m2 and percentage) of the combined WUR parcels are covered by water by using the BGT WFS (typename = bgt:waterdeel) and visualize both the water area and parcels in a map.
 
-Wageningen University are specifically interested in parcels with "perceelnummer": 
+Wageningen University is specifically interested in parcels with "perceelnummer": 
 ['10709', '10905', '10906', '10907', '10908', '10909', '11184', '11185', '11208', '11593']
 
 Work with a project structure, make a main.py module that imports functions from another Python module. 
@@ -482,6 +482,14 @@ You can create these functions:
 Go easy on webservices! There is no need to use for loops or while statements to call web services multiple times!
 Upload your documented and well structured Python scripts to a GitLab repository.
 
+
+You will be reviewed mainly on the following three tasks and expected output:
+
+1. Functions that provide the necessary functionality for this exercise.
+2. Calculate how much area (m2 and %) is water, per parcel and for all parcels together. Present result nicely summarized in one table.
+3. A nice-looking map visualization of the relevant parcels and (at least) the watered area.
+
 Optional bonus: After downloading and selecting correct parcels, make a bounding box of the parcels to download water areas (hint .envelope, .exterior).
+
 
 Hint: If you need some help how to make functions or how to import modules, have a look at the code in the Python refresher or in the cheat sheets mentioned in the Python refresher. 
