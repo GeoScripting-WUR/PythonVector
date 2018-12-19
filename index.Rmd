@@ -15,7 +15,7 @@ output:
 
 # Vector data handling with Python
 
-_Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels_ - `r format(Sys.time(), '%d %B, %Y')`
+_Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil_ - `r format(Sys.time(), '%d %B, %Y')`
 
 ## Introduction
 
