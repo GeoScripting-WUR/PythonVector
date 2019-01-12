@@ -29,7 +29,7 @@ Good morning! Today we will have fun by exploring a variety of Python packages f
 * [psycopg2](https://pypi.org/project/psycopg2/) for PostgreSQL database connection 
 * [GeoPy](https://geopy.readthedocs.io/en/stable/) for geocoding
 
-By bundling the tools of these packages, GeoPandas provides powerful tools to perform spatial analysis in Python. Other packages, such as [Folium](https://python-visualization.github.io/folium/docs-v0.6.0/) and [OSMnx](https://osmnx.readthedocs.io/en/stable/), build on the GeoDataFrames capablities of GeoPandas. Fiona builds on GDAL/OGR packages to read and write data. GDAL/OGR/OSR are the backbone of spatial processing in Python and have high performance, but are not that intuitive to use. GeoPandas made it easier to perform spatial processing.
+By bundling the tools of these packages, GeoPandas provides powerful tools to perform spatial analysis in Python. Other packages, such as [Folium](https://python-visualization.github.io/folium/docs-v0.6.0/) and [OSMnx](https://osmnx.readthedocs.io/en/stable/), build on the GeoDataFrame capablities of GeoPandas. Fiona builds on GDAL/OGR packages to read and write data. GDAL/OGR/OSR are the backbone of spatial processing in Python and have high performance, but are not that intuitive to use. GeoPandas made it easier to perform spatial processing.
 
 ## Setting up the Python Environment
 Before we continue with scripting, the Python environment needs to be setup. Let's use Conda for this. Check in Bash what environments are already available.
@@ -38,7 +38,7 @@ Before we continue with scripting, the Python environment needs to be setup. Let
 conda info --envs
 ```
 
-We won't use the existing environment, but it is a good practice to be aware of all available Conda environments. Now create a new Conda environment for today called vectorpython and install the required packages.
+We won't use the existing environment, but it is a good practice to be aware of all available conda environments. Now create a new conda environment for today called vectorpython and install the required packages.
 
 ```{r, eval=FALSE, engine='bash'}
 conda create --name vectorpython python=3 geopandas spyder owslib
@@ -48,7 +48,7 @@ conda install --channel conda-forge folium matplotlib geopy osmnx
 
 Most of the installed software were Python packages. One was not. Can you tell which one? 
 
-It was the [Spyder IDE](https://docs.spyder-ide.org/)! Run the bash code below to setup your file system and to start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment. Make a new directory for your main script, other scripts and data with some bash code. Then start spyder.
+It was the [Spyder IDE](https://docs.spyder-ide.org/)! Run the bash code below to setup your file system and to start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment. Make a new directory for your main script, other scripts and data with some bash code. Then start Spyder.
 
 ```{r, eval=FALSE,engine='bash'}
 cd ~/Documents/
@@ -81,7 +81,7 @@ gs = gpd.GeoSeries([wageningenCampus])
 print(type(gs), len(gs))
 ```
 
-You just created a point in shapely and a GeoSeries in GeoPandas. A GeoSeries is a vector (a column of values) where each value in the vector is a set of shapes corresponding to one observation. GeoPandas implements two main data structures, a GeoSeries and a GeoDataFrame. If you are familiar with Pandas, then know that these are subclasses of Pandas Series and DataFrame, respectively.
+You just created a point in Shapely and a GeoSeries in GeoPandas. A GeoSeries is a vector (a column of values) where each value in the vector is a set of shapes corresponding to one observation. GeoPandas implements two main data structures, a GeoSeries and a GeoDataFrame. If you are familiar with Pandas, then know that these are subclasses of Pandas Series and DataFrame, respectively.
 
 A GeoSeries is made up of an index and a GeoPandas geometry data type. This data type is a shapely.geometry object, and therefore inherits attributes and methods from shapely geometries, such as area, bounds, distance, etc. A GeoDataFrame is a tabular data structure with multiple columns that contains one column that is a GeoSeries.
 
@@ -96,7 +96,7 @@ GeoPandas has six classes of geometric objects, corresponding to the three basic
     * Multi-Line (MultiLineString)
     * Multi-Polygon
 
-Often geometries are represented in WKT strings. WKT ([Well Known Text](https://en.wikipedia.org/wiki/Well-known_text)) is a markup language that describes spatial information in a clean text format, there is an equivalent in binary format called WKB (easier for computers to process and more efficient for data transfer). Printing geometries of GeoSeries also shows the WKT string.
+The geometries are represented in WKT strings. WKT ([Well Known Text](https://en.wikipedia.org/wiki/Well-known_text)) is a markup language that describes spatial information in a clean text format, there is an equivalent in binary format called WKB (easier for computers to process and more efficient for data transfer). Printing geometries of GeoSeries also shows the WKT string.
 
 ```{python, eval=FALSE}
 from shapely.wkt import loads
@@ -108,7 +108,9 @@ print(gs.geometry)
 print(gsBuffer.geometry)
 ```
 
+```{block, type="alert alert-success"}
 > **Question 1**: What does WKB mean? (hint: think about WKT)
+```
 
 GeoDataFrames can be loaded from a file, created with data or loaded from a Pandas dataframe. A Pandas DataFrame is the dataframe equivalent of R in Python. 
 
@@ -132,7 +134,9 @@ print(type(wageningenGDF), len(wageningenGDF))
 ```
 <img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen", width = "60%">
 
+```{block, type="alert alert-success"}
 > **Question 2**: What is the difference between a GeoSeries and a GeoDataFrame?
+```
 
 ## Geocoding
 
@@ -198,11 +202,11 @@ But Fiona lacks some other popular file formats:
 * Open formats such as [KML](https://github.com/Toblerity/Fiona/issues/97) or [GML](https://github.com/Toblerity/Fiona/pull/96) based on the XML format. Solution: [xml.etree.ElementTree](https://docs.python.org/3/library/xml.etree.elementtree.html).
 * Databases such as PostgreSQL. Solution: [psycopg2](https://pypi.org/project/psycopg2/).
 * Webservices such as Web Feature Service [WFS] or Web Map Service [WMS]. Solution: [OWSLib](https://geopython.github.io/OWSLib/).
-* Columnar formats, such as CSV or xls. Solution: Pandas can read [csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html) or [excel](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_excel.html) columns. The DataFrame with geometry columns can be converted to a GeoDataFrame.
+* Columnar formats, such as CSV or xls. Solution: Pandas can read [csv](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html) or [excel](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_excel.html) columns.
 
 If none of these packages are helpful to access your files, [OGR might still be able to help](http://www.gdal.org/ogr_formats.html).
 
-A GeoDataFrame can be written directly to a GeoJSON file or a shapefile. [GeoJSON is a recommended format to use for geographic data in WGS84 coordinate system](http://switchfromshapefile.org/) since JSON dictionaries are easy to read and use on the web, and GeoJSON is supported in popular GIS software. [GeoJSON](http://geojson.org/) is a standard format to encode Geographic data structures in a dictionary. We assume that you are working in the main repository in which you have a data repository. Write some files to a GeoJSON and shapefile:
+A GeoDataFrame can be written directly to a GeoJSON file or a shapefile. [GeoJSON is a recommended format](http://switchfromshapefile.org/) to use for geographic data in WGS84 coordinate system since JSON dictionaries are easy to read and use on the web, and GeoJSON is supported in popular GIS software. [GeoJSON](http://geojson.org/) is a standard format to encode Geographic data structures in a dictionary. We assume that you are working in the main repository in which you have a data repository. Write some files to a GeoJSON and shapefile:
 
 ```{python, eval=FALSE}
 data = {'name': ['a', 'b', 'c'],
@@ -236,7 +240,7 @@ print(list(topographicalMapWFS.contents))
 
 You might have an idea of the content of this WFS. This WFS stores all sorts of topographical features from the Basisregistratie Grootschalige Topografie [BGT] in the Netherlands. 
 
-WFS are useful to make webmaps, to quickly get an idea of the data and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from available repositories and not from a WFS. Web Feature Services have limits on the amount of features that can be requested, such as 100 or 1000 features. The BGT WFS has a max feature limit of 100 features.
+WFS are useful to make webmaps, to quickly get an idea of the data and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from other available repositories and not from a WFS. Web Feature Services have limits on the amount of features that can be requested, such as 100 or 1000 features. The BGT WFS has a max feature limit of 100 features.
 
 Load some roads from the WFS and plot it.
 
@@ -297,9 +301,10 @@ GeoDataFrames store rows and columns in a tabular format. To select specific row
 ```{python, eval=FALSE}
 print(parcelsGDF.columns)
 print(parcelsGDF.head())
+print(parcelsGDF.area)
 ```
 
-Then based on the surface area, select parcels with a larger surface area of 100,000 m2:
+Then based on the surface area, select parcels with a larger surface area of 100,000 m2 with the .loc method. This is equivalent to selecting rows.
 
 ```{python, eval=FALSE}
 print(parcelsGDF.area > 100000)
@@ -307,7 +312,13 @@ largeParcelsGDF = parcelsGDF.loc[parcelsGDF.area > 100000]
 largeParcelsGDF.plot()
 ```
 
-Rows can also be selected on specific values:
+Columns can be selected by using an index to the name of the column.
+
+```{python, eval=FALSE}
+print(parcelsGDF['perceelnummer'])
+```
+
+Specific rows can be selected by using .isin method on a series.
 
 ```{python, eval=FALSE}
 print(parcelsGDF['perceelnummer'].isin(['11185', '11593']))
@@ -316,12 +327,6 @@ campusParcelsGDF.plot()
 ```
 
 <img src="./images/campusParcelsGDF.png" alt="Parcels at Wageningen University Campus", width = "60%">
-
-As you saw above columns can be selected too:
-
-```{python, eval=FALSE}
-print(parcelsGDF['perceelnummer'])
-```
 
 ## Geometric Manipulations
 
@@ -341,9 +346,13 @@ parcelsUnionGS.plot()
 
 <img src="./images/parcelsUnionGDF.png" alt="Unioned parcels at Wageningen University Campus", width = "60%">
 
+```{block, type="alert alert-success"}
 > **Question 3**: What is the geometry type of geometries in parcelsUnionGS?
+```
 
+```{block, type="alert alert-success"}
 > **Question 4**: What coordinate system does parcelsUnionGS have?
+```
 
 There is still some holes between the parcels. Create a convex around the merged features.
 ```{python, eval=FALSE}
@@ -356,7 +365,7 @@ parcelsConvexGDF.plot()
 
 GeoPandas can perform different [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels by using intersection.
 ```{python, eval=FALSE}
-roadsIntersectionGDF = gpd.overlay(roadsGDF,parcelsConvexGDF, how="intersection")
+roadsIntersectionGDF = gpd.overlay(roadsGDF, parcelsConvexGDF, how="intersection")
 roadsIntersectionGDF.plot()
 ```
 
