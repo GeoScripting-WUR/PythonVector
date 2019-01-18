@@ -897,9 +897,10 @@ Week 3: Python for geo-scripting
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
-<pre style=""><code class="source bash">conda create --name vectorpython python=3 geopandas spyder owslib kealib=1.4.7
+<pre style=""><code class="source bash">conda create --name vectorpython python=3 geopandas spyder owslib kealib=1.4.7 -y
 conda activate vectorpython
-conda install --channel conda-forge folium matplotlib geopy osmnx</code></pre>
+conda install --channel conda-forge folium matplotlib geopy osmnx -y
+conda install kealib=1.4.7 -y</code></pre>
 </div>
 <p>Most of the installed software were Python packages. One was not. Can you tell which one?</p>
 <p>It was the <a href="https://docs.spyder-ide.org/">Spyder IDE</a>! Run the bash code below to setup your file system and to start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment. Make a new directory for your main script, other scripts and data with some bash code. Then start Spyder.</p>
