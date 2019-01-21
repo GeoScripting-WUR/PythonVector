@@ -41,7 +41,7 @@ conda info --envs
 We won't use the existing environment, but it is a good practice to be aware of all available conda environments. Now create a new conda environment for today called vectorpython and install the required packages.
 
 ```{r, eval=FALSE, engine='bash'}
-conda create --name vectorpython python=3 geopandas spyder owslib kealib=1.4.7 -y
+conda create --name vectorpython python=3 geopandas spyder owslib kealib=1.4.7 jupyter -y
 conda activate vectorpython
 conda install --channel conda-forge folium matplotlib geopy osmnx -y
 conda install kealib=1.4.7 -y
