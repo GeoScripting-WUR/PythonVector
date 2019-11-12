@@ -41,10 +41,10 @@ conda info --envs
 We won't use the existing environment, but it is a good practice to be aware of all available conda environments. Now create a new conda environment for today called vectorpython and install the required packages.
 
 ```{r, eval=FALSE, engine='bash'}
-conda create --name vectorpython python=3 geopandas spyder owslib kealib=1.4.7 jupyter -y
-conda activate vectorpython
-conda install --channel conda-forge folium matplotlib geopy osmnx -y
-conda install kealib=1.4.7 -y
+conda create --name VectorPython python=3 geopandas spyder owslib kealib jupyter matplotlib seaborn pyproj owslib -y
+source activate VectorPython
+conda install --channel conda-forge folium geopy osmnx -y
+pip install fiona=1.8.8 -y
 ```
 
 Most of the installed software were Python packages. One was not. Can you tell which one? 
@@ -233,50 +233,55 @@ The web has a lot of geodata available. The OpenGeoSpatial Consortium has specif
 
 ```{Python, eval=FALSE}
 from owslib.wfs import WebFeatureService
-bgtWfsUrl = 'https://geodata.nationaalgeoregister.nl/beta/bgt/wfs'
-topographicalMapWFS = WebFeatureService(url=bgtWfsUrl, version='2.0.0')
-topographicalMapWFS.identification.title
-print(list(topographicalMapWFS.contents))
+WfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
+wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
+wfs.identification.title
+print(list(wfs.contents))
 ```
 
-You might have an idea of the content of this WFS. This WFS stores all sorts of topographical features from the Basisregistratie Grootschalige Topografie [BGT] in the Netherlands. 
+This WFS provides geodata on roads and is extracted from the Dutch national database of roads in the Netherlands.
 
-WFS are useful to make webmaps, to quickly get an idea of the data and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from other available repositories and not from a WFS. Web Feature Services have limits on the amount of features that can be requested, such as 100 or 1000 features. The BGT WFS has a max feature limit of 100 features.
+WFS are useful to make webmaps, to quickly get an idea of the data and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from other available repositories and not from a WFS. Web Feature Services have limits on the amount of features that can be requested, such as 100 or 1000 features. In this case they are very generous with providing a limit of max 15.000 features per request.
 
-Load some roads from the WFS and plot it.
+Load some roads from the WFS service for the campus area and plot it.
 
 ```{Python, eval=FALSE}
 import json
-# x, y = (173994.1578792833, 444133.60329471016) #uncomment if you lost x, y coordinates
-bgtWfsUrl = 'https://geodata.nationaalgeoregister.nl/beta/bgt/wfs'
-topographicalMapWFS = WebFeatureService(url=bgtWfsUrl, version='2.0.0')
-xmin, xmax, ymin, ymax = x-450, x+350, y-300, y+350
-responseRoads = topographicalMapWFS.getfeature(typename='bgt:wegdeel', 
-                                               bbox=(xmin, ymin, xmax, ymax), 
-                                               maxfeatures=100, outputFormat='json', startindex=0)
-data = json.loads(responseRoads.read())
-print(type(data))
-print(data.keys())
-roadsGDF = gpd.GeoDataFrame.from_features(data['features'])
+# x, y = (173994.1578792833, 444133.60329471016) #uncomment if you lost x, y coordinates or Nominatim didn't work above :D
+WfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
+wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
+layer = list(wfs.contents)[0]
+xmin, xmax, ymin, ymax = x-1000, x+350, y-1000, y+350
+response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax))
+with open('./data/Roads.gml', 'wb') as file:
+    file.write(response.read())
+roadsGDF = gpd.read_file('./data/Roads.gml')
+print(type(roadsGDF))
 roadsGDF.plot()
 ```
 <img src="./images/roadsGDF.png" alt="Roads in Wageningen", width = "60%">
 
-How many roads are there in the resulting GeoDataFrame (hint: _len()_ or _.info()_)? Do we miss roads in the extent? How can we extract missing roads in our extent? 
+How many roads are there in the resulting GeoDataFrame (hint: _len()_ or _.info()_)? Do we miss roads in the extent? 
 
-Load some building and plot them too. Do you think you will get all buildings?
+Load some building from another WFS service (BAG) and plot them too. How many buildings do you get? (hint: _len()_) Do you miss buildings? How can we extract missing buildings in our extent? 
 
 ```{Python, eval=FALSE}
-responseBuildings = topographicalMapWFS.getfeature(typename='bgt:pand', 
-                                                   bbox=(xmin, ymin, xmax, ymax), 
-                                                   maxfeatures=100, outputFormat='json', startindex=0)
-data = json.loads(responseBuildings.read())
-
-buildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
-buildingsGDF.plot()
+WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs?'
+wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
+layer = list(wfs.contents)[1]
+xmin, xmax, ymin, ymax = x-1000, x+1000, y-1000, y+1000
+response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='application/gml+xml; version=3.2')
+with open('./data/Buildings.gml', 'w') as file:
+    file.write(response.read())
+BuildingsGDF = gpd.read_file('./data/Buildings.gml')
+print(type(BuildingsGDF))
+roadlayer = roadsGDF.plot(color='grey')
+roadlayer.set_xlim(xmin, xmax)
+roadlayer.set_ylim(ymin, ymax)
+BuildingsGDF.plot(ax=roadlayer, color='red')
 ```
 
-<img src="./images/buildingsGDF.png" alt="Buildings in Wageningen", width = "60%">
+<img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen", width = "60%">
 
 Let us also load the administrative parcels for this area.
 
@@ -322,12 +327,12 @@ print(parcelsGDF['perceelnummer'])
 Specific rows can be selected by using .isin method on a series.
 
 ```{Python, eval=FALSE}
-print(parcelsGDF['perceelnummer'].isin(['11185', '11593']))
-campusParcelsGDF = parcelsGDF[parcelsGDF['perceelnummer'].isin(['11185', '11593'])]
+print(parcelsGDF['perceelnummer'].isin(['11185', '11725']))
+campusParcelsGDF = parcelsGDF[parcelsGDF['perceelnummer'].isin(['11185', '11725'])]
 campusParcelsGDF.plot()
 ```
 
-<img src="./images/campusParcelsGDF.png" alt="Parcels at Wageningen University Campus", width = "60%">
+<img src="./images/CampusParcels.png" alt="Parcels at Wageningen University Campus", width = "60%">
 
 ## Geometric Manipulations
 
@@ -366,18 +371,24 @@ parcelsConvexGDF.plot()
 
 GeoPandas can perform different [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels by using intersection.
 ```{Python, eval=FALSE}
-roadsIntersectionGDF = gpd.overlay(roadsGDF, parcelsConvexGDF, how="intersection")
+# we need polygons instead of line features for the overlay
+RoadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=5))
+RoadsPolygonGDF.plot()
+# perform an intersection overlay
+roadsIntersectionGDF = gpd.overlay(parcelsConvexGDF, RoadsPolygonGDF, how="intersection")
 roadsIntersectionGDF.plot()
 ```
 
 <img src="./images/roadsIntersectionGDF.png" alt="Roads at Wageningen University Campus", width = "60%">
 
-The big advantage of GeoPandas is that GeoPandas allows both geometric and dataframe manipulations. For example, GeoPandas can select parking spots out of all types of roads and calculate areas.
+The big advantage of GeoPandas is that GeoPandas allows both geometric and dataframe manipulations. For example, GeoPandas can select the roads within (and maintained by) Wageningen Municipality and calculate total road surface area.
 
 ```{Python, eval=FALSE}
 parkingspotsGDF = roadsIntersectionGDF.loc[roadsIntersectionGDF['bgt-functie']=='parkeervlak']
 print(sum(parkingspotsGDF.area))
 ```
+
+<img src="./images/WageningenRoadsGDF.png" alt="Roads within the Wageningen Municipality", width = "60%">
 
 ## Visualizing spatial information
 
@@ -387,46 +398,50 @@ Folium uses leaflet on the backend to make webmaps. With leaflet your geodata ca
 
 ```{Python, eval=FALSE}
 import folium
-campusMap = folium.Map([location.latitude, location.longitude], zoom_start=15)
-parkingspotsGDF.crs = {'init': 'epsg:28992'}
-parkingspotsGDF.to_crs({'init': 'epsg:4326'})
-parcelsConvexGDF.crs = {'init': 'epsg:28992'}
-parcelsConvexGDF.to_crs({'init': 'epsg:4326'})
-campusMap.choropleth(parkingspotsGDF)
-campusMap.choropleth(parcelsConvexGDF)
+campusMap = folium.Map([location.latitude, location.longitude], zoom_start=17)
+BuildingsGDF.crs = {'init': 'epsg:28992'}
+BuildingsGDF.to_crs({'init': 'epsg:4326'})
+RoadsPolygonGDF.crs = {'init': 'epsg:28992'}
+RoadsPolygonGDF.to_crs({'init': 'epsg:4326'})
+campusMap.choropleth(BuildingsGDF, name='Building construction years', 
+                     data=BuildingsGDF, columns=['gml_id', 'bouwjaar'], 
+                     key_on='feature.properties.gml_id', fill_color='RdYlGn',
+                     fill_opacity=0.7, line_opacity=0.2,legend_name='Construction year')
+campusMap.choropleth(RoadsPolygonGDF)
 folium.LayerControl().add_to(campusMap)
 campusMap.save('./data/campusMap.html')
 campusMap
 ```
 
-<img src="./images/wageningenFoliumMap.png" alt="Folium map of Wageningen University Campus", width = "100%">
+<img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus", width = "100%">
 
 Matplotlib allows you to make good quality maps for reports or publications.
 
 ```{Python, eval=FALSE}
 from matplotlib import pyplot as plt
-from matplotlib.colors import ListedColormap
-from matplotlib.patches import Patch
-f, ax = plt.subplots(1, figsize=(10, 10))
-ax.set_title('Road types on the WUR campus')
-cmap = ListedColormap(['#7fc97f', '#e31a1c', '#636363', '#80b1d3', '#636363', '#636363', '#a65628'])
-roadsGDF.plot(ax=ax, column='bgt-functie', cmap=cmap, categorical=True)
-buildingsGDF.plot(ax=ax, color='#fdb462', linewidth=0.3, edgecolor='black')
-
-BusLanePatch = Patch(color='#7fc97f', label='Bus lane')
-CyclingPathPatch = Patch(color='#e31a1c', label='Cycling path')
-CarLanePatch = Patch(color='#636363', label='Car lane')
-ParkingAreaPatch = Patch(color='#80b1d3', label='Parking area')
-WalkingLanePatch = Patch(color='#a65628', label='Walking lane')
-BuildingPatch = Patch(color='#fdb462', label='Building')
-plt.legend(handles=[BusLanePatch, CyclingPathPatch, CarLanePatch, 
-                    ParkingAreaPatch,WalkingLanePatch,BuildingPatch])
-ax.set_facecolor("white")
-plt.axis('equal');
-plt.show()
+# extract only buildings on and around WUR campus
+WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs?'
+wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
+layer = list(wfs.contents)[1]
+xmin, xmax, ymin, ymax = x-300, x+600, y-300, y+300
+response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='application/gml+xml; version=3.2')
+with open('./data/WURBuildings.gml', 'w') as file:
+    file.write(response.read())
+BuildingsGDF = gpd.read_file('./data/WURBuildings.gml')
+# create visualisation
+f, ax = plt.subplots(1, figsize=(10, 5))
+ax.set_title('WUR campus buildings')
+ax.set_facecolor("grey")
+roadlayer = RoadsPolygonGDF.plot(ax=ax, legend=True)
+roadlayer.set_xlim(xmin, xmax)
+roadlayer.set_ylim(ymin, ymax)
+buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar', 
+                                   cmap='brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
+                                   legend=True, 
+                                   legend_kwds={'label': "Construction year",'orientation': "vertical"})
 ```
 
-<img src="./images/campusmap.png" alt="Road types at Wageningen University Campus", width = "100%">
+<img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus", width = "100%">
 
 ## Network analysis
 
