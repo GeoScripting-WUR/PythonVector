@@ -384,8 +384,9 @@ roadsIntersectionGDF.plot()
 The big advantage of GeoPandas is that GeoPandas allows both geometric and dataframe manipulations. For example, GeoPandas can select the roads within (and maintained by) Wageningen Municipality and calculate total road surface area.
 
 ```{Python, eval=FALSE}
-parkingspotsGDF = roadsIntersectionGDF.loc[roadsIntersectionGDF['bgt-functie']=='parkeervlak']
-print(sum(parkingspotsGDF.area))
+WageningenRoadsGDF = RoadsPolygonGDF.loc[RoadsPolygonGDF['gme_naam']=='Wageningen']
+print(sum(WageningenRoadsGDF.area))
+WageningenRoadsGDF.plot()
 ```
 
 <img src="./images/WageningenRoadsGDF.png" alt="Roads within the Wageningen Municipality", width = "60%">
@@ -487,17 +488,16 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 9. Network analysis
 
 # Exercise 11
-Wageningen University wants to determine the percentage of water on some parcels at the campus. Can you help?
+Wageningen University wants to determine the percentage of building surface area on the parcels at the campus. Can you help?
 
-Determine how much area (m2 and percentage) of the combined WUR parcels are covered by water by using the BGT WFS (typename = bgt:waterdeel) and visualize both the water area and parcels in a map.
+Determine how much area (m2 and percentage) of the WUR campus are covered by buildings by using the [BAG WFS](https://geodata.nationaalgeoregister.nl/bag/wfs?) (typename = bag:pand) and visualize both the buildings surface area and the campus area in a map.
 
-Wageningen University is specifically interested in parcels with "perceelnummer": 
-['10709', '10905', '10906', '10907', '10908', '10909', '11184', '11185', '11208', '11593']
+Use the OSMNX package to extract a geometry that represents the Wageningen Campus area (use 'Wageningen University' as search name).
 
-Work with a project structure, make a main.py module that imports functions from another Python module. After downloading and selecting correct parcels, make a bounding box of the parcels to download water areas (hint .envelope, .exterior).
+Work with a project structure, make a main.py module that imports functions from another Python module. After extracting the Wageningen Campus geometry, use this as a bounding box for extracting the buildings for this area.(hint .envelope, .exterior).
 You can create these functions:
 
-* geocodePlacenameToCoordinate
+* geocodePlacenameToGeoDataFrame
 * reproject
 * downloadWFSToGeoDataFrame
 * calculatePercentageArea
@@ -511,9 +511,9 @@ Upload your documented and well structured Python scripts to a GitLab repository
 You will be reviewed mainly on the following three tasks and expected output:
 
 1. Functions that provide the necessary functionality for this exercise.
-2. Calculate how much area (m2) is water for the campus.
-3. Present a nice-looking map visualization of the campus, the relevant parcels and the water bodies within them.
+2. Calculate how much area (m2 and %) is building surface area for the Wageningen campus.
+3. Present a nice-looking map visualization of the campus and the buildings.
 
-Optional bonus: Calculate how much area (m2 and %) is water, <u>per parcel</u>. Present result nicely summarized in one table as also in a nice-looking map visualization of the relevant parcels and their (partial) coverage by water. 
+Optional bonus: Calculate how much area (m2 and %) is building, <u>per parcel</u>. Present result nicely summarized in one table as also in a nice-looking map visualization of the relevant parcels and their (partial) coverage by buildings. For this you will need the [Kadaster WFS](https://geodata.nationaalgeoregister.nl/kadastralekaartv3/wfs) (typename = kadastralekaartv3:perceel). 
 
 Hint: If you need some help how to make functions or how to import modules, have a look at the code in the Python refresher or in the cheat sheets mentioned in the Python refresher. 

@@ -871,7 +871,7 @@ Week 3: Python for geo-scripting
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="http://www.wur.nl/upload/b43b7095-e452-482a-8969-fed9a50393a8_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="vector-data-handling-with-python">Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 12 November, 2019</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 14 November, 2019</p>
 <h2 id="introduction">Introduction</h2>
 <p>Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is <a href="http://geopandas.org/">GeoPandas</a>. GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:</p>
 <ul>
@@ -1270,8 +1270,9 @@ roadsIntersectionGDF.plot()</code></pre>
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">parkingspotsGDF = roadsIntersectionGDF.loc[roadsIntersectionGDF['bgt-functie']=='parkeervlak']
-print(sum(parkingspotsGDF.area))</code></pre>
+<pre style=""><code class="source python">WageningenRoadsGDF = RoadsPolygonGDF.loc[RoadsPolygonGDF['gme_naam']=='Wageningen']
+print(sum(WageningenRoadsGDF.area))
+WageningenRoadsGDF.plot()</code></pre>
 </div>
 <p><img src="./images/WageningenRoadsGDF.png" alt="Roads within the Wageningen Municipality", width = "60%"></p>
 <h2 id="visualizing-spatial-information">Visualizing spatial information</h2>
@@ -1368,12 +1369,12 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 <li>Network analysis</li>
 </ol>
 <h1 id="exercise-11">Exercise 11</h1>
-<p>Wageningen University wants to determine the percentage of water on some parcels at the campus. Can you help?</p>
-<p>Determine how much area (m2 and percentage) of the combined WUR parcels are covered by water by using the BGT WFS (typename = bgt:waterdeel) and visualize both the water area and parcels in a map.</p>
-<p>Wageningen University is specifically interested in parcels with &quot;perceelnummer&quot;: ['10709', '10905', '10906', '10907', '10908', '10909', '11184', '11185', '11208', '11593']</p>
-<p>Work with a project structure, make a main.py module that imports functions from another Python module. After downloading and selecting correct parcels, make a bounding box of the parcels to download water areas (hint .envelope, .exterior). You can create these functions:</p>
+<p>Wageningen University wants to determine the percentage of building surface area on the parcels at the campus. Can you help?</p>
+<p>Determine how much area (m2 and percentage) of the WUR campus are covered by buildings by using the <a href="https://geodata.nationaalgeoregister.nl/bag/wfs?">BAG WFS</a> (typename = bag:pand) and visualize both the buildings surface area and the campus area in a map.</p>
+<p>Use the OSMNX package to extract a geometry that represents the Wageningen Campus area (use 'Wageningen University' as search name).</p>
+<p>Work with a project structure, make a main.py module that imports functions from another Python module. After extracting the Wageningen Campus geometry, use this as a bounding box for extracting the buildings for this area.(hint .envelope, .exterior). You can create these functions:</p>
 <ul>
-<li>geocodePlacenameToCoordinate</li>
+<li>geocodePlacenameToGeoDataFrame</li>
 <li>reproject</li>
 <li>downloadWFSToGeoDataFrame</li>
 <li>calculatePercentageArea</li>
@@ -1384,10 +1385,10 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 <p>You will be reviewed mainly on the following three tasks and expected output:</p>
 <ol style="list-style-type: decimal">
 <li>Functions that provide the necessary functionality for this exercise.</li>
-<li>Calculate how much area (m2) is water for the campus.</li>
-<li>Present a nice-looking map visualization of the campus, the relevant parcels and the water bodies within them.</li>
+<li>Calculate how much area (m2 and %) is building surface area for the Wageningen campus.</li>
+<li>Present a nice-looking map visualization of the campus and the buildings.</li>
 </ol>
-<p>Optional bonus: Calculate how much area (m2 and %) is water, <u>per parcel</u>. Present result nicely summarized in one table as also in a nice-looking map visualization of the relevant parcels and their (partial) coverage by water.</p>
+<p>Optional bonus: Calculate how much area (m2 and %) is building, <u>per parcel</u>. Present result nicely summarized in one table as also in a nice-looking map visualization of the relevant parcels and their (partial) coverage by buildings. For this you will need the <a href="https://geodata.nationaalgeoregister.nl/kadastralekaartv3/wfs">Kadaster WFS</a> (typename = kadastralekaartv3:perceel).</p>
 Hint: If you need some help how to make functions or how to import modules, have a look at the code in the Python refresher or in the cheat sheets mentioned in the Python refresher.
 </div>
 </div>
