@@ -1374,21 +1374,19 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 <li>Determine how much area (m2 and percentage) of the WUR campus are covered by buildings by using the <a href="https://geodata.nationaalgeoregister.nl/bag/wfs?">BAG WFS</a> (typename = bag:pand) and visualize both the buildings surface area and the campus area in a map.</li>
 <li>Use the OSMNX package to extract a geometry that represents the Wageningen Campus area (use 'Wageningen University' as search name).</li>
 <li>After extracting the Wageningen Campus geometry, use this as a bounding box for extracting the buildings for this area.(hint .envelope, .exterior).</li>
-<li>Work with a project structure, make a main.py module that imports functions from another Python module called 'MyOwnFunctions.py'. At least in this module we expect the following three functions:</li>
-</ul>
+<li>Work with a project structure, make a main.py module that imports functions from another Python module called 'MyOwnFunctions.py'. At least in this module we expect the following three functions:
 <ol style="list-style-type: decimal">
 <li>GeocodePlacenameToGDF</li>
 <li>BAGtoGeoDataFrame</li>
 <li>CalculatePercentageArea</li>
-</ol>
-<ul>
-<li>We expect a couple of resulting variables that are:</li>
-</ul>
+</ol></li>
+<li>We expect a couple of resulting variables that are:
 <ol style="list-style-type: decimal">
 <li>WURbuildingsGDF =&gt; GeoDataFrame with all building geometries within the WUR campus area</li>
 <li>BuildingsArea =&gt; The total surface area (m2) of all building geometries together within the WUR campus area</li>
 <li>PercentageCoverage =&gt; The percentage of building coverage within the total WUR campus area</li>
-</ol>
+</ol></li>
+</ul>
 <p>Go easy on webservices! There is no need to use for loops or while statements to call web services multiple times! Upload your documented and well structured Python scripts to a GitLab repository.</p>
 <p>You will be reviewed mainly on the following three tasks and expected output:</p>
 <ol style="list-style-type: decimal">
