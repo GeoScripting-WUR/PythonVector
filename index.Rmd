@@ -490,19 +490,17 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 # Exercise 11
 Wageningen University wants to determine the percentage of building surface area on the parcels at the campus. Can you help?
 
-Determine how much area (m2 and percentage) of the WUR campus are covered by buildings by using the [BAG WFS](https://geodata.nationaalgeoregister.nl/bag/wfs?) (typename = bag:pand) and visualize both the buildings surface area and the campus area in a map.
-
-Use the OSMNX package to extract a geometry that represents the Wageningen Campus area (use 'Wageningen University' as search name).
-
-Work with a project structure, make a main.py module that imports functions from another Python module. After extracting the Wageningen Campus geometry, use this as a bounding box for extracting the buildings for this area.(hint .envelope, .exterior).
-You can create these functions:
-
-* geocodePlacenameToGeoDataFrame
-* reproject
-* downloadWFSToGeoDataFrame
-* calculatePercentageArea
-* makeWebmap or makeMap (for visualization you can choose to make a map with Folium or matplotlib)
-* getBoundingBox
+* Determine how much area (m2 and percentage) of the WUR campus are covered by buildings by using the [BAG WFS](https://geodata.nationaalgeoregister.nl/bag/wfs?) (typename = bag:pand) and visualize both the buildings surface area and the campus area in a map.
+* Use the OSMNX package to extract a geometry that represents the Wageningen Campus area (use 'Wageningen University' as search name).
+* After extracting the Wageningen Campus geometry, use this as a bounding box for extracting the buildings for this area.(hint .envelope, .exterior).
+* Work with a project structure, make a main.py module that imports functions from another Python module called 'MyOwnFunctions.py'. At least in this module we expect the following three functions:
+1. GeocodePlacenameToGDF
+2. BAGtoGeoDataFrame
+3. CalculatePercentageArea
+* We expect a couple of resulting variables that are:
+1. WURbuildingsGDF => GeoDataFrame with all building geometries within the WUR campus area
+2. BuildingsArea => The total surface area (m2) of all building geometries together within the WUR campus area 
+3. PercentageCoverage => The percentage of building coverage within the total WUR campus area
 
 Go easy on webservices! There is no need to use for loops or while statements to call web services multiple times!
 Upload your documented and well structured Python scripts to a GitLab repository.

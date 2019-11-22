@@ -871,7 +871,7 @@ Week 3: Python for geo-scripting
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="http://www.wur.nl/upload/b43b7095-e452-482a-8969-fed9a50393a8_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="vector-data-handling-with-python">Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 14 November, 2019</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 22 November, 2019</p>
 <h2 id="introduction">Introduction</h2>
 <p>Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is <a href="http://geopandas.org/">GeoPandas</a>. GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:</p>
 <ul>
@@ -1370,17 +1370,25 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 </ol>
 <h1 id="exercise-11">Exercise 11</h1>
 <p>Wageningen University wants to determine the percentage of building surface area on the parcels at the campus. Can you help?</p>
-<p>Determine how much area (m2 and percentage) of the WUR campus are covered by buildings by using the <a href="https://geodata.nationaalgeoregister.nl/bag/wfs?">BAG WFS</a> (typename = bag:pand) and visualize both the buildings surface area and the campus area in a map.</p>
-<p>Use the OSMNX package to extract a geometry that represents the Wageningen Campus area (use 'Wageningen University' as search name).</p>
-<p>Work with a project structure, make a main.py module that imports functions from another Python module. After extracting the Wageningen Campus geometry, use this as a bounding box for extracting the buildings for this area.(hint .envelope, .exterior). You can create these functions:</p>
 <ul>
-<li>geocodePlacenameToGeoDataFrame</li>
-<li>reproject</li>
-<li>downloadWFSToGeoDataFrame</li>
-<li>calculatePercentageArea</li>
-<li>makeWebmap or makeMap (for visualization you can choose to make a map with Folium or matplotlib)</li>
-<li>getBoundingBox</li>
+<li>Determine how much area (m2 and percentage) of the WUR campus are covered by buildings by using the <a href="https://geodata.nationaalgeoregister.nl/bag/wfs?">BAG WFS</a> (typename = bag:pand) and visualize both the buildings surface area and the campus area in a map.</li>
+<li>Use the OSMNX package to extract a geometry that represents the Wageningen Campus area (use 'Wageningen University' as search name).</li>
+<li>After extracting the Wageningen Campus geometry, use this as a bounding box for extracting the buildings for this area.(hint .envelope, .exterior).</li>
+<li>Work with a project structure, make a main.py module that imports functions from another Python module called 'MyOwnFunctions.py'. At least in this module we expect the following three functions:</li>
 </ul>
+<ol style="list-style-type: decimal">
+<li>GeocodePlacenameToGDF</li>
+<li>BAGtoGeoDataFrame</li>
+<li>CalculatePercentageArea</li>
+</ol>
+<ul>
+<li>We expect a couple of resulting variables that are:</li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>WURbuildingsGDF =&gt; GeoDataFrame with all building geometries within the WUR campus area</li>
+<li>BuildingsArea =&gt; The total surface area (m2) of all building geometries together within the WUR campus area</li>
+<li>PercentageCoverage =&gt; The percentage of building coverage within the total WUR campus area</li>
+</ol>
 <p>Go easy on webservices! There is no need to use for loops or while statements to call web services multiple times! Upload your documented and well structured Python scripts to a GitLab repository.</p>
 <p>You will be reviewed mainly on the following three tasks and expected output:</p>
 <ol style="list-style-type: decimal">
