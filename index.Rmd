@@ -493,7 +493,7 @@ Wageningen University wants to determine the percentage of building surface area
 * Determine how much area (m2 and percentage) of the WUR campus are covered by buildings by using the [BAG WFS](https://geodata.nationaalgeoregister.nl/bag/wfs?) (typename = bag:pand) and visualize both the buildings surface area and the campus area in a map.
 * Use the OSMNX package to extract a geometry that represents the Wageningen Campus area (use 'Wageningen University' as search name).
 * After extracting the Wageningen Campus geometry, use this as a bounding box for extracting the buildings for this area.(hint .envelope, .exterior).
-* Work with a project structure, make a main.py module that imports functions from another Python module called 'MyOwnFunctions.py'. At least in this module we expect the following three functions:
+* Work with a project structure, make a main.py module that imports functions from another Python module called 'MyFunctions_VectorExc.py'. At least in this module we expect the following three functions:
     1. GeocodePlacenameToGDF
     2. BAGtoGeoDataFrame
     3. CalculatePercentageArea
