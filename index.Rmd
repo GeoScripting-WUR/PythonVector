@@ -499,7 +499,7 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 8. Geo-visualization
 9. Network analysis
 
-# Exercise 11
+# Exercise
 Wageningen University wants to determine the percentage of building surface area on the parcels at the campus. Can you help?
 
 * Determine how much area (m2 and percentage) of the WUR campus are covered by buildings by using the [BAG WFS](https://geodata.nationaalgeoregister.nl/bag/wfs?) (typename = bag:pand) and visualize both the buildings surface area and the campus area in a map.
