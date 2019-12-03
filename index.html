@@ -871,7 +871,7 @@ Week 3: Python for geo-scripting
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="http://www.wur.nl/upload/b43b7095-e452-482a-8969-fed9a50393a8_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="vector-data-handling-with-python">Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 28 November, 2019</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 03 December, 2019</p>
 <h2 id="introduction">Introduction</h2>
 <p>Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is <a href="http://geopandas.org/">GeoPandas</a>. GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:</p>
 <ul>
@@ -1294,7 +1294,7 @@ campusMap.choropleth(BuildingsGDF, name='Building construction years',
                      fill_opacity=0.7, line_opacity=0.2,legend_name='Construction year')
 campusMap.choropleth(RoadsPolygonGDF)
 folium.LayerControl().add_to(campusMap)
-campusMap.save('./data/campusMap.html')
+campusMap.save('./output/campusMap.html')
 campusMap</code></pre>
 </div>
 <p><img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus", width = "100%"></p>
@@ -1303,16 +1303,28 @@ campusMap</code></pre>
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">from matplotlib import pyplot as plt
+<pre style=""><code class="source python">
+## check code below critically, we request from wfs without storing a gml file!
+import geopandas as gpd
+from requests import Request
+from owslib.wfs import WebFeatureService
+from matplotlib import pyplot as plt
 # extract only buildings on and around WUR campus
-WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs?'
-wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
-layer = list(wfs.contents)[1]
+url = 'https://geodata.nationaalgeoregister.nl/bag/wfs'
+layer = 'bag:pand'
+# speciy the boundary box for extracting
 xmin, xmax, ymin, ymax = x-300, x+600, y-300, y+300
-response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='application/gml+xml; version=3.2')
-with open('./data/WURBuildings.gml', 'w') as file:
-    file.write(response.read())
-BuildingsGDF = gpd.read_file('./data/WURBuildings.gml')
+bb = (xmin, ymin, xmax, ymax)
+bb = ','.join(map(str, bb)) # string needed for the request
+# Specify the parameters for fetching the data
+params = dict(service='WFS', version="2.0.0", request='GetFeature',
+      typeName=layer, outputFormat='text/xml; subtype=gml/3.2',
+      srsname='urn:ogc:def:crs:EPSG::28992', bbox=bb)
+# Parse the URL with parameters
+q = Request('GET', url, params=params).prepare().url
+# Read data from URL
+BuildingsGDF = gpd.read_file(q)
+
 # create visualisation
 f, ax = plt.subplots(1, figsize=(10, 5))
 ax.set_title('WUR campus buildings')

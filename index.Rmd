@@ -410,7 +410,7 @@ campusMap.choropleth(BuildingsGDF, name='Building construction years',
                      fill_opacity=0.7, line_opacity=0.2,legend_name='Construction year')
 campusMap.choropleth(RoadsPolygonGDF)
 folium.LayerControl().add_to(campusMap)
-campusMap.save('./data/campusMap.html')
+campusMap.save('./output/campusMap.html')
 campusMap
 ```
 
@@ -419,16 +419,28 @@ campusMap
 Matplotlib allows you to make good quality maps for reports or publications.
 
 ```{Python, eval=FALSE}
+
+## check code below critically, we request from wfs without storing a gml file!
+import geopandas as gpd
+from requests import Request
+from owslib.wfs import WebFeatureService
 from matplotlib import pyplot as plt
 # extract only buildings on and around WUR campus
-WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs?'
-wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
-layer = list(wfs.contents)[1]
+url = 'https://geodata.nationaalgeoregister.nl/bag/wfs'
+layer = 'bag:pand'
+# speciy the boundary box for extracting
 xmin, xmax, ymin, ymax = x-300, x+600, y-300, y+300
-response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='application/gml+xml; version=3.2')
-with open('./data/WURBuildings.gml', 'w') as file:
-    file.write(response.read())
-BuildingsGDF = gpd.read_file('./data/WURBuildings.gml')
+bb = (xmin, ymin, xmax, ymax)
+bb = ','.join(map(str, bb)) # string needed for the request
+# Specify the parameters for fetching the data
+params = dict(service='WFS', version="2.0.0", request='GetFeature',
+      typeName=layer, outputFormat='text/xml; subtype=gml/3.2',
+      srsname='urn:ogc:def:crs:EPSG::28992', bbox=bb)
+# Parse the URL with parameters
+q = Request('GET', url, params=params).prepare().url
+# Read data from URL
+BuildingsGDF = gpd.read_file(q)
+
 # create visualisation
 f, ax = plt.subplots(1, figsize=(10, 5))
 ax.set_title('WUR campus buildings')
