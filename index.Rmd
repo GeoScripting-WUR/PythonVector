@@ -1,5 +1,5 @@
 ---
-author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas"
+author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, Corné Vreugdenhil"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   knitrBootstrap::bootstrap_document:
@@ -499,31 +499,3 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
 8. Geo-visualization
 9. Network analysis
 
-# Exercise
-Wageningen University wants to determine the percentage of building surface area on the parcels at the campus. Can you help?
-
-* Determine how much area (m2 and percentage) of the WUR campus are covered by buildings by using the [BAG WFS](https://geodata.nationaalgeoregister.nl/bag/wfs?) (typename = bag:pand) and visualize both the buildings surface area and the campus area in a map.
-* Use the OSMNX package to extract a geometry that represents the Wageningen Campus area (use 'Wageningen University' as search name).
-* After extracting the Wageningen Campus geometry, use this as a bounding box for extracting the buildings for this area.(hint .envelope, .exterior).
-* Work with a project structure, make a main.py module that imports functions from another Python module called 'MyFunctions_VectorExc.py'. At least in this module we expect the following three functions:
-    1. GeocodePlacenameToGDF
-    2. BAGtoGeoDataFrame
-    3. CalculatePercentageArea
-* We expect a couple of resulting variables that are:
-    1. WURbuildingsGDF => GeoDataFrame with all building geometries within the WUR campus area
-    2. BuildingsArea => The total surface area (m2) of all building geometries together within the WUR campus area 
-    3. PercentageCoverage => The percentage of building coverage within the total WUR campus area
-
-Go easy on webservices! There is no need to use for loops or while statements to call web services multiple times!
-Upload your documented and well structured Python scripts to a GitLab repository.
-
-
-You will be reviewed mainly on the following three tasks and expected output:
-
-1. Functions that provide the necessary functionality for this exercise.
-2. Calculate how much area (m2 and %) is building surface area for the Wageningen campus.
-3. Present a nice-looking map visualization of the campus and the buildings.
-
-Optional bonus: Calculate how much area (m2 and %) is building, <u>per parcel</u>. Present result nicely summarized in one table as also in a nice-looking map visualization of the relevant parcels and their (partial) coverage by buildings. For this you will need the [Kadaster WFS](https://geodata.nationaalgeoregister.nl/kadastralekaartv3/wfs) (typename = kadastralekaartv3:perceel). 
-
-Hint: If you need some help how to make functions or how to import modules, have a look at the code in the Python refresher or in the cheat sheets mentioned in the Python refresher. 
