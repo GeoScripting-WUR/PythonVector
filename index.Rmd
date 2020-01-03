@@ -1,9 +1,9 @@
 ---
 author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, Corné Vreugdenhil"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
+pagetitle: "Week 3: Python for geo-scripting"
 output:
   knitrBootstrap::bootstrap_document:
-    title: "Week 3: Python for geo-scripting"
     theme: "simplex"
     highlight: Tomorrow Night Bright
     menu: FALSE
@@ -11,11 +11,11 @@ output:
     highlight.chooser: TRUE
 ---
 
-# [WUR Geoscripting](https://geoscripting-wur.github.io/) <img src="http://www.wur.nl/upload/b43b7095-e452-482a-8969-fed9a50393a8_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/>
+# [WUR Geoscripting](https://geoscripting-wur.github.io/) <img src="https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/>
 
 # Vector data handling with Python
 
-_Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil_ - `r format(Sys.time(), '%d %B, %Y')`
+_Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil_ - `r format(Sys.time(), '%Y-%m-%d')`
 
 ## Introduction
 
