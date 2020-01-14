@@ -1,20 +1,12 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <meta charset="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, Corné Vreugdenhil" />
   <title>Week 3: Python for geo-scripting</title>
-  <style>
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
-  </style>
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
+  <style type="text/css">code{white-space: pre;}</style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- jQuery -->
@@ -876,7 +868,7 @@
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="vector-data-handling-with-python">Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 2020-01-03</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 2020-01-14</p>
 <h2 id="introduction">Introduction</h2>
 <p>Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is <a href="http://geopandas.org/">GeoPandas</a>. GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:</p>
 <ul>
@@ -890,14 +882,14 @@
 </ul>
 <p>By bundling the tools of these packages, GeoPandas provides powerful tools to perform spatial analysis in Python. Other packages, such as <a href="https://python-visualization.github.io/folium/docs-v0.6.0/">Folium</a> and <a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a>, build on the GeoDataFrame capablities of GeoPandas. Fiona builds on GDAL/OGR packages to read and write data. GDAL/OGR/OSR are the backbone of spatial processing in Python and have high performance, but are not that intuitive to use. GeoPandas made it easier to perform spatial processing.</p>
 <h2 id="setting-up-the-python-environment">Setting up the Python Environment</h2>
-<p>Before we continue with scripting, the Python environment needs to be setup. Let’s use Conda for this. Check in Bash what environments are already available.</p>
+<p>Before we continue with scripting, the Python environment needs to be setup. Let's use Conda for this. Check in Bash what environments are already available.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
 <pre style=""><code class="source bash">conda info --envs</code></pre>
 </div>
-<p>We won’t use the existing environment, but it is a good practice to be aware of all available conda environments. Now create a new conda environment for today called vectorpython and install the required packages.</p>
+<p>We won't use the existing environment, but it is a good practice to be aware of all available conda environments. Now create a new conda environment for today called vectorpython and install the required packages.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
@@ -928,7 +920,7 @@ spyder</code></pre>
 <li>TAB to indent your code</li>
 <li>SHIFT + TAB to unindent your code</li>
 </ul>
-<p>Open a new file and save your Python script in the main directory you just made and name it main.py (File – &gt; New File –&gt; Save As).</p>
+<p>Open a new file and save your Python script in the main directory you just made and name it main.py (File -- &gt; New File --&gt; Save As).</p>
 <h2 id="creating-geometries-geoseries-and-geodataframes">Creating Geometries, GeoSeries and GeoDataFrames</h2>
 <p>Geometries in Python can be created and stored as a datatype by using Shapely. Shapely can create geometries and performs geometric operations. GeoPandas uses the geometries from Shapely to store geometries in GeoSeries and GeoDataFrames. Copy the code below in the Spyder Editor and press run (F5):</p>
 <div class="row">
@@ -1004,7 +996,7 @@ wageningenGDF.crs = {'init': 'epsg:28992'}
 wageningenGDF.plot(marker='*', color='green', markersize=50)
 print(type(wageningenGDF), len(wageningenGDF))</code></pre>
 </div>
-<p>&lt;img src=“./images/wageningenGDF.png” alt=“Landmarks in Wageningen”, width = “60%”&gt;</p>
+<p><img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen" width = "60%"></p>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
@@ -1135,7 +1127,7 @@ roadsGDF = gpd.read_file('./data/Roads.gml')
 print(type(roadsGDF))
 roadsGDF.plot()</code></pre>
 </div>
-<p>&lt;img src=“./images/roadsGDF.png” alt=“Roads in Wageningen”, width = “60%”&gt;</p>
+<p><img src="./images/roadsGDF.png" alt="Roads in Wageningen" width = "60%"></p>
 <p>How many roads are there in the resulting GeoDataFrame (hint: <em>len()</em> or <em>.info()</em>)? Do we miss roads in the extent?</p>
 <p>Load some building from another WFS service (BAG) and plot them too. How many buildings do you get? (hint: <em>len()</em>) Do you miss buildings? How can we extract missing buildings in our extent?</p>
 <div class="row">
@@ -1156,7 +1148,7 @@ roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
 BuildingsGDF.plot(ax=roadlayer, color='red')</code></pre>
 </div>
-<p>&lt;img src=“./images/BuildingsAndRoads.png” alt=“Buildings in Wageningen”, width = “60%”&gt;</p>
+<p><img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%"></p>
 <p>Let us also load the administrative parcels for this area.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
@@ -1173,7 +1165,7 @@ data = json.loads(responseParcels.read())
 parcelsGDF = gpd.GeoDataFrame.from_features(data['features'])
 parcelsGDF.plot()</code></pre>
 </div>
-<p>&lt;img src=“./images/parcelsGDF.png” alt=“Parcels in Wageningen”, width = “60%”&gt;</p>
+<p><img src="./images/parcelsGDF.png" alt="Parcels in Wageningen" width = "60%"></p>
 <h2 id="selecting-data">Selecting Data</h2>
 <p>GeoDataFrames store rows and columns in a tabular format. To select specific rows, you can make use of the DataFrame functionality of Pandas. Inspect the content of your data:</p>
 <div class="row">
@@ -1209,7 +1201,7 @@ largeParcelsGDF.plot()</code></pre>
 campusParcelsGDF = parcelsGDF[parcelsGDF['perceelnummer'].isin(['11185', '11725'])]
 campusParcelsGDF.plot()</code></pre>
 </div>
-<p>&lt;img src=“./images/CampusParcels.png” alt=“Parcels at Wageningen University Campus”, width = “60%”&gt;</p>
+<p><img src="./images/CampusParcels.png" alt="Parcels at Wageningen University Campus" width = "60%"></p>
 <h2 id="geometric-manipulations">Geometric Manipulations</h2>
 <p>GeoDataFrames and GeoSeries have several <a href="http://geopandas.org/geometric_manipulations.html">constructive methods</a> to modify the geometry: buffer, boundary, centroid, convex hull, envelope, simplify, unary union, rotate, scale, skew and translate. When modifying the geometries in the DataFrames, it is a good practice to keep track of your geometry types and your geometry data. Have a look at the geometry types.</p>
 <div class="row">
@@ -1228,7 +1220,7 @@ Bind some parcels together with a union.
 <pre style=""><code class="source python">parcelsUnionGS = gpd.GeoSeries(largeParcelsGDF.unary_union)
 parcelsUnionGS.plot()</code></pre>
 </div>
-<p>&lt;img src=“./images/parcelsUnionGDF.png” alt=“Unioned parcels at Wageningen University Campus”, width = “60%”&gt;</p>
+<p><img src="./images/parcelsUnionGDF.png" alt="Unioned parcels at Wageningen University Campus" width = "60%"></p>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
@@ -1256,7 +1248,7 @@ There is still some holes between the parcels. Create a convex around the merged
 parcelsConvexGDF = parcelsConvexGDF.rename(columns={0:'geometry'}).set_geometry('geometry')
 parcelsConvexGDF.plot()</code></pre>
 </div>
-<p>&lt;img src=“./images/parcelsConvexGDF.png” alt=“Convexed parcels at Wageningen University Campus”, width = “60%”&gt;</p>
+<p><img src="./images/parcelsConvexGDF.png" alt="Convexed parcels at Wageningen University Campus" width = "60%"></p>
 GeoPandas can perform different <a href="http://geopandas.org/set_operations.html">overlay operations</a>: intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels by using intersection.
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
@@ -1269,7 +1261,7 @@ RoadsPolygonGDF.plot()
 roadsIntersectionGDF = gpd.overlay(parcelsConvexGDF, RoadsPolygonGDF, how="intersection")
 roadsIntersectionGDF.plot()</code></pre>
 </div>
-<p>&lt;img src=“./images/roadsIntersectionGDF.png” alt=“Roads at Wageningen University Campus”, width = “60%”&gt;</p>
+<p><img src="./images/roadsIntersectionGDF.png" alt="Roads at Wageningen University Campus" width = "60%"></p>
 <p>The big advantage of GeoPandas is that GeoPandas allows both geometric and dataframe manipulations. For example, GeoPandas can select the roads within (and maintained by) Wageningen Municipality and calculate total road surface area.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
@@ -1279,7 +1271,7 @@ roadsIntersectionGDF.plot()</code></pre>
 print(sum(WageningenRoadsGDF.area))
 WageningenRoadsGDF.plot()</code></pre>
 </div>
-<p>&lt;img src=“./images/WageningenRoadsGDF.png” alt=“Roads within the Wageningen Municipality”, width = “60%”&gt;</p>
+<p><img src="./images/WageningenRoadsGDF.png" alt="Roads within the Wageningen Municipality" width = "60%"></p>
 <h2 id="visualizing-spatial-information">Visualizing spatial information</h2>
 <p>There are multiple solutions to visualize your geodata: GIS software (QGIS), web platforms (leaflet/Folium) and images (matplotlib).</p>
 <p>Folium uses leaflet on the backend to make webmaps. With leaflet your geodata can be easily visualized inside a webpage. <a href="https://leafletjs.com/">Leaflet</a> is the leading open-source JavaScript library for mobile-friendly interactive maps. Folium handles GeoDataFrames or JSON files as input for the interactive map. The Python script below makes a .html file in your working directory, which you can open in your preferred web browser:</p>
@@ -1302,7 +1294,7 @@ folium.LayerControl().add_to(campusMap)
 campusMap.save('./output/campusMap.html')
 campusMap</code></pre>
 </div>
-<p>&lt;img src=“./images/WageningenFoliumMapBuildingYear.png” alt=“Folium map of Wageningen University Campus”, width = “100%”&gt;</p>
+<p><img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%"></p>
 <p>Matplotlib allows you to make good quality maps for reports or publications.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
@@ -1342,7 +1334,7 @@ buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar',
                                    legend=True, 
                                    legend_kwds={'label': "Construction year",'orientation': "vertical"})</code></pre>
 </div>
-<p>&lt;img src=“./images/WURcampusMapBuildings.png” alt=“Road types at Wageningen University Campus”, width = “100%”&gt;</p>
+<p><img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus" width = "100%"></p>
 <h2 id="network-analysis">Network analysis</h2>
 <p>There are a lot of Python packages available to help you with your specific spatial analysis. One package, that we could not leave out is OSMnx. <a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a> retrieves, constructs, analyzes and visualizes street networks from <a href="https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368">OpenStreetMap</a>. In short, a network analysis is quite often performed with Open Street Map data since it is globally available, has well connected networks and has multiple travel modes (walking, cycling, driving et cetera). Download the street network of Wageningen and plot it.</p>
 <div class="row">
@@ -1359,7 +1351,7 @@ gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=WageningenRoadsGraph)
 print(gdf_nodes.info())
 print(gdf_edges.info())</code></pre>
 </div>
-<p>&lt;img src=“./images/osmnxGraph.png” alt=“Roads in Wageningen”, width = “100%”&gt;</p>
+<p><img src="./images/osmnxGraph.png" alt="Roads in Wageningen" width = "100%"></p>
 <p>OSMnx can store the downloaded street network (the Graph) as a shapefile or as a GeoDataFrame. Furthermore, the main purpose is to perform a network analysis, such as a shortest path from source to target location. Let us calculate the shortest path from Wageningen campus to Wageningen city center. Is this the route you would take?</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
@@ -1372,9 +1364,9 @@ shortestroute = ox.nx.shortest_path(G=WageningenRoadsGraph,
 ox.plot_graph_route(WageningenRoadsGraph, shortestroute, 
                     fig_height=20, fig_width=20)</code></pre>
 </div>
-<p>&lt;img src=“./images/shortestPathGraph.png” alt=“Shortest path from Wageningen University Campus to Wageningen City Center”, width = “100%”&gt;</p>
+<p><img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%"></p>
 <h1 id="what-have-we-learned">What have we learned?</h1>
-<ol type="1">
+<ol style="list-style-type: decimal">
 <li>Creating geometries, GeoSeries and GeoDataFrames</li>
 <li>Geocoding</li>
 <li>Re-projecting</li>

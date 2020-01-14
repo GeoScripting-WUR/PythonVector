@@ -133,7 +133,7 @@ wageningenGDF.crs = {'init': 'epsg:28992'}
 wageningenGDF.plot(marker='*', color='green', markersize=50)
 print(type(wageningenGDF), len(wageningenGDF))
 ```
-<img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen", width = "60%">
+<img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen" width = "60%">
 
 ```{block, type="alert alert-success"}
 > **Question 2**: What is the difference between a GeoSeries and a GeoDataFrame?
@@ -259,7 +259,7 @@ roadsGDF = gpd.read_file('./data/Roads.gml')
 print(type(roadsGDF))
 roadsGDF.plot()
 ```
-<img src="./images/roadsGDF.png" alt="Roads in Wageningen", width = "60%">
+<img src="./images/roadsGDF.png" alt="Roads in Wageningen" width = "60%">
 
 How many roads are there in the resulting GeoDataFrame (hint: _len()_ or _.info()_)? Do we miss roads in the extent? 
 
@@ -281,7 +281,7 @@ roadlayer.set_ylim(ymin, ymax)
 BuildingsGDF.plot(ax=roadlayer, color='red')
 ```
 
-<img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen", width = "60%">
+<img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%">
 
 Let us also load the administrative parcels for this area.
 
@@ -298,7 +298,7 @@ parcelsGDF = gpd.GeoDataFrame.from_features(data['features'])
 parcelsGDF.plot()
 ```
 
-<img src="./images/parcelsGDF.png" alt="Parcels in Wageningen", width = "60%">
+<img src="./images/parcelsGDF.png" alt="Parcels in Wageningen" width = "60%">
 
 ## Selecting Data
 
@@ -332,7 +332,7 @@ campusParcelsGDF = parcelsGDF[parcelsGDF['perceelnummer'].isin(['11185', '11725'
 campusParcelsGDF.plot()
 ```
 
-<img src="./images/CampusParcels.png" alt="Parcels at Wageningen University Campus", width = "60%">
+<img src="./images/CampusParcels.png" alt="Parcels at Wageningen University Campus" width = "60%">
 
 ## Geometric Manipulations
 
@@ -350,7 +350,7 @@ parcelsUnionGS = gpd.GeoSeries(largeParcelsGDF.unary_union)
 parcelsUnionGS.plot()
 ```
 
-<img src="./images/parcelsUnionGDF.png" alt="Unioned parcels at Wageningen University Campus", width = "60%">
+<img src="./images/parcelsUnionGDF.png" alt="Unioned parcels at Wageningen University Campus" width = "60%">
 
 ```{block, type="alert alert-success"}
 > **Question 3**: What is the geometry type of geometries in parcelsUnionGS?
@@ -367,7 +367,7 @@ parcelsConvexGDF = parcelsConvexGDF.rename(columns={0:'geometry'}).set_geometry(
 parcelsConvexGDF.plot()
 ```
 
-<img src="./images/parcelsConvexGDF.png" alt="Convexed parcels at Wageningen University Campus", width = "60%">
+<img src="./images/parcelsConvexGDF.png" alt="Convexed parcels at Wageningen University Campus" width = "60%">
 
 GeoPandas can perform different [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels by using intersection.
 ```{Python, eval=FALSE}
@@ -379,7 +379,7 @@ roadsIntersectionGDF = gpd.overlay(parcelsConvexGDF, RoadsPolygonGDF, how="inter
 roadsIntersectionGDF.plot()
 ```
 
-<img src="./images/roadsIntersectionGDF.png" alt="Roads at Wageningen University Campus", width = "60%">
+<img src="./images/roadsIntersectionGDF.png" alt="Roads at Wageningen University Campus" width = "60%">
 
 The big advantage of GeoPandas is that GeoPandas allows both geometric and dataframe manipulations. For example, GeoPandas can select the roads within (and maintained by) Wageningen Municipality and calculate total road surface area.
 
@@ -389,7 +389,7 @@ print(sum(WageningenRoadsGDF.area))
 WageningenRoadsGDF.plot()
 ```
 
-<img src="./images/WageningenRoadsGDF.png" alt="Roads within the Wageningen Municipality", width = "60%">
+<img src="./images/WageningenRoadsGDF.png" alt="Roads within the Wageningen Municipality" width = "60%">
 
 ## Visualizing spatial information
 
@@ -414,7 +414,7 @@ campusMap.save('./output/campusMap.html')
 campusMap
 ```
 
-<img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus", width = "100%">
+<img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%">
 
 Matplotlib allows you to make good quality maps for reports or publications.
 
@@ -454,7 +454,7 @@ buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar',
                                    legend_kwds={'label': "Construction year",'orientation': "vertical"})
 ```
 
-<img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus", width = "100%">
+<img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus" width = "100%">
 
 ## Network analysis
 
@@ -472,7 +472,7 @@ print(gdf_nodes.info())
 print(gdf_edges.info())
 ```
 
-<img src="./images/osmnxGraph.png" alt="Roads in Wageningen", width = "100%">
+<img src="./images/osmnxGraph.png" alt="Roads in Wageningen" width = "100%">
 
 OSMnx can store the downloaded street network (the Graph) as a shapefile or as a GeoDataFrame. Furthermore, the main purpose is to perform a network analysis, such as a shortest path from source to target location. Let us calculate the shortest path from Wageningen campus to Wageningen city center. Is this the route you would take?
 
@@ -485,7 +485,7 @@ ox.plot_graph_route(WageningenRoadsGraph, shortestroute,
                     fig_height=20, fig_width=20)
 ```
 
-<img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center", width = "100%">
+<img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%">
 
 # What have we learned?
 
