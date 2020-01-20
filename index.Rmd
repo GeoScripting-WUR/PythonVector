@@ -38,7 +38,7 @@ Before we continue with scripting, the Python environment needs to be setup. Let
 conda info --envs
 ```
 
-We won't use the existing environment, but it is a good practice to be aware of all available conda environments. Now create a new conda environment for today called vectorpython and install the required packages.
+We can use the existing 'geoscripting' environment. If you don't have this one yet, create quickly this one with the bash scripts below. this one installs a conda environment with all packages (and versions) that don't conflict with each other for this course.
 
 ```{r, eval=FALSE, engine='bash'}
 wget https://raw.githubusercontent.com/GeoScripting-WUR/InstallLinuxScript/master/user/environment.yml
