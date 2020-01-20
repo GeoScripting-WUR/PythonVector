@@ -41,10 +41,8 @@ conda info --envs
 We won't use the existing environment, but it is a good practice to be aware of all available conda environments. Now create a new conda environment for today called vectorpython and install the required packages.
 
 ```{r, eval=FALSE, engine='bash'}
-conda create --name VectorPython python=3 geopandas spyder owslib kealib jupyter matplotlib seaborn pyproj owslib -y
-source activate VectorPython
-conda install --channel conda-forge folium geopy osmnx -y
-pip install fiona=1.8.8 -y
+wget https://raw.githubusercontent.com/GeoScripting-WUR/InstallLinuxScript/master/user/environment.yml
+conda env create -f environment.yml
 ```
 
 Most of the installed software were Python packages. One was not. Can you tell which one? 
