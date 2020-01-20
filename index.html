@@ -1135,7 +1135,7 @@ roadsGDF.plot()</code></pre>
 <pre style=""><code class="source python">WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs?'
 wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
 layer = list(wfs.contents)[1]
-xmin, xmax, ymin, ymax = x-1000, x+1000, y-1000, y+1000
+xmin, xmax, ymin, ymax = x-500, x+500, y-500, y+500
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='application/gml+xml; version=3.2')
 with open('./data/Buildings.gml', 'w') as file:
     file.write(response.read())
