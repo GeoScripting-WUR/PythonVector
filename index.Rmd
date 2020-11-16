@@ -264,14 +264,13 @@ How many roads are there in the resulting GeoDataFrame (hint: _len()_ or _.info(
 Load some building from another WFS service (BAG) and plot them too. How many buildings do you get? (hint: _len()_) Do you miss buildings? How can we extract missing buildings in our extent? 
 
 ```{Python, eval=FALSE}
-WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs?'
-wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
+WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
+wfs = WebFeatureService(url=WfsUrl, version='1.1.0')
 layer = list(wfs.contents)[1]
-xmin, xmax, ymin, ymax = x-500, x+500, y-500, y+500
-response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='application/gml+xml; version=3.2')
-with open('./data/Buildings.gml', 'w') as file:
-    file.write(response.read())
-BuildingsGDF = gpd.read_file('./data/Buildings.gml')
+xmin, xmax, ymin, ymax = x-1000, x+1000, y-1000, y+1000
+response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
+data = json.loads(response.read())
+BuildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
 print(type(BuildingsGDF))
 roadlayer = roadsGDF.plot(color='grey')
 roadlayer.set_xlim(xmin, xmax)

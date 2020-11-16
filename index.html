@@ -6,7 +6,12 @@
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, Corné Vreugdenhil" />
   <title>Week 3: Python for geo-scripting</title>
-  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- jQuery -->
@@ -868,7 +873,7 @@
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="vector-data-handling-with-python">Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 2020-01-20</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 2020-11-16</p>
 <h2 id="introduction">Introduction</h2>
 <p>Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is <a href="http://geopandas.org/">GeoPandas</a>. GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:</p>
 <ul>
@@ -882,14 +887,14 @@
 </ul>
 <p>By bundling the tools of these packages, GeoPandas provides powerful tools to perform spatial analysis in Python. Other packages, such as <a href="https://python-visualization.github.io/folium/docs-v0.6.0/">Folium</a> and <a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a>, build on the GeoDataFrame capablities of GeoPandas. Fiona builds on GDAL/OGR packages to read and write data. GDAL/OGR/OSR are the backbone of spatial processing in Python and have high performance, but are not that intuitive to use. GeoPandas made it easier to perform spatial processing.</p>
 <h2 id="setting-up-the-python-environment">Setting up the Python Environment</h2>
-<p>Before we continue with scripting, the Python environment needs to be setup. Let's use Conda for this. Check in Bash what environments are already available.</p>
+<p>Before we continue with scripting, the Python environment needs to be setup. Let’s use Conda for this. Check in Bash what environments are already available.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
 <pre style=""><code class="source bash">conda info --envs</code></pre>
 </div>
-<p>We can use the existing 'geoscripting' environment. If you don't have this one yet, create quickly this one with the bash scripts below. this one installs a conda environment with all packages (and versions) that don't conflict with each other for this course.</p>
+<p>We can use the existing ‘geoscripting’ environment. If you don’t have this one yet, create quickly this one with the bash scripts below. this one installs a conda environment with all packages (and versions) that don’t conflict with each other for this course.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
@@ -918,7 +923,7 @@ spyder</code></pre>
 <li>TAB to indent your code</li>
 <li>SHIFT + TAB to unindent your code</li>
 </ul>
-<p>Open a new file and save your Python script in the main directory you just made and name it main.py (File -- &gt; New File --&gt; Save As).</p>
+<p>Open a new file and save your Python script in the main directory you just made and name it main.py (File – &gt; New File –&gt; Save As).</p>
 <h2 id="creating-geometries-geoseries-and-geodataframes">Creating Geometries, GeoSeries and GeoDataFrames</h2>
 <p>Geometries in Python can be created and stored as a datatype by using Shapely. Shapely can create geometries and performs geometric operations. GeoPandas uses the geometries from Shapely to store geometries in GeoSeries and GeoDataFrames. Copy the code below in the Spyder Editor and press run (F5):</p>
 <div class="row">
@@ -1132,14 +1137,13 @@ roadsGDF.plot()</code></pre>
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs?'
-wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
+<pre style=""><code class="source python">WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
+wfs = WebFeatureService(url=WfsUrl, version='1.1.0')
 layer = list(wfs.contents)[1]
-xmin, xmax, ymin, ymax = x-500, x+500, y-500, y+500
-response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='application/gml+xml; version=3.2')
-with open('./data/Buildings.gml', 'w') as file:
-    file.write(response.read())
-BuildingsGDF = gpd.read_file('./data/Buildings.gml')
+xmin, xmax, ymin, ymax = x-1000, x+1000, y-1000, y+1000
+response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
+data = json.loads(response.read())
+BuildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
 print(type(BuildingsGDF))
 roadlayer = roadsGDF.plot(color='grey')
 roadlayer.set_xlim(xmin, xmax)
