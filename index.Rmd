@@ -1,7 +1,7 @@
 ---
-author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, Corné Vreugdenhil"
+author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-pagetitle: "Week 3: Python for geo-scripting"
+pagetitle: "Week 3, Lesson 10: Python for vector processing | geo-scripting"
 output:
   knitrBootstrap::bootstrap_document:
     theme: "simplex"
