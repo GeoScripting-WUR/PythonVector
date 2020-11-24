@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Geoscripting 2020
-Lesson 11 - Python Vector
+Lesson 10 - Python Vector
 v20201124
 CHappyhill
 """
