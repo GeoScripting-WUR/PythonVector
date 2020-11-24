@@ -3,7 +3,7 @@
 """
 Geoscripting 2020
 Lesson 11 - Python Vector
-v20191203
+v20201124
 CHappyhill
 """
 import os
@@ -25,7 +25,7 @@ print(type(gs), len(gs))
 from shapely.wkt import loads
 WKTstring = 'POINT(173994.1578792833 444133.6032947102)'
 gs = gpd.GeoSeries([loads(WKTstring)])
-gs.crs = {'init': 'epsg:28992'}
+gs.crs = "EPSG:28992" # specify manually the projection
 gsBuffer = gs.buffer(100)
 print(gs.geometry)
 print(gsBuffer.geometry)
@@ -38,8 +38,7 @@ df = pd.DataFrame(data)
 print(df.head)
 
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
-wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
-wageningenGDF.crs = {'init': 'epsg:28992'}
+wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry, crs = "EPSG:28992") # note that we here specify the CRS (projection) directly while reading to GDF
 wageningenGDF.plot(marker='*', color='green', markersize=50)
 print(type(wageningenGDF), len(wageningenGDF))
 
@@ -49,13 +48,11 @@ location = geolocator.geocode("Wageningen University")
 print((location.latitude, location.longitude))
 # It should print two coordinates: (lat: 51.98527485, lon:5.66370505205543)
 
-from pyproj import Proj, transform
+from pyproj import Transformer
 geolocator = Nominatim(user_agent="specify_random_user_agent")
 location = geolocator.geocode("Wageningen University")
-inProj = Proj(init='epsg:4326') #WGS84
-outProj = Proj(init='epsg:28992') #RD New
-x, y = transform(inProj, outProj, location.longitude, location.latitude)
-print([x, y])
+x, y = Transformer.from_crs(4326, 28992).transform(location.latitude, location.longitude) #mind swap in axis order! 
+print([x, y]) # always inspect results of your data handling, in this case double-check the coordinates due to potential swap in axis order.
 
 data = {'name': ['a', 'b', 'c'],
         'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
@@ -64,9 +61,9 @@ df = pd.DataFrame(data)
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
 print(wageningenGDF.crs)
-wageningenGDF.crs = {'init': 'epsg:28992'}
+wageningenGDF.crs = 'EPSG:28992'
 print(wageningenGDF.crs)
-wageningenGDF = wageningenGDF.to_crs({'init': 'epsg:4326'})
+wageningenGDF = wageningenGDF.to_crs('EPSG:4326')
 print(wageningenGDF.crs)
 
 import fiona
@@ -107,14 +104,13 @@ plt.savefig('./output/RoadsGDF.png')
 len(roadsGDF)
 roadsGDF.info()
 
-WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs?'
-wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
+WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
+wfs = WebFeatureService(url=WfsUrl, version='1.1.0')
 layer = list(wfs.contents)[1]
-xmin, xmax, ymin, ymax = x-1000, x+1000, y-1000, y+1000
-response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='application/gml+xml; version=3.2')
-with open('./data/Buildings.gml', 'w') as file:
-    file.write(response.read())
-BuildingsGDF = gpd.read_file('./data/Buildings.gml')
+xmin, xmax, ymin, ymax = x-500, x+500, y-500, y+500
+response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
+data = json.loads(response.read())
+BuildingsGDF = gpd.GeoDataFrame.from_features(data['features'], crs=28992)
 print(type(BuildingsGDF))
 roadlayer = roadsGDF.plot(color='grey')
 roadlayer.set_xlim(xmin, xmax)
@@ -122,33 +118,39 @@ roadlayer.set_ylim(ymin, ymax)
 BuildingsGDF.plot(ax=roadlayer, color='red')
 plt.savefig('./output/BuildingsAndRoads.png')
 
-parcelsWFSUrl = 'https://geodata.nationaalgeoregister.nl/kadastralekaartv3/wfs'
-parcelsWFS = WebFeatureService(url=parcelsWFSUrl, version='2.0.0')
-print(list(parcelsWFS.contents))
-xmin, xmax, ymin, ymax = x-500, x+500, y-500, y+500
-responseParcels = parcelsWFS.getfeature(typename='kadastralekaartv3:perceel', 
-                                        bbox=(xmin, ymin, xmax, ymax), 
-                                        maxfeatures=100, outputFormat='json', startindex=0)
-data = json.loads(responseParcels.read())
-parcelsGDF = gpd.GeoDataFrame.from_features(data['features'])
-parcelsGDF.plot()
-plt.savefig('./output/ParcelsGDF.png')
+#parcelsWFSUrl = 'https://geodata.nationaalgeoregister.nl/kadastralekaart/wfs/v4_0?service=WFS'
+#parcelsWFS = WebFeatureService(url=parcelsWFSUrl)
+#print(list(parcelsWFS.contents))
+#xmin, xmax, ymin, ymax = x-500, x+500, y-500, y+500
+#responseParcels = parcelsWFS.getfeature(typename='perceel', 
+#                                        bbox=(xmin, ymin, xmax, ymax), 
+#                                        maxfeatures=100, outputFormat='json', startindex=0)
+#data = json.loads(responseParcels.read())
+#parcelsGDF = gpd.GeoDataFrame.from_features(data['features'])
+#parcelsGDF.plot()
+#plt.savefig('./output/ParcelsGDF.png')
 
-print(parcelsGDF.columns)
-print(parcelsGDF.head())
-print(parcelsGDF.area)
+print(BuildingsGDF.columns)
+print(BuildingsGDF.head())
+print(BuildingsGDF.area)
 
-print(parcelsGDF.area > 100000)
-largeParcelsGDF = parcelsGDF.loc[parcelsGDF.area > 100000, :]
-largeParcelsGDF.plot()
+print(BuildingsGDF.area > 1000)
+largeBuildingsGDF = BuildingsGDF.loc[BuildingsGDF.area > 1000, :]
+largeBuildingsGDF.plot()
 
-print(parcelsGDF['perceelnummer'])
+print(BuildingsGDF['bouwjaar'])
 
-print(parcelsGDF['perceelnummer'].isin(['11185', '11593']))
-campusParcelsGDF = parcelsGDF[parcelsGDF['perceelnummer'].isin(['11185', '11725'])]
+print(BuildingsGDF['status'].isin(['Bouw gestart']))
+NewBuildingsGDF = BuildingsGDF[BuildingsGDF['status'].isin(['Bouw gestart'])]
 
-campusParcelsGDF.plot()
-plt.savefig('./output/CampusParcels.png')
+## plot the new buildings with a basemap for reference
+## based on https://geopandas.org/gallery/plotting_basemap_background.html
+import contextily as ctx
+NewBuildingsGDF = NewBuildingsGDF.to_crs(epsg=3857)
+ax = NewBuildingsGDF.plot(figsize=(10, 5), alpha=0.5, edgecolor='k')
+ctx.add_basemap(ax, source=ctx.providers.Stamen.TonerLite)
+ax.set_axis_off()
+plt.savefig('./output/NewBuildings.png')
 
 ##
 #c = parcelsGDF
@@ -175,77 +177,64 @@ plt.savefig('./output/CampusParcels.png')
 #campusParcelsGDF.plot(ax=roadlayer, color='red')
 #
 
-print(type(largeParcelsGDF))
-print(type(largeParcelsGDF.geometry))
-print(type(largeParcelsGDF['geometry']))
+print(type(roadsGDF))
+print(type(roadsGDF.geometry))
+print(roadsGDF['geometry'])
 
-parcelsUnionGS = gpd.GeoSeries(largeParcelsGDF.unary_union)
-parcelsUnionGS.plot()
+RoadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=1.5)) # buffer of 1.5 m on both sides
+RoadsPolygonGDF.plot(color='blue', edgecolor='blue')
+RoadsPolygonGDF.area.sum()
 
-parcelsConvexGDF = gpd.GeoDataFrame(parcelsUnionGS.convex_hull)
-parcelsConvexGDF = parcelsConvexGDF.rename(columns={0:'geometry'}).set_geometry('geometry')
-parcelsConvexGDF.plot()
+RoadsUnionGS = gpd.GeoSeries(RoadsPolygonGDF.unary_union)
+RoadsUnionGS.area
+print('There was an overlap of ' + round((RoadsPolygonGDF.area.sum() - RoadsUnionGS.area[0]), 1).astype(str) + ' meters.')
 
-# we need polygons instead of line features for the overlay
-RoadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=5))
-RoadsPolygonGDF.plot()
-# perform an intersection overlay
-roadsIntersectionGDF = gpd.overlay(parcelsConvexGDF, RoadsPolygonGDF, how="intersection")
-roadsIntersectionGDF.plot()
+NewBuildingsGDF = NewBuildingsGDF.to_crs(epsg=28992)
+AreaOfInterestGS = gpd.GeoSeries(NewBuildingsGDF.buffer(distance=100).unary_union)
+AreaOfInterestGDF = gpd.GeoDataFrame(AreaOfInterestGS.convex_hull)
+AreaOfInterestGDF = AreaOfInterestGDF.rename(columns={0:'geometry'}).set_geometry('geometry')
+AreaOfInterestGDF.crs = 'EPSG:28992' 
+#AreaOfInterestGDF.plot()
+## perform an intersection overlay
+roadsIntersectionGDF = gpd.overlay(AreaOfInterestGDF, RoadsPolygonGDF, how="intersection")
+#roadsIntersectionGDF.plot(color='blue', edgecolor='blue')
+## plot the results 
+roadlayer = roadsIntersectionGDF.plot(color='grey', edgecolor='grey')
+roadlayer.set_xlim(xmin, xmax)
+roadlayer.set_ylim(ymin, ymax)
+NewBuildingsGDF.plot(ax=roadlayer, color='red')
 plt.savefig('./output/roadsIntersectionGDF.png')
 
 WageningenRoadsGDF = RoadsPolygonGDF.loc[RoadsPolygonGDF['gme_naam']=='Wageningen']
 print(sum(WageningenRoadsGDF.area))
-WageningenRoadsGDF.plot()
+WageningenRoadsGDF.plot(edgecolor='purple')
 plt.savefig('./output/WageningenRoadsGDF.png')
 
 import folium
 campusMap = folium.Map([location.latitude, location.longitude], zoom_start=17)
-BuildingsGDF.crs = {'init': 'epsg:28992'}
-BuildingsGDF.to_crs({'init': 'epsg:4326'})
-RoadsPolygonGDF.crs = {'init': 'epsg:28992'}
-RoadsPolygonGDF.to_crs({'init': 'epsg:4326'})
+BuildingsGDF = BuildingsGDF.to_crs(4326)
+RoadsPolygonGDF = RoadsPolygonGDF.to_crs(4326)
 campusMap.choropleth(BuildingsGDF, name='Building construction years', 
-                     data=BuildingsGDF, columns=['gml_id', 'bouwjaar'], 
-                     key_on='feature.properties.gml_id', fill_color='RdYlGn',
+                     data=BuildingsGDF, columns=['gid', 'bouwjaar'], 
+                     key_on='feature.properties.gid', fill_color='RdYlGn',
                      fill_opacity=0.7, line_opacity=0.2,legend_name='Construction year')
-campusMap.choropleth(RoadsPolygonGDF)
+campusMap.choropleth(RoadsPolygonGDF, name='Roads')
 folium.LayerControl().add_to(campusMap)
 campusMap.save('./output/campusMap.html')
 campusMap
 
-## check code critically, we request from wfs without storing a gml file!
 import geopandas as gpd
 from requests import Request
 from owslib.wfs import WebFeatureService
 from matplotlib import pyplot as plt
 # extract only buildings on and around WUR campus
-url = 'https://geodata.nationaalgeoregister.nl/bag/wfs'
-layer = 'bag:pand'
-# speciy the boundary box for extracting
+WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
+wfs = WebFeatureService(url=WfsUrl, version='1.1.0')
+layer = list(wfs.contents)[1]
 xmin, xmax, ymin, ymax = x-300, x+600, y-300, y+300
-bb = (xmin, ymin, xmax, ymax)
-bb = ','.join(map(str, bb)) # string needed for the request
-# Specify the parameters for fetching the data
-params = dict(service='WFS', version="2.0.0", request='GetFeature',
-      typeName=layer, outputFormat='text/xml; subtype=gml/3.2',
-      srsname='urn:ogc:def:crs:EPSG::28992', bbox=bb)
-# Parse the URL with parameters
-q = Request('GET', url, params=params).prepare().url
-# Read data from URL
-BuildingsGDF = gpd.read_file(q)
-
-
-#
-#WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs?'
-#wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
-#layer = list(wfs.contents)[1]
-#xmin, xmax, ymin, ymax = x-300, x+600, y-300, y+300
-#response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='application/gml+xml; version=3.2')
-#with open('./data/WURBuildings.gml', 'w') as file:
-#    file.write(response.read())
-#BuildingsGDF = gpd.read_file('./data/WURBuildings.gml')
-
+response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
+data = json.loads(response.read())
+BuildingsGDF = gpd.GeoDataFrame.from_features(data['features'], crs=28992)
 # create visualisation
 f, ax = plt.subplots(1, figsize=(10, 5))
 ax.set_title('WUR campus buildings')
@@ -260,35 +249,22 @@ buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar',
 plt.savefig('./output/WURcampusMapBuildings.png')
 
 import osmnx as ox
-city = ox.gdf_from_place('Wageningen, Netherlands')
-ox.plot_shape(ox.project_gdf(city))
-WageningenRoadsGraph = ox.graph_from_place('Wageningen, Netherlands', network_type='all')
-ox.plot_graph(WageningenRoadsGraph, fig_height=20, fig_width=20)
-ox.save_graph_shapefile(G=WageningenRoadsGraph, filename='OSMnetwork_Wageningen.shp')
+city = ox.geocoder.geocode_to_gdf('Wageningen, Netherlands')
+ox.plot.plot_footprints(ox.project_gdf(city))
+WageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', network_type='bike')
+ox.plot.plot_graph(WageningenRoadsGraph, figsize=(10,10), node_size=2)
+ox.io.save_graph_shapefile(G=WageningenRoadsGraph, filepath='OSMnetwork_Wageningen.shp')
 gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=WageningenRoadsGraph)
 print(gdf_nodes.info())
 print(gdf_edges.info())
 
-source = ox.get_nearest_node(WageningenRoadsGraph, (51.987817, 5.665779))
-target = ox.get_nearest_node(WageningenRoadsGraph, (51.964870, 5.662409))
-shortestroute = ox.nx.shortest_path(G=WageningenRoadsGraph, 
-                                    source=source, target=target, weight='length')
-ox.plot_graph_route(WageningenRoadsGraph, shortestroute, 
-                    fig_height=20, fig_width=20)
+source = ox.distance.get_nearest_node(WageningenRoadsGraph, (51.987817, 5.665779))
+target = ox.distance.get_nearest_node(WageningenRoadsGraph, (51.964870, 5.662409))
+shortestroute = ox.distance.shortest_path(G=WageningenRoadsGraph, 
+                                    orig=source, dest=target, weight='length')
+ox.plot.plot_graph_route(WageningenRoadsGraph, shortestroute, figsize=(20,20),
+                         route_alpha=0.6, route_color='darkred', 
+                         route_linewidth=10, orig_dest_size=100)
 
-#
-#
-###
-#import osmnx as ox
-#city = ox.gdf_from_place('Wageningen University')
-#ox.plot_shape(ox.project_gdf(city))
-#city = ox.gdf_from_place('Dreijen')
-#ox.plot_shape(ox.project_gdf(city))
-#WageningenRoadsGraph = ox.graph_from_place('Dreijenplein', network_type='all')
-#ox.plot_graph(WageningenRoadsGraph, fig_height=10, fig_width=10)
-#ox.save_graph_shapefile(G=WageningenRoadsGraph, filename='OSMnetwork_Wageningen.shp')
-#gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=WageningenRoadsGraph)
-#print(gdf_nodes.info())
-#print(gdf_edges.info())
 
 
