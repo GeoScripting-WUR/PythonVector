@@ -55,6 +55,7 @@ mkdir PythonVector #or give the directory a name to your liking
 cd ./PythonVector
 mkdir scripts
 mkdir data
+mkdir output
 spyder
 ```
 
@@ -262,6 +263,7 @@ How many roads are there in the resulting GeoDataFrame (hint: _len()_ or _.info(
 Load some building from another WFS service (BAG) and plot them too. How many buildings do you get? (hint: _len()_) Do you miss buildings? How can we extract missing buildings in our extent? 
 
 ```{Python, eval=FALSE}
+from matplotlib import pyplot as plt
 WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
 wfs = WebFeatureService(url=WfsUrl, version='1.1.0')
 layer = list(wfs.contents)[1]
@@ -269,6 +271,7 @@ xmin, xmax, ymin, ymax = x-500, x+500, y-500, y+500
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
 data = json.loads(response.read())
 BuildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
+BuildingsGDF.crs = 28992 # Set crs to RD New
 print(type(BuildingsGDF))
 roadlayer = roadsGDF.plot(color='grey')
 roadlayer.set_xlim(xmin, xmax)
@@ -402,14 +405,15 @@ folium.LayerControl().add_to(campusMap)
 campusMap.save('./output/campusMap.html')
 campusMap
 ```
-
+```{block, type="alert alert-info"}
+> **Tip**: If you are using Spyder, you can view the interactive map by opening the html file that has been generated (`./output/campusMap.html`). If you are running in the Jupyter Notebook, the interactive map should automatically show.
+```
 <img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%">
 
 Matplotlib allows you to make good quality maps for reports or publications.
 
 ```{Python, eval=FALSE}
 import geopandas as gpd
-from requests import Request
 from owslib.wfs import WebFeatureService
 from matplotlib import pyplot as plt
 # extract only buildings on and around WUR campus

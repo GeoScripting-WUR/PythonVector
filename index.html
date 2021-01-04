@@ -873,7 +873,7 @@
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="vector-data-handling-with-python">Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 2020-11-24</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 2021-01-04</p>
 <h2 id="introduction">Introduction</h2>
 <p>Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is <a href="http://geopandas.org/">GeoPandas</a>. GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:</p>
 <ul>
@@ -913,6 +913,7 @@ mkdir PythonVector #or give the directory a name to your liking
 cd ./PythonVector
 mkdir scripts
 mkdir data
+mkdir output
 spyder</code></pre>
 </div>
 <p>In Spyder you should see an editor, a file explorer and a console. Have a look at the toolbar. Some important shortcuts are:</p>
@@ -1135,13 +1136,15 @@ roadsGDF.plot()</code></pre>
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
+<pre style=""><code class="source python">from matplotlib import pyplot as plt
+WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
 wfs = WebFeatureService(url=WfsUrl, version='1.1.0')
 layer = list(wfs.contents)[1]
 xmin, xmax, ymin, ymax = x-500, x+500, y-500, y+500
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
 data = json.loads(response.read())
 BuildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
+BuildingsGDF.crs = 28992 # Set crs to RD New
 print(type(BuildingsGDF))
 roadlayer = roadsGDF.plot(color='grey')
 roadlayer.set_xlim(xmin, xmax)
@@ -1289,6 +1292,15 @@ campusMap.choropleth(RoadsPolygonGDF, name='Roads')
 folium.LayerControl().add_to(campusMap)
 campusMap.save('./output/campusMap.html')
 campusMap</code></pre>
+</div>
+<div class="row">
+<div class="alert alert-info">
+<blockquote>
+<p>
+<strong>Tip</strong>: If you are using Spyder, you can view the interactive map by opening the html file that has been generated (<code>./output/campusMap.html</code>). If you are running in the Jupyter Notebook, the interactive map should automatically show.
+</p>
+</blockquote>
+</div>
 </div>
 <p><img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%"></p>
 <p>Matplotlib allows you to make good quality maps for reports or publications.</p>
