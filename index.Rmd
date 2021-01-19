@@ -395,6 +395,7 @@ Folium uses leaflet on the backend to make webmaps. With leaflet your geodata ca
 ```{Python, eval=FALSE}
 import folium
 campusMap = folium.Map([location.latitude, location.longitude], zoom_start=17)
+BuildingsGDF.crs = 'EPSG:28992'
 BuildingsGDF = BuildingsGDF.to_crs(4326)
 RoadsPolygonGDF = RoadsPolygonGDF.to_crs(4326)
 campusMap.choropleth(BuildingsGDF, name='Building construction years',
