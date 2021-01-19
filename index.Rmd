@@ -312,6 +312,7 @@ NewBuildingsGDF = BuildingsGDF[BuildingsGDF['status'].isin(['Bouw gestart'])]
 ## plot the new buildings with a basemap for reference
 ## based on https://geopandas.org/gallery/plotting_basemap_background.html
 import contextily as ctx
+NewBuildingsGDF.crs = "EPSG:28992"
 NewBuildingsGDF = NewBuildingsGDF.to_crs(epsg=3857)
 ax = NewBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
 ctx.add_basemap(ax, source=ctx.providers.Stamen.TonerLite)
