@@ -262,6 +262,7 @@ How many roads are there in the resulting GeoDataFrame (hint: _len()_ or _.info(
 Load some building from another WFS service (BAG) and plot them too. How many buildings do you get? (hint: _len()_) Do you miss buildings? How can we extract missing buildings in our extent? 
 
 ```{Python, eval=FALSE}
+import matplotlib.pyplot as plt
 WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
 wfs = WebFeatureService(url=WfsUrl, version='1.1.0')
 layer = list(wfs.contents)[1]
