@@ -47,7 +47,7 @@ conda env create -f environment.yml
 
 Most of the installed software were Python packages. One was not. Can you tell which one? 
 
-It was the [Spyder IDE](https://docs.spyder-ide.org/)! Run the bash code below to setup your file system and to start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment. Make a new directory for your main script, other scripts and data with some bash code. Then start Spyder.
+It was the [Spyder IDE](https://docs.spyder-ide.org/)! Run the bash code below to setup your file system and to start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment. Make a new directory for your main script, other scripts and data with some bash code. Then start Spyder *from the terminal in which you have activated the 'geoscripting' environment*.
 
 ```{r, eval=FALSE,engine='bash'}
 cd ~/Documents/
