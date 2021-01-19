@@ -6,12 +6,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil" />
   <title>Week 3, Lesson 10: Python for vector processing | geo-scripting</title>
-  <style type="text/css">
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
-  </style>
+  <style type="text/css">code{white-space: pre;}</style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- jQuery -->
@@ -872,7 +867,7 @@
 <div class="row row-offcanvas row-offcanvas-right">
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
-<h1 id="vector-data-handling-with-python">Vector data handling with Python</h1>
+<h1 id="week-3-lesson-10-vector-data-handling-with-python">Week 3, Lesson 10: Vector data handling with Python</h1>
 <p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 2021-01-19</p>
 <h2 id="introduction">Introduction</h2>
 <p>Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is <a href="http://geopandas.org/">GeoPandas</a>. GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:</p>
@@ -887,14 +882,14 @@
 </ul>
 <p>By bundling the tools of these packages, GeoPandas provides powerful tools to perform spatial analysis in Python. Other packages, such as <a href="https://python-visualization.github.io/folium/docs-v0.6.0/">Folium</a> and <a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a>, build on the GeoDataFrame capablities of GeoPandas. Fiona builds on GDAL/OGR packages to read and write data. GDAL/OGR/OSR are the backbone of spatial processing in Python and have high performance, but are not that intuitive to use. GeoPandas made it easier to perform spatial processing.</p>
 <h2 id="setting-up-the-python-environment">Setting up the Python Environment</h2>
-<p>Before we continue with scripting, the Python environment needs to be setup. Let’s use Conda for this. Check in Bash what environments are already available.</p>
+<p>Before we continue with scripting, the Python environment needs to be setup. Let's use Conda for this. Check in Bash what environments are already available.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
 <pre style=""><code class="source bash">conda info --envs</code></pre>
 </div>
-<p>We can use the existing ‘geoscripting’ environment. If you don’t have this one yet, create quickly this one with the bash scripts below. this one installs a conda environment with all packages (and versions) that don’t conflict with each other for this course.</p>
+<p>We can use the existing 'geoscripting' environment. If you don't have this one yet, create quickly this one with the bash scripts below. this one installs a conda environment with all packages (and versions) that don't conflict with each other for this course.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
@@ -903,7 +898,7 @@
 conda env create -f environment.yml</code></pre>
 </div>
 <p>Most of the installed software were Python packages. One was not. Can you tell which one?</p>
-<p>It was the <a href="https://docs.spyder-ide.org/">Spyder IDE</a>! Run the bash code below to setup your file system and to start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment. Make a new directory for your main script, other scripts and data with some bash code. Then start Spyder <em>from the terminal in which you have activated the ‘geoscripting’ environment</em>.</p>
+<p>It was the <a href="https://docs.spyder-ide.org/">Spyder IDE</a>! Run the bash code below to setup your file system and to start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment. Make a new directory for your main script, other scripts and data with some bash code. Then start Spyder <em>from the terminal in which you have activated the 'geoscripting' environment</em>.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
@@ -924,7 +919,7 @@ spyder</code></pre>
 <li>TAB to indent your code</li>
 <li>SHIFT + TAB to unindent your code</li>
 </ul>
-<p>Open a new file and save your Python script in the main directory you just made and name it main.py (File – &gt; New File –&gt; Save As).</p>
+<p>Open a new file and save your Python script in the main directory you just made and name it main.py (File -- &gt; New File --&gt; Save As).</p>
 <h2 id="creating-geometries-geoseries-and-geodataframes">Creating Geometries, GeoSeries and GeoDataFrames</h2>
 <p>Geometries in Python can be created and stored as a datatype by using Shapely. Shapely can create geometries and performs geometric operations. GeoPandas uses the geometries from Shapely to store geometries in GeoSeries and GeoDataFrames. Copy the code below in the Spyder Editor and press run (F5):</p>
 <div class="row">
@@ -994,7 +989,8 @@ print(df.head)</code></pre>
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
+<pre style=""><code class="source python">import matplotlib
+geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry, crs = "EPSG:28992") # note that we here specify the CRS (projection) directly while reading to GDF
 wageningenGDF.plot(marker='*', color='green', markersize=50)
 print(type(wageningenGDF), len(wageningenGDF))</code></pre>
@@ -1031,7 +1027,7 @@ print((location.latitude, location.longitude))
 <pre style=""><code class="source python">from pyproj import Transformer
 geolocator = Nominatim(user_agent="specify_random_user_agent")
 location = geolocator.geocode("Wageningen University")
-x, y = Transformer.from_crs(4326, 28992).transform(location.latitude, location.longitude) #mind swap in axis order! 
+x, y = Transformer.from_crs(4326, 28992).transform(location.latitude, location.longitude) #mind swap in axis order!
 print([x, y]) # always inspect results of your data handling, in this case double-check the coordinates due to potential swap in axis order.
 </code></pre>
 </div>
@@ -1172,15 +1168,15 @@ print(BuildingsGDF.area)</code></pre>
 largeBuildingsGDF = BuildingsGDF.loc[BuildingsGDF.area > 1000, :]
 largeBuildingsGDF.plot()</code></pre>
 </div>
-<p>Columns can be selected by using an index to the name of the column. Let us here the construction years (‘bouwjaar’) of the buildings.</p>
+<p>Columns can be selected by using an index to the name of the column. Let us here the construction years ('bouwjaar') of the buildings.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">print(BuildingsGDF['bouwjaar']) 
+<pre style=""><code class="source python">print(BuildingsGDF['bouwjaar'])
 </code></pre>
 </div>
-<p>Specific rows can be selected by using .isin method on a series. Here we select buildings that are still to be build (status = in construction (‘Bouw gestart’)).</p>
+<p>Specific rows can be selected by using .isin method on a series. Here we select buildings that are still to be build (status = in construction ('Bouw gestart')).</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1206,7 +1202,7 @@ ax.set_axis_off()</code></pre>
 print(type(roadsGDF.geometry))
 print(roadsGDF['geometry'])</code></pre>
 </div>
-Let’s create a buffer around the roads to represent coverage of roads, assuming roads have all a width of 3 meters.
+Let's create a buffer around the roads to represent coverage of roads, assuming roads have all a width of 3 meters.
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1251,12 +1247,12 @@ GeoPandas can perform different <a href="http://geopandas.org/set_operations.htm
 AreaOfInterestGS = gpd.GeoSeries(NewBuildingsGDF.buffer(distance=100).unary_union)
 AreaOfInterestGDF = gpd.GeoDataFrame(AreaOfInterestGS.convex_hull)
 AreaOfInterestGDF = AreaOfInterestGDF.rename(columns={0:'geometry'}).set_geometry('geometry')
-AreaOfInterestGDF.crs = 'EPSG:28992' 
-#AreaOfInterestGDF.plot() 
+AreaOfInterestGDF.crs = 'EPSG:28992'
+#AreaOfInterestGDF.plot()
 ## perform an intersection overlay
 roadsIntersectionGDF = gpd.overlay(AreaOfInterestGDF, RoadsPolygonGDF, how="intersection")
 #roadsIntersectionGDF.plot(color='blue', edgecolor='blue')
-## plot the results 
+## plot the results
 roadlayer = roadsIntersectionGDF.plot(color='grey', edgecolor='grey')
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
@@ -1282,10 +1278,11 @@ WageningenRoadsGDF.plot(edgecolor='purple')</code></pre>
 </button>
 <pre style=""><code class="source python">import folium
 campusMap = folium.Map([location.latitude, location.longitude], zoom_start=17)
+BuildingsGDF.crs = 'EPSG:28992'
 BuildingsGDF = BuildingsGDF.to_crs(4326)
 RoadsPolygonGDF = RoadsPolygonGDF.to_crs(4326)
-campusMap.choropleth(BuildingsGDF, name='Building construction years', 
-                     data=BuildingsGDF, columns=['gid', 'bouwjaar'], 
+campusMap.choropleth(BuildingsGDF, name='Building construction years',
+                     data=BuildingsGDF, columns=['gid', 'bouwjaar'],
                      key_on='feature.properties.gid', fill_color='RdYlGn',
                      fill_opacity=0.7, line_opacity=0.2,legend_name='Construction year')
 campusMap.choropleth(RoadsPolygonGDF, name='Roads')
@@ -1326,9 +1323,9 @@ ax.set_facecolor("grey")
 roadlayer = RoadsPolygonGDF.plot(ax=ax, legend=True)
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
-buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar', 
+buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar',
                                    cmap='brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
-                                   legend=True, 
+                                   legend=True,
                                    legend_kwds={'label': "Construction year",'orientation': "vertical"})</code></pre>
 </div>
 <p><img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus" width = "100%"></p>
@@ -1356,10 +1353,10 @@ print(gdf_edges.info())</code></pre>
 </button>
 <pre style=""><code class="source python">source = ox.distance.get_nearest_node(WageningenRoadsGraph, (51.987817, 5.665779))
 target = ox.distance.get_nearest_node(WageningenRoadsGraph, (51.964870, 5.662409))
-shortestroute = ox.distance.shortest_path(G=WageningenRoadsGraph, 
+shortestroute = ox.distance.shortest_path(G=WageningenRoadsGraph,
                                     orig=source, dest=target, weight='length')
 ox.plot.plot_graph_route(WageningenRoadsGraph, shortestroute, figsize=(20,20),
-                         route_alpha=0.6, route_color='darkred', 
+                         route_alpha=0.6, route_color='darkred',
                          route_linewidth=10, orig_dest_size=100)</code></pre>
 </div>
 <p><img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%"></p>
@@ -1373,8 +1370,7 @@ ox.plot.plot_graph_route(WageningenRoadsGraph, shortestroute, figsize=(20,20),
 <li>Selecting data</li>
 <li>Geometric manipulations</li>
 <li>Geo-visualization</li>
-<li>Network analysis</li>
-</ol>
+<li>Network analysis
 </div>
 </div>
 </div>
@@ -1389,6 +1385,7 @@ Styled with <a href="https://github.com/jimhester/knitrBootstrap">knitrBootstrap
 </div>
 </div>
 <link rel="stylesheet" id="theme" href="https://netdna.bootstrapcdn.com/bootswatch/3.0.0/simplex/bootstrap.min.css" media="screen"></link><link rel="stylesheet" id="highlight" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/tomorrow-night-bright.min.css" media="screen"></link>
-</div>
+</div></li>
+</ol>
 </body>
 </html>
