@@ -125,6 +125,7 @@ print(df.head)
 If a Pandas dataframe has two columns filled with coordinate pairs, then these columns can be converted to a list of Point geometries and can then be converted into a GeoSeries or directly to a GeoDataFrame.
 
 ```{Python, eval=FALSE}
+import matplotlib
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry, crs = "EPSG:28992") # note that we here specify the CRS (projection) directly while reading to GDF
 wageningenGDF.plot(marker='*', color='green', markersize=50)
