@@ -45,9 +45,8 @@ wget https://raw.githubusercontent.com/GeoScripting-WUR/InstallLinuxScript/maste
 conda env create -f environment.yml
 ```
 
-Most of the installed software were Python packages. One was not. Can you tell which one?
 
-It was the [Spyder IDE](https://docs.spyder-ide.org/)! Run the bash code below to setup your file system and to start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment. Make a new directory for your main script, other scripts and data with some bash code. Then start Spyder *from the terminal in which you have activated the 'geoscripting' environment*.
+REVISE:
 
 ```{r, eval=FALSE,engine='bash'}
 cd ~/Documents/
@@ -59,15 +58,10 @@ mkdir output
 spyder
 ```
 
-In Spyder you should see an editor, a file explorer and a console. Have a look at the toolbar. Some important shortcuts are:
 
-* F5 to run your script
-* CTRL + S to save your script
-* CTRL + 1 to comment/uncomment your code
-* TAB to indent your code
-* SHIFT + TAB to unindent your code
 
-Open a new file and save your Python script in the main directory you just made and name it main.py (File -- > New File --> Save As).
+
+
 
 ## Creating Geometries, GeoSeries and GeoDataFrames
 Geometries in Python can be created and stored as a datatype by using Shapely. Shapely can create geometries and performs geometric operations. GeoPandas uses the geometries from Shapely to store geometries in GeoSeries and GeoDataFrames. Copy the code below in the Spyder Editor and press run (F5):
