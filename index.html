@@ -6,7 +6,12 @@
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil" />
   <title>Week 3, Lesson 10: Python for vector processing | geo-scripting</title>
-  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- jQuery -->
@@ -868,28 +873,27 @@
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="week-3-lesson-10-vector-data-handling-with-python">Week 3, Lesson 10: Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil</em> - 2021-01-19</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil</em> - 2021-11-15</p>
 <h2 id="introduction">Introduction</h2>
-<p>Good morning! Today we will have fun by exploring a variety of Python packages for vector data handling. A good package is <a href="http://geopandas.org/">GeoPandas</a>. GeoPandas strives to make vector processing in Python easier and has a lot of tools available for exploratory vector data analysis. It leverages several other popular Python packages:</p>
+<p>Good morning! Today we will explore a variety of Python packages for vector data handling:</p>
 <ul>
-<li><a href="http://pandas.pydata.org/">Pandas</a> for dataframes and data analysis</li>
+<li><a href="https://gdal.org/api/python.html">GDAL</a>, the backbone of spatial data processing in Python (and R) with high performance</li>
 <li><a href="http://toblerity.org/shapely/">Shapely</a> for geometric operations</li>
-<li><a href="http://toblerity.org/fiona/">Fiona</a> for geodata access and conversions</li>
+<li><a href="http://geopandas.org/">GeoPandas</a> for exploratory vector data analysis, based on <a href="http://pandas.pydata.org/">Pandas</a> for dataframes and data analysis</li>
 <li><a href="https://github.com/jswhit/pyproj">pyproj</a> for re-projecting</li>
-<li><a href="https://matplotlib.org/">matplotlib</a> for plotting</li>
+<li><a href="http://toblerity.org/fiona/">Fiona</a> for geodata access and conversions</li>
 <li><a href="https://pypi.org/project/psycopg2/">psycopg2</a> for PostgreSQL database connection</li>
 <li><a href="https://geopy.readthedocs.io/en/stable/">GeoPy</a> for geocoding</li>
 </ul>
-<p>By bundling the tools of these packages, GeoPandas provides powerful tools to perform spatial analysis in Python. Other packages, such as <a href="https://python-visualization.github.io/folium/docs-v0.6.0/">Folium</a> and <a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a>, build on the GeoDataFrame capablities of GeoPandas. Fiona builds on GDAL/OGR packages to read and write data. GDAL/OGR/OSR are the backbone of spatial processing in Python and have high performance, but are not that intuitive to use. GeoPandas made it easier to perform spatial processing.</p>
 <h2 id="setting-up-the-python-environment">Setting up the Python Environment</h2>
-<p>Before we continue with scripting, the Python environment needs to be setup. Let's use Conda for this. Check in Bash what environments are already available.</p>
+<p>First, the Python environment needs to be setup, as you learned in the previous lesson. Check what environments are already available:</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
 <pre style=""><code class="source bash">conda info --envs</code></pre>
 </div>
-<p>We can use the existing 'geoscripting' environment. If you don't have this one yet, create quickly this one with the bash scripts below. this one installs a conda environment with all packages (and versions) that don't conflict with each other for this course.</p>
+<p>We can use the existing ‘geoscripting’ environment. If you don’t have it yet/anymore, create it with the bash scripts below.</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
@@ -897,8 +901,8 @@
 <pre style=""><code class="source bash">wget https://raw.githubusercontent.com/GeoScripting-WUR/InstallLinuxScript/master/user/environment.yml
 conda env create -f environment.yml</code></pre>
 </div>
-<p>Most of the installed software were Python packages. One was not. Can you tell which one?</p>
-<p>It was the <a href="https://docs.spyder-ide.org/">Spyder IDE</a>! Run the bash code below to setup your file system and to start Spyder. When Spyder is started in a terminal with an active conda environment, Spyder automatically uses the Python interpreter of the active conda environment. Make a new directory for your main script, other scripts and data with some bash code. Then start Spyder <em>from the terminal in which you have activated the 'geoscripting' environment</em>.</p>
+<p>Then, activate the environment. See the previous lesson if you do not remember how to do that.</p>
+<p>Finally, make a folder structure for this tutorial, and open Spyder as you IDE:</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
@@ -911,58 +915,70 @@ mkdir data
 mkdir output
 spyder</code></pre>
 </div>
-<p>In Spyder you should see an editor, a file explorer and a console. Have a look at the toolbar. Some important shortcuts are:</p>
+<h2 id="vector-geometries">Vector Geometries</h2>
+<!-- GDAL, potentially add 
+At the backbone of spatial data processing in Python is GDAL. GDAL means Geospatial Data Abstraction Library, it is a ‘translator library’ for raster and vector geospatial data. Although the overarching package is called GDAL, the term is mostly used for the raster handling part. The vector handling part of the GDAL package is called OGR.
+
+In this tutorial, we will not work much with OGR separately. However, it is at the basis of many other packages. Therefore, to understand object structures in these packages, it is convenient to know how various objects in OGR are related to each other:
+* When you open a file (e.g. shapefile), you have a DataSource object
+* A Data source can have one or more Layer objects
+* A Layer can have one or more Feature objects
+* Features have Geometry and Attribute objects
+
+<img src="./images/ogr_structure.png" alt="OGR class structure, source: Garrard, 2016, Geoprocessing with Python" width = "70%">
+-->
+<p>WKT (<a href="https://en.wikipedia.org/wiki/Well-known_text">Well Known Text</a>) is a markup language that describes spatial information in a clean text format. WKT can represent the following distinct (OGC-defined) geometric objects:</p>
 <ul>
-<li>F5 to run your script</li>
-<li>CTRL + S to save your script</li>
-<li>CTRL + 1 to comment/uncomment your code</li>
-<li>TAB to indent your code</li>
-<li>SHIFT + TAB to unindent your code</li>
-</ul>
-<p>Open a new file and save your Python script in the main directory you just made and name it main.py (File -- &gt; New File --&gt; Save As).</p>
-<h2 id="creating-geometries-geoseries-and-geodataframes">Creating Geometries, GeoSeries and GeoDataFrames</h2>
-<p>Geometries in Python can be created and stored as a datatype by using Shapely. Shapely can create geometries and performs geometric operations. GeoPandas uses the geometries from Shapely to store geometries in GeoSeries and GeoDataFrames. Copy the code below in the Spyder Editor and press run (F5):</p>
-<div class="row">
-<button class="source Python toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> Python source
-</button>
-<pre style=""><code class="source python">from shapely.geometry import Point
-import geopandas as gpd
-wageningenCampus = Point([173994.1578792833, 444133.60329471016])
-print(type(wageningenCampus))
-gs = gpd.GeoSeries([wageningenCampus])
-print(type(gs), len(gs))</code></pre>
-</div>
-<p>You just created a point in Shapely and a GeoSeries in GeoPandas. A GeoSeries is a vector (a column of values) where each value in the vector is a set of shapes corresponding to one observation. GeoPandas implements two main data structures, a GeoSeries and a GeoDataFrame. If you are familiar with Pandas, then know that these are subclasses of Pandas Series and DataFrame, respectively.</p>
-<p>A GeoSeries is made up of an index and a GeoPandas geometry data type. This data type is a shapely.geometry object, and therefore inherits attributes and methods from shapely geometries, such as area, bounds, distance, etc. A GeoDataFrame is a tabular data structure with multiple columns that contains one column that is a GeoSeries.</p>
-<p>GeoPandas has six classes of geometric objects, corresponding to the three basic single-entity geometric types and their associated homogeneous collections of multiple entities:</p>
-<ul>
-<li>Single entity (core, basic types):
+<li>Geometry primitives (single entity, basic types):
 <ul>
 <li>Point</li>
 <li>Line (formally known as a LineString)</li>
 <li>Polygon</li>
 </ul></li>
-<li>Homogeneous entity collections:
+<li>Multipart geometries, homogeneous entity collections:
 <ul>
 <li>Multi-Point</li>
 <li>Multi-Line (MultiLineString)</li>
 <li>Multi-Polygon</li>
 </ul></li>
+<li>GeometryCollection:
+<ul>
+<li>A combination of any of the above</li>
+</ul></li>
+<li>Other, less used objects</li>
 </ul>
-<p>The geometries are represented in WKT strings. WKT (<a href="https://en.wikipedia.org/wiki/Well-known_text">Well Known Text</a>) is a markup language that describes spatial information in a clean text format, there is an equivalent in binary format called WKB (easier for computers to process and more efficient for data transfer). Printing geometries of GeoSeries also shows the WKT string.</p>
+<p>Geometric objects in any Python package (e.g. GDAL, shapely) are usually based on the geometries that can be represented in WKT strings. As such, it is useful to know how to write geometries in WKT; then you do not need to learn the specific way of each individual Python package. GDAL (OGR) example:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">from shapely.wkt import loads
-WKTstring = 'POINT(173994.1578792833 444133.6032947102)'
-gs = gpd.GeoSeries([loads(WKTstring)])
-gs.crs = "EPSG:28992" # specify manually the projection
-gsBuffer = gs.buffer(100)
-print(gs.geometry)
-print(gsBuffer.geometry)</code></pre>
+<pre style=""><code class="source python">from osgeo import ogr
+
+# Here, define the WKT string
+wktstring = "POINT (1120351.5712494177 741921.4223245403)"
+# Transform to a gdal (ogr) object
+point = ogr.CreateGeometryFromWkt(wktstring)
+# Get properties
+print "%d,%d" % (point.GetX(), point.GetY())</code></pre>
 </div>
+<p>Shapely example, from WKT or make the Point object directly:</p>
+<div class="row">
+<button class="source Python toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> Python source
+</button>
+<pre style=""><code class="source python">from shapely.geometry import Point
+from shapely.wkt import loads
+
+# Create point from WKT string 
+wktstring = 'POINT(173994.1578792833 444133.6032947102)'
+wageningen_campus = shapely.wkt.loads(wktstring)
+print(type(wageningen_campus))
+
+# Point directly
+wageningen_campus = Point([173994.1578792833, 444133.60329471016])
+print(type(wageningen_campus))</code></pre>
+</div>
+<p>There is an equivalent in binary format called WKB, easier for computers to process and more efficient for data transfer.</p>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
@@ -972,7 +988,29 @@ print(gsBuffer.geometry)</code></pre>
 </blockquote>
 </div>
 </div>
-<p>GeoDataFrames can be loaded from a file, created with data or loaded from a Pandas dataframe. A Pandas DataFrame is the dataframe equivalent of R in Python.</p>
+<h2 id="geopandas-geoseries-and-geodataframes">Geopandas: GeoSeries and GeoDataFrames</h2>
+<p>GeoPandas strives to make vector processing in Python easier and has many functions available for exploratory vector data analysis. GeoPandas is based on Pandas. Pandas has two main data structures: the Pandas Series and the DataFrame. Correspondingly, Geopandas has two main data structures: the GeoSeries and the GeoDataFrame.</p>
+<p>A GeoSeries is a vector of features, where each feature contains: 1) an index, and 2) a geometry. The latter is a shapely.geometry object, and therefore inherits attributes and methods from shapely geometries, such as area, bounds, distance, etc. Finally, a GeoSeries can contain a coordinate reference system (crs). Geopandas functions, such as buffering, can be applied to GeoSeries:</p>
+<div class="row">
+<button class="source Python toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> Python source
+</button>
+<pre style=""><code class="source python">import geopandas as gpd
+from shapely.wkt import loads
+
+# Define a point
+wktstring = 'POINT(173994.1578792833 444133.6032947102)'
+# Convert to a GeoSeries
+gs = gpd.GeoSeries([loads(wktstring)])
+print(type(gs), len(gs))
+# Specify the projection
+gs.crs = "EPSG:28992" 
+# Apply function, here a buffer of 100 m
+gs_buffer = gs.buffer(100)
+print(gs.geometry)
+print(gs_buffer.geometry)</code></pre>
+</div>
+<p>A GeoDataFrame is a tabular data structure with multiple columns, where one column is a GeoSeries. GeoDataFrames can be loaded from a file, created with data or loaded from a Pandas dataframe. A Pandas DataFrame is, just like the structured numpy array you learned about in lesson 9. a dataframe equivalent of R in Python.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1005,33 +1043,30 @@ print(type(wageningenGDF), len(wageningenGDF))</code></pre>
 </blockquote>
 </div>
 </div>
-<h2 id="geocoding">Geocoding</h2>
-<p>Geocoding is the practice of locating the coordinates of addresses, cities, countries, and landmarks across the globe. Python has GeoPy to perform geocoding. GeoPy has a lot of <a href="https://geopy.readthedocs.io/en/stable/">geocoders available</a> from Bing, Google, HERE, TomTom, MapBox and others. Often you need to have an API key to use the geocoders, which is used by the provider to limit the amount of requests to be able to keep the geocoding service running for everyone. Some geocoders are publicly available, such as Nominatim. Nominatim is made and used by OpenStreetMap. Paste the code below in Spyder and run the geocoder:</p>
-<div class="row">
-<button class="source Python toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> Python source
-</button>
-<pre style=""><code class="source python">from geopy.geocoders import Nominatim
+<!-- This part has been removed in 2021/2022 to make space for more explanation on geometries
+## Geocoding
+
+Geocoding is the practice of locating the coordinates of addresses, cities, countries, and landmarks across the globe. Python has GeoPy to perform geocoding. GeoPy has a lot of [geocoders available](https://geopy.readthedocs.io/en/stable/) from Bing, Google, HERE, TomTom, MapBox and others. Often you need to have an API key to use the geocoders, which is used by the provider to limit the amount of requests to be able to keep the geocoding service running for everyone. Some geocoders are publicly available, such as Nominatim. Nominatim is made and used by OpenStreetMap. Paste the code below in Spyder and run the geocoder:
+
+<div class="row"><button class="source Python toggle btn btn-xs btn-primary"><span class="glyphicon glyphicon-chevron-down"></span> Python source</button><pre style=""><code class="source python">from geopy.geocoders import Nominatim
 geolocator = Nominatim(user_agent="specify_random_user_agent")
 location = geolocator.geocode("Wageningen University")
 print((location.latitude, location.longitude))
-# It should print two coordinates: (lat: 51.98527485, lon:5.66370505205543)</code></pre>
-</div>
-<p>Try to locate the coordinates of your own house.</p>
+# It should print two coordinates: (lat: 51.98527485, lon:5.66370505205543)</code></pre></div>
+
+Try to locate the coordinates of your own house. -->
 <h2 id="re-projecting">Re-projecting</h2>
-<p>From the geocoder you got a latitude and longitude. On the web it is very common to use latitude and longitude in <a href="http://spatialreference.org/ref/epsg/wgs-84">WGS84 geographic coordinate system</a>. In local projects often projected coordinate systems are required to perform accurate geometric calculations. PyProj reprojects your coordinates from any input projection to an output projection. Use PyProj to do a simple conversion on a coordinate pair:</p>
-<div class="row">
-<button class="source Python toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> Python source
-</button>
-<pre style=""><code class="source python">from pyproj import Transformer
+<!-- 
+From the geocoder you got a latitude and longitude. On the web it is very common to use latitude and longitude in [WGS84 geographic coordinate system](http://spatialreference.org/ref/epsg/wgs-84). In local projects often projected coordinate systems are required to perform accurate geometric calculations. PyProj reprojects your coordinates from any input projection to an output projection. Use PyProj to do a simple conversion on a coordinate pair:
+
+<div class="row"><button class="source Python toggle btn btn-xs btn-primary"><span class="glyphicon glyphicon-chevron-down"></span> Python source</button><pre style=""><code class="source python">from pyproj import Transformer
 geolocator = Nominatim(user_agent="specify_random_user_agent")
 location = geolocator.geocode("Wageningen University")
 x, y = Transformer.from_crs(4326, 28992).transform(location.latitude, location.longitude) #mind swap in axis order!
 print([x, y]) # always inspect results of your data handling, in this case double-check the coordinates due to potential swap in axis order.
-</code></pre>
-</div>
-<p>GeoPandas uses PyProj on the backend to reproject geometry columns of the dataframe. Reproject your GeoDataFrame from Dutch RD New (EPSG:28992) to WGS84 (EPSG:4326):</p>
+</code></pre></div>
+-->
+<p>GeoPandas uses PyProj in the backend to reproject geometry columns of the dataframe. Reproject your GeoDataFrame from Dutch RD New (EPSG:28992) to WGS84 (EPSG:4326):</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1049,7 +1084,7 @@ wageningenGDF = wageningenGDF.to_crs('EPSG:4326')
 print(wageningenGDF.crs)</code></pre>
 </div>
 <h2 id="writing-and-reading-files">Writing and Reading Files</h2>
-<p>GeoPandas uses Fiona for file access. You can find out what file formats Fiona supports with a simple script.</p>
+<p>GeoPandas uses Fiona for file access, while Fiona, in its turn, builds on GDAL/OGR. You can find out what file formats Fiona supports with a simple script.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1079,9 +1114,13 @@ print(fiona.supported_drivers)</code></pre>
 <pre style=""><code class="source python">data = {'name': ['a', 'b', 'c'],
         'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
         'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
+# Create a Pandas DataFrame (is not yet a GeoDataFrame!)
 df = pd.DataFrame(data)
+# Loop over each x,y combination and convert to a Shapely point
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
+# Add the geometries to the DataFrame and thereby make it into a GeoDataFrame
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
+# Save to disk
 wageningenGDF.to_file(filename='./data/wageningenPOI.geojson', driver='GeoJSON')
 wageningenGDF.to_file(filename='./data/wageningenPOI.shp', driver='ESRI Shapefile')</code></pre>
 </div>
@@ -1094,7 +1133,7 @@ wageningenGDF.to_file(filename='./data/wageningenPOI.shp', driver='ESRI Shapefil
 shpGDF = gpd.read_file('./data/wageningenPOI.shp')</code></pre>
 </div>
 <h2 id="reading-from-web-services">Reading from Web Services</h2>
-<p>The web has a lot of geodata available. The OpenGeoSpatial Consortium has specified standard protocols for geo web services, such as <a href="http://www.opengeospatial.org/standards/wfs">Web Feature Service</a> [WFS] and <a href="http://www.opengeospatial.org/standards/wms">Web Map Service</a> [WMS]. The standard web service protocols make it easy to access all types of data with the same protocol.</p>
+<p>The web has a lot of geodata available. The OpenGeoSpatial Consortium has specified standard protocols for geo web services, such as <a href="http://www.opengeospatial.org/standards/wfs">Web Feature Service</a> [WFS] and <a href="http://www.opengeospatial.org/standards/wms">Web Map Service</a> [WMS]. The standard web service protocols make it easy to access data. For example, the following WFS provides geodata on roads and is extracted from the Dutch national database of roads in the Netherlands:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1105,9 +1144,8 @@ wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
 wfs.identification.title
 print(list(wfs.contents))</code></pre>
 </div>
-<p>This WFS provides geodata on roads and is extracted from the Dutch national database of roads in the Netherlands.</p>
-<p>WFS are useful to make webmaps, to quickly get an idea of the data and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from other available repositories and not from a WFS. Web Feature Services have limits on the amount of features that can be requested, such as 100 or 1000 features. In this case they are very generous with providing a limit of max 15.000 features per request.</p>
-<p>Load some roads from the WFS service for the campus area and plot it.</p>
+<p>WFS are useful to make webmaps, to quickly get an idea of the data and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from other available repositories and not from a WFS, as it typically has limits on the number of features that can be requested, such as 100 or 1000 features. In the WFS above, they are very generous with a limit of max 15.000 features per request.</p>
+<p>Load some roads from the WFS service for the campus area and plot them:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1168,7 +1206,7 @@ print(BuildingsGDF.area)</code></pre>
 largeBuildingsGDF = BuildingsGDF.loc[BuildingsGDF.area > 1000, :]
 largeBuildingsGDF.plot()</code></pre>
 </div>
-<p>Columns can be selected by using an index to the name of the column. Let us here the construction years ('bouwjaar') of the buildings.</p>
+<p>Columns can be selected by using an index to the name of the column. Let us here the construction years (‘bouwjaar’) of the buildings.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1176,7 +1214,7 @@ largeBuildingsGDF.plot()</code></pre>
 <pre style=""><code class="source python">print(BuildingsGDF['bouwjaar'])
 </code></pre>
 </div>
-<p>Specific rows can be selected by using .isin method on a series. Here we select buildings that are still to be build (status = in construction ('Bouw gestart')).</p>
+<p>Specific rows can be selected by using .isin method on a series. Here we select buildings that are still to be build (status = in construction (‘Bouw gestart’)).</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1202,7 +1240,7 @@ ax.set_axis_off()</code></pre>
 print(type(roadsGDF.geometry))
 print(roadsGDF['geometry'])</code></pre>
 </div>
-Let's create a buffer around the roads to represent coverage of roads, assuming roads have all a width of 3 meters.
+Let’s create a buffer around the roads to represent coverage of roads, assuming roads have all a width of 3 meters.
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1330,7 +1368,8 @@ buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar',
 </div>
 <p><img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus" width = "100%"></p>
 <h2 id="network-analysis">Network analysis</h2>
-<p>There are a lot of Python packages available to help you with your specific spatial analysis. One package, that we could not leave out is OSMnx. <a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a> retrieves, constructs, analyzes and visualizes street networks from <a href="https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368">OpenStreetMap</a>. In short, a network analysis is quite often performed with Open Street Map data since it is globally available, has well connected networks and has multiple travel modes (walking, cycling, driving et cetera). Download the street network of Wageningen and plot it.</p>
+<p><a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a> retrieves, constructs, analyzes and visualizes street networks from <a href="https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368">OpenStreetMap</a>. In short, a network analysis is investigating structures of relations between entities with the use of networks and graph theory. In spatial data, such entities are typically animals or people, and the relations between are, for example, social networks. But relations can also be between multiple points in time for the same person, e.g. movement processes like walking, cycling, driving et cetera.</p>
+<p>The following script downloads the street network of Wageningen from Open Street Map as a graph, plots it, and saves it.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1362,15 +1401,21 @@ ox.plot.plot_graph_route(WageningenRoadsGraph, shortestroute, figsize=(20,20),
 <p><img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%"></p>
 <h1 id="what-have-we-learned">What have we learned?</h1>
 <ol style="list-style-type: decimal">
-<li>Creating geometries, GeoSeries and GeoDataFrames</li>
-<li>Geocoding</li>
+<li>The structure of vector geometries,</li>
+<li>Creating GeoPandas GeoSeries and GeoDataFrames</li>
 <li>Re-projecting</li>
 <li>Reading and writing data</li>
 <li>Reading webservices</li>
 <li>Selecting data</li>
 <li>Geometric manipulations</li>
 <li>Geo-visualization</li>
-<li>Network analysis
+<li>Network analysis</li>
+</ol>
+<h1 id="more-info">More info</h1>
+<ul>
+<li><a href="https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks#earth-science-and-geo-spatial-data">Geo-Spatial Notebooks</a></li>
+<li><a href="https://geo-python.github.io">Geo Python course</a></li>
+<li><a href="https://gdal.org/api/python.html#tutorials">GDAL tutorials</a>
 </div>
 </div>
 </div>
@@ -1386,6 +1431,6 @@ Styled with <a href="https://github.com/jimhester/knitrBootstrap">knitrBootstrap
 </div>
 <link rel="stylesheet" id="theme" href="https://netdna.bootstrapcdn.com/bootswatch/3.0.0/simplex/bootstrap.min.css" media="screen"></link><link rel="stylesheet" id="highlight" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/tomorrow-night-bright.min.css" media="screen"></link>
 </div></li>
-</ol>
+</ul>
 </body>
 </html>
