@@ -1,5 +1,5 @@
 ---
-author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil"
+author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 pagetitle: "Week 3, Lesson 10: Python for vector processing | geo-scripting"
 output:
@@ -149,6 +149,8 @@ print(gs_buffer.geometry)
 
 A GeoDataFrame is a tabular data structure with multiple columns, where one column is a GeoSeries. GeoDataFrames can be loaded from a file, created with data or loaded from a Pandas dataframe. A Pandas DataFrame is, just like the structured numpy array you learned about in lesson 9. a dataframe equivalent of R in Python.
 
+If a Pandas dataframe has two columns filled with coordinate pairs, then these columns can be converted to a list of Point geometries and can then be converted into a GeoSeries or directly to a GeoDataFrame.
+
 ```{Python, eval=FALSE}
 import pandas as pd
 data = {'name': ['a', 'b', 'c'],
@@ -156,23 +158,27 @@ data = {'name': ['a', 'b', 'c'],
         'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
 df = pd.DataFrame(data)
 print(df.head)
-```
 
-If a Pandas dataframe has two columns filled with coordinate pairs, then these columns can be converted to a list of Point geometries and can then be converted into a GeoSeries or directly to a GeoDataFrame.
-
-```{Python, eval=FALSE}
-import matplotlib
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry, crs = "EPSG:28992") # note that we here specify the CRS (projection) directly while reading to GDF
-wageningenGDF.plot(marker='*', color='green', markersize=50)
 print(type(wageningenGDF), len(wageningenGDF))
 ```
-<img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen" width = "60%">
+
 
 ```{block, type="alert alert-success"}
 > **Question 2**: What is the difference between a GeoSeries and a GeoDataFrame?
 ```
 
+
+Geopandas provides a high-level interface to the matplotlib library (see previous lesson) for visualization. Vector data can simply be mapped by using the plot() method on a GeoSeries or GeoDataFrame. Several other arguments to customize the plot can still be used.
+
+```{Python, eval=FALSE}
+from matplotlib import pyplot as plt
+# plotting a map of the GeoDataFrame directly
+wageningenGDF.plot(marker='*', color='green', markersize=50)
+
+```
+<img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen" width = "60%">
 
 <!-- This part has been removed in 2021/2022 to make space for more explanation on geometries
 ## Geocoding
@@ -318,7 +324,9 @@ print(type(BuildingsGDF))
 roadlayer = roadsGDF.plot(color='grey')
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
+# Plotting the map
 BuildingsGDF.plot(ax=roadlayer, color='red')
+# Save to disk
 plt.savefig('./output/BuildingsAndRoads.png')
 ```
 
@@ -467,13 +475,18 @@ xmin, xmax, ymin, ymax = x-300, x+600, y-300, y+300
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
 data = json.loads(response.read())
 BuildingsGDF = gpd.GeoDataFrame.from_features(data['features'], crs=28992)
-# create visualisation
+# create visualization
 f, ax = plt.subplots(1, figsize=(10, 5))
+# Give the plot a title (do not do this for a scientific report, rather use a caption)
 ax.set_title('WUR campus buildings')
+# Backgroundcolor of the map
 ax.set_facecolor("grey")
+# The plotting itself, of the roads
 roadlayer = RoadsPolygonGDF.plot(ax=ax, legend=True)
+# Set the range of the x and y axis
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
+# Add the buildings to the matplotlib axes with already plotted roads
 buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar',
                                    cmap='brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
                                    legend=True,

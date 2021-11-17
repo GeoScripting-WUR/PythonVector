@@ -4,7 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
-  <meta name="author" content="Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Corné Vreugdenhil" />
+  <meta name="author" content="Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil" />
   <title>Week 3, Lesson 10: Python for vector processing | geo-scripting</title>
   <style type="text/css">
       code{white-space: pre-wrap;}
@@ -873,7 +873,7 @@
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="week-3-lesson-10-vector-data-handling-with-python">Week 3, Lesson 10: Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil</em> - 2021-11-15</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil</em> - 2021-11-17</p>
 <h2 id="introduction">Introduction</h2>
 <p>Good morning! Today we will explore a variety of Python packages for vector data handling:</p>
 <ul>
@@ -1011,6 +1011,7 @@ print(gs.geometry)
 print(gs_buffer.geometry)</code></pre>
 </div>
 <p>A GeoDataFrame is a tabular data structure with multiple columns, where one column is a GeoSeries. GeoDataFrames can be loaded from a file, created with data or loaded from a Pandas dataframe. A Pandas DataFrame is, just like the structured numpy array you learned about in lesson 9. a dataframe equivalent of R in Python.</p>
+<p>If a Pandas dataframe has two columns filled with coordinate pairs, then these columns can be converted to a list of Point geometries and can then be converted into a GeoSeries or directly to a GeoDataFrame.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1020,20 +1021,12 @@ data = {'name': ['a', 'b', 'c'],
         'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
         'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
 df = pd.DataFrame(data)
-print(df.head)</code></pre>
-</div>
-<p>If a Pandas dataframe has two columns filled with coordinate pairs, then these columns can be converted to a list of Point geometries and can then be converted into a GeoSeries or directly to a GeoDataFrame.</p>
-<div class="row">
-<button class="source Python toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> Python source
-</button>
-<pre style=""><code class="source python">import matplotlib
+print(df.head)
+
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry, crs = "EPSG:28992") # note that we here specify the CRS (projection) directly while reading to GDF
-wageningenGDF.plot(marker='*', color='green', markersize=50)
 print(type(wageningenGDF), len(wageningenGDF))</code></pre>
 </div>
-<p><img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen" width = "60%"></p>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
@@ -1043,6 +1036,17 @@ print(type(wageningenGDF), len(wageningenGDF))</code></pre>
 </blockquote>
 </div>
 </div>
+<p>Geopandas provides a high-level interface to the matplotlib library (see previous lesson) for visualization. Vector data can simply be mapped by using the plot() method on a GeoSeries or GeoDataFrame. Several other arguments to customize the plot can still be used.</p>
+<div class="row">
+<button class="source Python toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> Python source
+</button>
+<pre style=""><code class="source python">from matplotlib import pyplot as plt
+# plotting a map of the GeoDataFrame directly
+wageningenGDF.plot(marker='*', color='green', markersize=50)
+</code></pre>
+</div>
+<p><img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen" width = "60%"></p>
 <!-- This part has been removed in 2021/2022 to make space for more explanation on geometries
 ## Geocoding
 
@@ -1183,7 +1187,9 @@ print(type(BuildingsGDF))
 roadlayer = roadsGDF.plot(color='grey')
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
+# Plotting the map
 BuildingsGDF.plot(ax=roadlayer, color='red')
+# Save to disk
 plt.savefig('./output/BuildingsAndRoads.png')</code></pre>
 </div>
 <p><img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%"></p>
@@ -1354,13 +1360,18 @@ xmin, xmax, ymin, ymax = x-300, x+600, y-300, y+300
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
 data = json.loads(response.read())
 BuildingsGDF = gpd.GeoDataFrame.from_features(data['features'], crs=28992)
-# create visualisation
+# create visualization
 f, ax = plt.subplots(1, figsize=(10, 5))
+# Give the plot a title (do not do this for a scientific report, rather use a caption)
 ax.set_title('WUR campus buildings')
+# Backgroundcolor of the map
 ax.set_facecolor("grey")
+# The plotting itself, of the roads
 roadlayer = RoadsPolygonGDF.plot(ax=ax, legend=True)
+# Set the range of the x and y axis
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
+# Add the buildings to the matplotlib axes with already plotted roads
 buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar',
                                    cmap='brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
                                    legend=True,
