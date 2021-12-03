@@ -74,7 +74,7 @@ In this tutorial, we will not work much with OGR separately. However, it is at t
 <img src="./images/ogr_structure.png" alt="OGR class structure, source: Garrard, 2016, Geoprocessing with Python" width = "70%">
 --> 
 
-WKT ([Well Known Text](https://en.wikipedia.org/wiki/Well-known_text)) is a markup language that describes spatial information in a clean text format. WKT can represent the following distinct (OGC-defined) geometric objects:
+WKT ([Well Known Text](https://en.wikipedia.org/wiki/Well-known_text)) is a markup language that describes spatial information in a clean text format. WKT can represent the following distinct (OGC-defined) vector objects:
 
 * Geometry primitives (single entity, basic types):
     * Point
@@ -98,7 +98,8 @@ wktstring = "POINT (1120351.5712494177 741921.4223245403)"
 # Transform to a gdal (ogr) object
 point = ogr.CreateGeometryFromWkt(wktstring)
 # Get properties
-print "%d,%d" % (point.GetX(), point.GetY())
+print(type(point))
+print("%d,%d" % (point.GetX(), point.GetY()))
 ```
 
 Shapely example, from WKT or make the Point object directly:
@@ -109,7 +110,7 @@ from shapely.wkt import loads
 
 # Create point from WKT string 
 wktstring = 'POINT(173994.1578792833 444133.6032947102)'
-wageningen_campus = shapely.wkt.loads(wktstring)
+wageningen_campus = loads(wktstring)
 print(type(wageningen_campus))
 
 # Point directly
@@ -149,17 +150,22 @@ print(gs_buffer.geometry)
 
 A GeoDataFrame is a tabular data structure with multiple columns, where one column is a GeoSeries. GeoDataFrames can be loaded from a file, created with data or loaded from a Pandas dataframe. A Pandas DataFrame is, just like the structured numpy array you learned about in lesson 9. a dataframe equivalent of R in Python.
 
-If a Pandas dataframe has two columns filled with coordinate pairs, then these columns can be converted to a list of Point geometries and can then be converted into a GeoSeries or directly to a GeoDataFrame.
+A Pandas DataFrame plus a list of shapely geometries can be converted into a GeoSeries or directly to a GeoDataFrame.
 
 ```{Python, eval=FALSE}
 import pandas as pd
+
+# Create some data, with three points, a, b, and c.
 data = {'name': ['a', 'b', 'c'],
         'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
         'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
+# Turn the data into a Pandas DataFrame, column names are extracted automatically
 df = pd.DataFrame(data)
 print(df.head)
 
+# Use the coordinates to make shapely Point geometries
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
+# Pandas DataFrame and shapely Points can together become a GeoPandas GeoDataFrame
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry, crs = "EPSG:28992") # note that we here specify the CRS (projection) directly while reading to GDF
 print(type(wageningenGDF), len(wageningenGDF))
 ```
@@ -210,7 +216,7 @@ print([x, y]) # always inspect results of your data handling, in this case doubl
 ```
 -->
  
-GeoPandas uses PyProj in the backend to reproject geometry columns of the dataframe. Reproject your GeoDataFrame from Dutch RD New (EPSG:28992) to WGS84 (EPSG:4326):
+An important step in the pre-processing of geodata is to get all datasets in a projection that suits the analysis to be performed. GeoPandas uses PyProj in the backend to reproject the geometry of the dataframe. Reproject a GeoDataFrame from Dutch RD New (EPSG:28992) to WGS84 (EPSG:4326):
 
 ```{Python, eval=FALSE}
 data = {'name': ['a', 'b', 'c'],
