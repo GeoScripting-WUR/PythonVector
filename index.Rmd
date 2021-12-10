@@ -176,7 +176,7 @@ print(type(wageningenGDF), len(wageningenGDF))
 ```
 
 
-Geopandas provides a high-level interface to the matplotlib library (see previous lesson) for visualization. Vector data can simply be mapped by using the plot() method on a GeoSeries or GeoDataFrame. Several other arguments to customize the plot can still be used.
+Geopandas provides a high-level interface to the matplotlib library (see previous lesson) for visualization. Vector data can simply be mapped by using the plot() method on a GeoSeries or GeoDataFrame. Several other arguments to customize the plot can still be used. Note that the aspect of the axes (see previous tutorial) is set to equal automatically when using Geopandas plot, i.e. the horizontal and vertical scale are automatically made the same.
 
 ```{Python, eval=FALSE}
 from matplotlib import pyplot as plt
@@ -219,15 +219,25 @@ print([x, y]) # always inspect results of your data handling, in this case doubl
 An important step in the pre-processing of geodata is to get all datasets in a projection that suits the analysis to be performed. GeoPandas uses PyProj in the backend to reproject the geometry of the dataframe. Reproject a GeoDataFrame from Dutch RD New (EPSG:28992) to WGS84 (EPSG:4326):
 
 ```{Python, eval=FALSE}
+# Create some data, with three points, a, b, and c, same as before
 data = {'name': ['a', 'b', 'c'],
         'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
         'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
+# Turn the data into a Pandas DataFrame
 df = pd.DataFrame(data)
+
+# Use the coordinates to make shapely Point geometries
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
+# Pandas DataFrame and shapely Points can together become a GeoPandas GeoDataFrame
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
+
+# Check the current crs
 print(wageningenGDF.crs)
+# Define the crs of the data and check again
 wageningenGDF.crs = 'EPSG:28992'
 print(wageningenGDF.crs)
+
+# Re-project the points to WGS84
 wageningenGDF = wageningenGDF.to_crs('EPSG:4326')
 print(wageningenGDF.crs)
 ```
@@ -286,93 +296,147 @@ The web has a lot of geodata available. The OpenGeoSpatial Consortium has specif
 
 ```{Python, eval=FALSE}
 from owslib.wfs import WebFeatureService
-WfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
-wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
-wfs.identification.title
+
+# put the url in a variable
+wfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
+# create a wfs object
+wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
+
+# get the title from the object
+print(wfs.identification.title)
+# print to check the contents of the WFS
 print(list(wfs.contents))
 ```
 
-WFS are useful to make webmaps, to quickly get an idea of the data and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from other available repositories and not from a WFS, as it typically has limits on the number of features that can be requested, such as 100 or 1000 features. In the WFS above, they are very generous with a limit of max 15.000 features per request.
+```{block, type="alert alert-success"}
+> **Question 3**: How many feature sets does this WFS contain?
+```
+
+WFS are used to make webmaps, to allow a quick view of the data, and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from other available repositories and not from a WFS, as it typically has limits on the number of features that can be requested, such as 100 or 1000 features. In the WFS above, they are very generous with a limit of max 15.000 features per request.
 
 Load some roads from the WFS service for the campus area and plot them:
 
 ```{Python, eval=FALSE}
+import geopandas as gpd
 import json
-# x, y = (173994.1578792833, 444133.60329471016) #uncomment if you lost x, y coordinates or Nominatim didn't work above :D
-WfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
-wfs = WebFeatureService(url=WfsUrl, version='2.0.0')
+
+# Get the WFS
+wfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
+wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
 layer = list(wfs.contents)[0]
+
+# Define center point and create bbox for study area
+x, y = (173994.1578792833, 444133.60329471016)
 xmin, xmax, ymin, ymax = x-1000, x+350, y-1000, y+350
+# Get the features for the study area
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax))
+# Save them to disk
 with open('./data/Roads.gml', 'wb') as file:
     file.write(response.read())
+# Read in again with geopandas
 roadsGDF = gpd.read_file('./data/Roads.gml')
+# Check and plot to get a quick view
 print(type(roadsGDF))
 roadsGDF.plot()
 ```
 <img src="./images/roadsGDF.png" alt="Roads in Wageningen" width = "60%">
 
-How many roads are there in the resulting GeoDataFrame (hint: _len()_ or _.info()_)? Do we miss roads in the extent?
 
-Load some building from another WFS service (BAG) and plot them too. How many buildings do you get? (hint: _len()_) Do you miss buildings? How can we extract missing buildings in our extent?
+```{block, type="alert alert-success"}
+> **Question 4**: How many roads are there in the resulting GeoDataFrame (hint: _len()_ or _.info()_)? Do we miss roads in the extent?
+```
+
+Load some building from another WFS service (BAG) and plot them too. 
 
 ```{Python, eval=FALSE}
 from matplotlib import pyplot as plt
-WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
-wfs = WebFeatureService(url=WfsUrl, version='1.1.0')
+
+# Get the WFS of the BAG
+wfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
+wfs = WebFeatureService(url=wfsUrl, version='1.1.0')
 layer = list(wfs.contents)[1]
+
+# Define center point and create bbox for study area
+x, y = (173994.1578792833, 444133.60329471016)
 xmin, xmax, ymin, ymax = x-500, x+500, y-500, y+500
+# Get the features for the study area
+# notice that we get them as json, in contrast to before
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
 data = json.loads(response.read())
-BuildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
-BuildingsGDF.crs = 28992 # Set crs to RD New
-print(type(BuildingsGDF))
+
+# Create geodataframe, without saving first
+buildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
+buildingsGDF.crs = 28992 # Set crs to RD New
+print(type(buildingsGDF))
+
+# Plot roads and buildings together
 roadlayer = roadsGDF.plot(color='grey')
+buildingsGDF.plot(ax=roadlayer, color='red')
+# Set the limits of the x and y axis
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
-# Plotting the map
-BuildingsGDF.plot(ax=roadlayer, color='red')
 # Save to disk
 plt.savefig('./output/BuildingsAndRoads.png')
 ```
 
 <img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%">
 
+
+```{block, type="alert alert-success"}
+> **Question 5**: How many buildings do you get? (hint: _len()_) Do you miss buildings? How can we extract missing buildings in our extent?
+```
+
+
 ## Selecting Data
 
 GeoDataFrames store rows and columns in a tabular format. To select specific rows, you can make use of the DataFrame functionality of Pandas. Inspect the content of your data:
 
 ```{Python, eval=FALSE}
-print(BuildingsGDF.columns)
-print(BuildingsGDF.head())
-print(BuildingsGDF.area)
+# Pandas function that returns the column labels of the DataFrame.
+print(buildingsGDF.columns)
+# Pandas function that returns the first n rows, default n=5.
+print(buildingsGDF.head())
+# shape area (in the units of the projection)
+print(buildingsGDF.area)
 ```
 
-Then based on the surface area, select buildings with a larger surface area of 1000 m2 with the .loc method. This is equivalent to selecting rows.
+Columns can be selected using the name of the column. Let us take the construction year ('bouwjaar') of the buildings.
 
 ```{Python, eval=FALSE}
-print(BuildingsGDF.area > 1000)
-largeBuildingsGDF = BuildingsGDF.loc[BuildingsGDF.area > 1000, :]
+# Select column (attribute)
+print(buildingsGDF['bouwjaar'])
+
+```
+
+For selecting rows, GeoPandas inherits the pandas methods for selecting data: label based indexing with loc, and integer position based indexing with iloc, which apply to both GeoSeries and GeoDataFrame objects. For more information on indexing/selecting, see the [pandas documentation](https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html). In addition to these, GeoPandas provides coordinate based indexing with the cx indexer, which slices using a bounding box. 
+
+Let us select buildings (rows) with a larger surface area than 1000 m2 with the .loc method.
+
+```{Python, eval=FALSE}
+# Check beforehand
+print(buildingsGDF.area > 1000)
+# Make the selection, select all rows with area > 1000 m2, and all columns
+# Using 'label based' indexing with loc, here with a Boolean array
+largeBuildingsGDF = buildingsGDF.loc[buildingsGDF.area > 1000, :]
+# Plot
 largeBuildingsGDF.plot()
 ```
 
-Columns can be selected by using an index to the name of the column. Let us here the construction years ('bouwjaar') of the buildings.
+Similarly, the isin() method of Series returns a boolean vector that is true wherever the Series elements exist in the passed list. This allows selecting rows where one or more columns have the required value(s). Here we select buildings that are under construction (status = building phase has started ('Bouw gestart')).
 
 ```{Python, eval=FALSE}
-print(BuildingsGDF['bouwjaar'])
+# Check beforehand
+print(buildingsGDF['status'].isin(['Bouw gestart']))
+# Make the selection, the list of required values can contain more than one item
+newBuildingsGDF = buildingsGDF[buildingsGDF['status'].isin(['Bouw gestart'])]
 
-```
-
-Specific rows can be selected by using .isin method on a series. Here we select buildings that are still to be build (status = in construction ('Bouw gestart')).
-
-```{Python, eval=FALSE}
-print(BuildingsGDF['status'].isin(['Bouw gestart']))
-NewBuildingsGDF = BuildingsGDF[BuildingsGDF['status'].isin(['Bouw gestart'])]
-## plot the new buildings with a basemap for reference
+## Plot the new buildings with a basemap for reference
 ## based on https://geopandas.org/gallery/plotting_basemap_background.html
 import contextily as ctx
-NewBuildingsGDF = NewBuildingsGDF.to_crs(epsg=3857)
-ax = NewBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
+# re-project
+newBuildingsGDF = newBuildingsGDF.to_crs(epsg=3857)
+# plot with 50% transparency
+ax = newBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
 ctx.add_basemap(ax, source=ctx.providers.Stamen.TonerLite)
 ax.set_axis_off()
 ```
@@ -390,48 +454,62 @@ print(roadsGDF['geometry'])
 ```
 
 Let's create a buffer around the roads to represent coverage of roads, assuming roads have all a width of 3 meters.
+
 ```{Python, eval=FALSE}
-RoadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=1.5)) # buffer of 1.5 m on both sides
-RoadsPolygonGDF.plot(color='blue', edgecolor='blue')
-RoadsPolygonGDF.area.sum()# checkout the total coverage of roads
+# buffer of 1.5 m on both sides
+roadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=1.5)) 
+# plot
+roadsPolygonGDF.plot(color='blue', edgecolor='blue')
+# check the total coverage of buffers
+print(roadsPolygonGDF.area.sum())
 ```
 
-As we did a buffer around many lines that are connected, we might expect overlap of the roads polygon features. Lets merge all road polygon features together in a unary_union and check again for the total coverage of the roads.
+As we created buffers around many connected lines, we expect overlap of these buffer features. Therefore, let us merge all road buffer (polygon) features together in a unary_union and check again for the total coverage of buffers.
+
 ```{Python, eval=FALSE}
-RoadsUnionGS = gpd.GeoSeries(RoadsPolygonGDF.unary_union)
-RoadsUnionGS.area
-print('There was an overlap of ' + round((RoadsPolygonGDF.area.sum() - RoadsUnionGS.area[0]), 1).astype(str) + ' meters.')
+# Apply unary_union
+# This returns a geometry, which we convert to a GeoSeries to be able to apply geopandas methods again
+roadsUnionGS = gpd.GeoSeries(roadsPolygonGDF.unary_union)
+# check the new total coverage of buffers and compute the overlap
+print(roadsUnionGS.area)
+print('There was an overlap of ' + round((roadsPolygonGDF.area.sum() - roadsUnionGS.area[0]), 1).astype(str) + ' square meters.')
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 3**: What is the geometry type of geometries in RoadsUnionGS?
+> **Question 6**: What is the geometry type in RoadsUnionGS?
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 4**: What coordinate system does RoadsUnionGS have?
+> **Question 7**: What coordinate system does RoadsUnionGS have?
 ```
 
-GeoPandas can perform different [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels by using intersection. As an example, let us focus on the area around the new buildings on the campus and extract the existing roads close to them. To do so we buffer the new buildings with 100 meter, merge them with a unary_union and create a convex hull around the merged (multipolygon) buildings. Finally we clip the roads with this.
+GeoPandas can perform various [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels by using intersection. As an example, let us focus on the area around the new buildings on the campus and extract the existing roads close to them. To do so we buffer the new buildings with 100 meter, merge them with a unary_union and create a convex hull around the merged (multipolygon) buildings. Finally we clip the roads with this single polygon.
 ```{Python, eval=FALSE}
-NewBuildingsGDF = NewBuildingsGDF.to_crs(epsg=28992)
-AreaOfInterestGS = gpd.GeoSeries(NewBuildingsGDF.buffer(distance=100).unary_union)
-AreaOfInterestGDF = gpd.GeoDataFrame(AreaOfInterestGS.convex_hull)
-AreaOfInterestGDF = AreaOfInterestGDF.rename(columns={0:'geometry'}).set_geometry('geometry')
-AreaOfInterestGDF.crs = 'EPSG:28992'
-#AreaOfInterestGDF.plot()
-## perform an intersection overlay
-roadsIntersectionGDF = gpd.overlay(AreaOfInterestGDF, RoadsPolygonGDF, how="intersection")
-#roadsIntersectionGDF.plot(color='blue', edgecolor='blue')
-## plot the results
+
+# Re-project
+newBuildingsGDF = newBuildingsGDF.to_crs(epsg=28992)
+# Buffer, returns geometry, convert to GeoSeries
+areaOfInterestGS = gpd.GeoSeries(newBuildingsGDF.buffer(distance=100).unary_union)
+# Convex hull, returns a GeoSeries of geometries, convert to GeoDataFrame
+areaOfInterestGDF = gpd.GeoDataFrame(areaOfInterestGS.convex_hull)
+# Adapt metadata
+areaOfInterestGDF = areaOfInterestGDF.rename(columns={0:'geometry'}).set_geometry('geometry')
+areaOfInterestGDF.crs = 'EPSG:28992'
+##areaOfInterestGDF.plot()
+
+# Perform an intersection overlay
+roadsIntersectionGDF = gpd.overlay(areaOfInterestGDF, roadsPolygonGDF, how="intersection")
+##roadsIntersectionGDF.plot(color='blue', edgecolor='blue')
+# Plot the results
 roadlayer = roadsIntersectionGDF.plot(color='grey', edgecolor='grey')
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
-NewBuildingsGDF.plot(ax=roadlayer, color='red')
+newBuildingsGDF.plot(ax=roadlayer, color='red')
 ```
 
 <img src="./images/roadsIntersectionGDF.png" alt="New buildings at Wageningen University Campus and roads close to it" width = "60%">
 
-The big advantage of GeoPandas is that GeoPandas allows both geometric and dataframe manipulations. For example, GeoPandas can select the roads within (and maintained by) Wageningen Municipality and calculate total road surface area.
+In summary, the advantage of GeoPandas is that it allows both geometric and dataframe manipulations. For example, GeoPandas can select the roads within (and maintained by) Wageningen Municipality and calculate total road surface area.
 
 ```{Python, eval=FALSE}
 WageningenRoadsGDF = RoadsPolygonGDF.loc[RoadsPolygonGDF['gme_naam']=='Wageningen']
@@ -443,27 +521,34 @@ WageningenRoadsGDF.plot(edgecolor='purple')
 
 ## Visualizing spatial information
 
-There are multiple solutions to visualize your geodata: GIS software (QGIS), web platforms (leaflet/Folium) and images (matplotlib).
+There are multiple solutions to visualize your geodata: GIS software (QGIS), web maps (leaflet/Folium) and images (matplotlib).
 
-Folium uses leaflet on the backend to make webmaps. With leaflet your geodata can be easily visualized inside a webpage. [Leaflet](https://leafletjs.com/) is the leading open-source JavaScript library for mobile-friendly interactive maps. Folium handles GeoDataFrames or JSON files as input for the interactive map. The Python script below makes a .html file in your working directory, which you can open in your preferred web browser:
+Folium uses leaflet on the backend to make web maps, easily visualized on a webpage. [Leaflet](https://leafletjs.com/) is an open-source JavaScript library for mobile-friendly interactive maps. Folium handles GeoDataFrames or JSON files as input for the interactive map. The Python script below makes a .html file in your working directory, which you can open in a web browser:
 
 ```{Python, eval=FALSE}
 import folium
+
 campusMap = folium.Map([location.latitude, location.longitude], zoom_start=17)
-BuildingsGDF.crs = 'EPSG:28992'
-BuildingsGDF = BuildingsGDF.to_crs(4326)
-RoadsPolygonGDF = RoadsPolygonGDF.to_crs(4326)
-campusMap.choropleth(BuildingsGDF, name='Building construction years',
-                     data=BuildingsGDF, columns=['gid', 'bouwjaar'],
+buildingsGDF.crs = 'EPSG:28992'
+# Re-project
+buildingsGDF = buildingsGDF.to_crs(4326)
+roadsPolygonGDF = roadsPolygonGDF.to_crs(4326)
+# Make choropleth map of building construction years
+# Note that a continuous color scale is used as if the attribute is continuous, while it is not
+campusMap.choropleth(buildingsGDF, name='Building construction years',
+                     data=buildingsGDF, columns=['gid', 'bouwjaar'],
                      key_on='feature.properties.gid', fill_color='RdYlGn',
                      fill_opacity=0.7, line_opacity=0.2,legend_name='Construction year')
-campusMap.choropleth(RoadsPolygonGDF, name='Roads')
+# Add the roads
+campusMap.choropleth(roadsPolygonGDF, name='Roads')
 folium.LayerControl().add_to(campusMap)
+# Save and show
 campusMap.save('./output/campusMap.html')
 campusMap
 ```
+
 ```{block, type="alert alert-info"}
-> **Tip**: If you are using Spyder, you can view the interactive map by opening the html file that has been generated (`./output/campusMap.html`). If you are running in the Jupyter Notebook, the interactive map should automatically show.
+> **Hint**: If you are using Spyder, you can view the interactive map by opening the html file that has been generated (`./output/campusMap.html`). If you are running in the Jupyter Notebook, the interactive map should automatically show.
 ```
 <img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%">
 
@@ -473,27 +558,32 @@ Matplotlib allows you to make good quality maps for reports or publications.
 import geopandas as gpd
 from owslib.wfs import WebFeatureService
 from matplotlib import pyplot as plt
+
 # extract only buildings on and around WUR campus
-WfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
-wfs = WebFeatureService(url=WfsUrl, version='1.1.0')
+wfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
+wfs = WebFeatureService(url=wfsUrl, version='1.1.0')
 layer = list(wfs.contents)[1]
+
+# Define center point and create bbox for study area
+x, y = (173994.1578792833, 444133.60329471016)
 xmin, xmax, ymin, ymax = x-300, x+600, y-300, y+300
+
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
 data = json.loads(response.read())
-BuildingsGDF = gpd.GeoDataFrame.from_features(data['features'], crs=28992)
+buildingsGDF = gpd.GeoDataFrame.from_features(data['features'], crs=28992)
 # create visualization
 f, ax = plt.subplots(1, figsize=(10, 5))
 # Give the plot a title (do not do this for a scientific report, rather use a caption)
 ax.set_title('WUR campus buildings')
-# Backgroundcolor of the map
+# Background color of the map
 ax.set_facecolor("grey")
 # The plotting itself, of the roads
-roadlayer = RoadsPolygonGDF.plot(ax=ax, legend=True)
+roadlayer = roadsPolygonGDF.plot(ax=ax, legend=True)
 # Set the range of the x and y axis
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
 # Add the buildings to the matplotlib axes with already plotted roads
-buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar',
+buildingslayer = buildingsGDF.plot(ax=roadlayer, column='bouwjaar',
                                    cmap='brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
                                    legend=True,
                                    legend_kwds={'label': "Construction year",'orientation': "vertical"})
@@ -503,31 +593,40 @@ buildingslayer = BuildingsGDF.plot(ax=roadlayer, column='bouwjaar',
 
 ## Network analysis
 
-[OSMnx](https://osmnx.readthedocs.io/en/stable/) retrieves, constructs, analyzes and visualizes street networks from [OpenStreetMap](https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368). In short, a network analysis is investigating structures of relations between entities with the use of networks and graph theory. In spatial data, such entities are typically animals or people, and the relations between are, for example, social networks. But relations can also be between multiple points in time for the same person, e.g. movement processes like walking, cycling, driving et cetera. 
+[OSMnx](https://osmnx.readthedocs.io/en/stable/) retrieves, constructs, analyzes and visualizes street networks from [OpenStreetMap](https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368). In short, a network analysis is investigating structures of relations between entities with the use of networks and graph theory. In spatial data, such entities are typically animals or people, and the relations between them, for example social networks. But relations can also be between multiple points in time for the same person, e.g. movement processes like walking, cycling, and driving. 
 
 The following script downloads the street network of Wageningen from Open Street Map as a graph, plots it, and saves it.
 
 ```{Python, eval=FALSE}
 import osmnx as ox
+
+# Using a geocoder to get the extent
 city = ox.geocoder.geocode_to_gdf('Wageningen, Netherlands')
 ox.plot.plot_footprints(ox.project_gdf(city))
-WageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', network_type='bike')
-ox.plot.plot_graph(WageningenRoadsGraph, figsize=(10,10), node_size=2)
-ox.io.save_graph_shapefile(G=WageningenRoadsGraph, filepath='OSMnetwork_Wageningen.shp')
-gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=WageningenRoadsGraph)
+# Get bike network and create graph
+wageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', network_type='bike')
+# Plot and save
+ox.plot.plot_graph(wageningenRoadsGraph, figsize=(10,10), node_size=2)
+ox.io.save_graph_shapefile(G=wageningenRoadsGraph, filepath='OSMnetwork_Wageningen.shp')
+# Metadata
+gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=wageningenRoadsGraph)
 print(gdf_nodes.info())
 print(gdf_edges.info())
 ```
 
 <img src="./images/osmnxGraph.png" alt="Roads in Wageningen" width = "100%">
 
-OSMnx can store the downloaded street network (the Graph) as a shapefile or as a GeoDataFrame. Furthermore, the main purpose is to perform a network analysis, such as a shortest path from source to target location. Let us calculate the shortest path from Wageningen campus to Wageningen city center. Is this the route you would take?
+OSMnx can store the downloaded street network (the Graph) as a shapefile or as a GeoDataFrame. Furthermore, the main purpose of the module is to perform network analyses, such as a shortest path from source to target location. Let us calculate the shortest path from Wageningen campus to Wageningen city center. Is this the route you would take?
 
 ```{Python, eval=FALSE}
+# Origin
 source = ox.distance.get_nearest_node(WageningenRoadsGraph, (51.987817, 5.665779))
+# Destination
 target = ox.distance.get_nearest_node(WageningenRoadsGraph, (51.964870, 5.662409))
+# Compute shortest path 
 shortestroute = ox.distance.shortest_path(G=WageningenRoadsGraph,
                                     orig=source, dest=target, weight='length')
+# Plot
 ox.plot.plot_graph_route(WageningenRoadsGraph, shortestroute, figsize=(20,20),
                          route_alpha=0.6, route_color='darkred',
                          route_linewidth=10, orig_dest_size=100)
