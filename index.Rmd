@@ -1,7 +1,7 @@
 ---
 author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-pagetitle: "Week 3, Lesson 10: Python for vector processing | geo-scripting"
+pagetitle: "Week 3, Lesson 9: Python for vector processing | geo-scripting"
 output:
   knitrBootstrap::bootstrap_document:
     theme: "simplex"
@@ -11,9 +11,9 @@ output:
     highlight.chooser: TRUE
 ---
 
-# [WUR Geoscripting](https://geoscripting-wur.github.io/) <img src="https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png" alt="WUR logo" style="height: 35px;"/>
+# [WUR Geoscripting](https://geoscripting-wur.github.io/) <img src="https://www.wur.nl/upload/854757ab-168f-46d7-b415-f8b501eebaa5_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/>
 
-# Week 3, Lesson 10: Vector data handling with Python
+# Week 3, Lesson 9: Vector data handling with Python
 
 _Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil_ - `r format(Sys.time(), '%Y-%m-%d')`
 
@@ -148,7 +148,7 @@ print(gs.geometry)
 print(gs_buffer.geometry)
 ```
 
-A GeoDataFrame is a tabular data structure with multiple columns, where one column is a GeoSeries. GeoDataFrames can be loaded from a file, created with data or loaded from a Pandas dataframe. A Pandas DataFrame is, just like the structured numpy array you learned about in lesson 9. a dataframe equivalent of R in Python.
+A GeoDataFrame is a tabular data structure with multiple columns, where one column is a GeoSeries. GeoDataFrames can be loaded from a file, created with data or loaded from a Pandas dataframe. A Pandas DataFrame is, just like the structured numpy array you learned about in the previous lesson, a dataframe equivalent of R in Python.
 
 A Pandas DataFrame plus a list of shapely geometries can be converted into a GeoSeries or directly to a GeoDataFrame.
 
