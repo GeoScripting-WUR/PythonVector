@@ -1483,6 +1483,7 @@ buildingslayer = buildingsGDF.plot(ax=roadlayer, column='bouwjaar',
                                    legend_kwds={'label': "Construction year",'orientation': "vertical"})</code></pre>
 </div>
 <p><img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus" width = "100%"></p>
+<p>Be aware, matplotlib supports automatic legend creation for colorbars (continuous data, see above) as well as for point and lines marker, but not for polygons. A legend with polygon shapes should be made manually using proxy artists, see <a href="https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html">the legend guide</a>. In the example above, you would need this if you want a square in the legend with the label ‘building’.</p>
 <h2 id="network-analysis">Network analysis</h2>
 <p><a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a> retrieves, constructs, analyzes and visualizes street networks from <a href="https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368">OpenStreetMap</a>. In short, a network analysis is investigating structures of relations between entities with the use of networks and graph theory. In spatial data, such entities are typically animals or people, and the relations between them, for example social networks. But relations can also be between multiple points in time for the same person, e.g. movement processes like walking, cycling, and driving.</p>
 <p>The following script downloads the street network of Wageningen from Open Street Map as a graph, plots it, and saves it.</p>
@@ -1505,7 +1506,7 @@ gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=wageningenRoadsGraph)
 print(gdf_nodes.info())
 print(gdf_edges.info())</code></pre>
 </div>
-<p><img src="./images/osmnxGraph.png" alt="Roads in Wageningen" width = "100%"></p>
+<p><img src="./images/osmnxGraph.png" alt="Roads in Wageningen" width = "50%"></p>
 <p>OSMnx can store the downloaded street network (the Graph) as a shapefile or as a GeoDataFrame. Furthermore, the main purpose of the module is to perform network analyses, such as a shortest path from source to target location. Let us calculate the shortest path from Wageningen campus to Wageningen city center. Is this the route you would take?</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">

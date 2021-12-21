@@ -591,6 +591,8 @@ buildingslayer = buildingsGDF.plot(ax=roadlayer, column='bouwjaar',
 
 <img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus" width = "100%">
 
+Be aware, matplotlib supports automatic legend creation for colorbars (continuous data, see above) as well as for point and lines marker, but not for polygons. A legend with polygon shapes should be made manually using proxy artists, see [the legend guide](https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html). In the example above, you would need this if you want a square in the legend with the label 'building'.
+
 ## Network analysis
 
 [OSMnx](https://osmnx.readthedocs.io/en/stable/) retrieves, constructs, analyzes and visualizes street networks from [OpenStreetMap](https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368). In short, a network analysis is investigating structures of relations between entities with the use of networks and graph theory. In spatial data, such entities are typically animals or people, and the relations between them, for example social networks. But relations can also be between multiple points in time for the same person, e.g. movement processes like walking, cycling, and driving. 
@@ -614,7 +616,7 @@ print(gdf_nodes.info())
 print(gdf_edges.info())
 ```
 
-<img src="./images/osmnxGraph.png" alt="Roads in Wageningen" width = "100%">
+<img src="./images/osmnxGraph.png" alt="Roads in Wageningen" width = "50%">
 
 OSMnx can store the downloaded street network (the Graph) as a shapefile or as a GeoDataFrame. Furthermore, the main purpose of the module is to perform network analyses, such as a shortest path from source to target location. Let us calculate the shortest path from Wageningen campus to Wageningen city center. Is this the route you would take?
 
