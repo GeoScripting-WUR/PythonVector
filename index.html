@@ -873,36 +873,19 @@
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="https://www.wur.nl/upload/854757ab-168f-46d7-b415-f8b501eebaa5_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="week-3-lesson-9-vector-data-handling-with-python">Week 3, Lesson 9: Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil</em> - 2021-12-21</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil</em> - 2021-12-23</p>
 <h2 id="introduction">Introduction</h2>
-<p>Good morning! Today we will explore a variety of Python packages for vector data handling:</p>
+<p>Today we will explore a variety of Python packages for vector data handling:</p>
 <ul>
 <li><a href="https://gdal.org/api/python.html">GDAL</a>, the backbone of spatial data processing in Python (and R) with high performance</li>
 <li><a href="http://toblerity.org/shapely/">Shapely</a> for geometric operations</li>
 <li><a href="http://geopandas.org/">GeoPandas</a> for exploratory vector data analysis, based on <a href="http://pandas.pydata.org/">Pandas</a> for dataframes and data analysis</li>
 <li><a href="https://github.com/jswhit/pyproj">pyproj</a> for re-projecting</li>
 <li><a href="http://toblerity.org/fiona/">Fiona</a> for geodata access and conversions</li>
-<li><a href="https://pypi.org/project/psycopg2/">psycopg2</a> for PostgreSQL database connection</li>
-<li><a href="https://geopy.readthedocs.io/en/stable/">GeoPy</a> for geocoding</li>
+<li><a href="https://osmnx.readthedocs.io/en/stable/">osmnx</a> for network analysis</li>
 </ul>
 <h2 id="setting-up-the-python-environment">Setting up the Python Environment</h2>
-<p>First, the Python environment needs to be setup, as you learned in the previous lesson. Check what environments are already available:</p>
-<div class="row">
-<button class="source bash toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> bash source
-</button>
-<pre style=""><code class="source bash">conda info --envs</code></pre>
-</div>
-<p>We can use the existing ‘geoscripting’ environment. If you don’t have it yet/anymore, create it with the bash scripts below.</p>
-<div class="row">
-<button class="source bash toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> bash source
-</button>
-<pre style=""><code class="source bash">wget https://raw.githubusercontent.com/GeoScripting-WUR/InstallLinuxScript/master/user/environment.yml
-conda env create -f environment.yml</code></pre>
-</div>
-<p>Then, activate the environment. See the previous lesson if you do not remember how to do that.</p>
-<p>Finally, make a folder structure for this tutorial, and open Spyder as you IDE:</p>
+<p>Make a folder structure for this tutorial:</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
@@ -915,6 +898,25 @@ mkdir data
 mkdir output
 spyder</code></pre>
 </div>
+<p>Next, create a text file, (re)name it (to) <code>vector.yaml</code>, and copy the following content into the file:</p>
+<pre><code>name: vector
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - numpy
+  - matplotlib
+  - spyder
+  - gdal
+  - shapely
+  - pandas
+  - geopandas
+  - fiona
+  - owslib
+  - folium
+  - osmnx
+  - contextily</code></pre>
+<p>Use this file to create an environment for this tutorial, as you have learned in the previous lesson. Activate the environment, open Spyder, create a script in the <code>scripts</code> folder and start coding.</p>
 <h2 id="vector-geometries">Vector Geometries</h2>
 <!-- GDAL, potentially add 
 At the backbone of spatial data processing in Python is GDAL. GDAL means Geospatial Data Abstraction Library, it is a ‘translator library’ for raster and vector geospatial data. Although the overarching package is called GDAL, the term is mostly used for the raster handling part. The vector handling part of the GDAL package is called OGR.
@@ -1141,16 +1143,16 @@ geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 # Add the geometries to the DataFrame and thereby make it into a GeoDataFrame
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
 # Save to disk
-wageningenGDF.to_file(filename='./data/wageningenPOI.geojson', driver='GeoJSON')
-wageningenGDF.to_file(filename='./data/wageningenPOI.shp', driver='ESRI Shapefile')</code></pre>
+wageningenGDF.to_file(filename='../data/wageningenPOI.geojson', driver='GeoJSON')
+wageningenGDF.to_file(filename='../data/wageningenPOI.shp', driver='ESRI Shapefile')</code></pre>
 </div>
 <p>Reading files is just as intuitive:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">jsonGDF = gpd.read_file('./data/wageningenPOI.geojson')
-shpGDF = gpd.read_file('./data/wageningenPOI.shp')</code></pre>
+<pre style=""><code class="source python">jsonGDF = gpd.read_file('../data/wageningenPOI.geojson')
+shpGDF = gpd.read_file('../data/wageningenPOI.shp')</code></pre>
 </div>
 <h2 id="reading-from-web-services">Reading from Web Services</h2>
 <p>The web has a lot of geodata available. The OpenGeoSpatial Consortium has specified standard protocols for geo web services, such as <a href="http://www.opengeospatial.org/standards/wfs">Web Feature Service</a> [WFS] and <a href="http://www.opengeospatial.org/standards/wms">Web Map Service</a> [WMS]. The standard web service protocols make it easy to access data. For example, the following WFS provides geodata on roads and is extracted from the Dutch national database of roads in the Netherlands:</p>
@@ -1199,10 +1201,10 @@ xmin, xmax, ymin, ymax = x-1000, x+350, y-1000, y+350
 # Get the features for the study area
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax))
 # Save them to disk
-with open('./data/Roads.gml', 'wb') as file:
+with open('../data/Roads.gml', 'wb') as file:
     file.write(response.read())
 # Read in again with geopandas
-roadsGDF = gpd.read_file('./data/Roads.gml')
+roadsGDF = gpd.read_file('../data/Roads.gml')
 # Check and plot to get a quick view
 print(type(roadsGDF))
 roadsGDF.plot()</code></pre>
@@ -1249,7 +1251,7 @@ buildingsGDF.plot(ax=roadlayer, color='red')
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
 # Save to disk
-plt.savefig('./output/BuildingsAndRoads.png')</code></pre>
+plt.savefig('../output/BuildingsAndRoads.png')</code></pre>
 </div>
 <p><img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%"></p>
 <div class="row">
@@ -1402,9 +1404,9 @@ newBuildingsGDF.plot(ax=roadlayer, color='red')</code></pre>
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">WageningenRoadsGDF = RoadsPolygonGDF.loc[RoadsPolygonGDF['gme_naam']=='Wageningen']
-print(sum(WageningenRoadsGDF.area))
-WageningenRoadsGDF.plot(edgecolor='purple')</code></pre>
+<pre style=""><code class="source python">wageningenRoadsGDF = RoadsPolygonGDF.loc[roadsPolygonGDF['gme_naam']=='Wageningen']
+print(sum(wageningenRoadsGDF.area))
+wageningenRoadsGDF.plot(edgecolor='purple')</code></pre>
 </div>
 <p><img src="./images/WageningenRoadsGDF.png" alt="Roads within the Wageningen Municipality" width = "60%"></p>
 <h2 id="visualizing-spatial-information">Visualizing spatial information</h2>
@@ -1416,7 +1418,7 @@ WageningenRoadsGDF.plot(edgecolor='purple')</code></pre>
 </button>
 <pre style=""><code class="source python">import folium
 
-campusMap = folium.Map([location.latitude, location.longitude], zoom_start=17)
+campusMap = folium.Map([51.98527485, 5.66370505205543], zoom_start=17)
 buildingsGDF.crs = 'EPSG:28992'
 # Re-project
 buildingsGDF = buildingsGDF.to_crs(4326)
@@ -1431,14 +1433,14 @@ campusMap.choropleth(buildingsGDF, name='Building construction years',
 campusMap.choropleth(roadsPolygonGDF, name='Roads')
 folium.LayerControl().add_to(campusMap)
 # Save and show
-campusMap.save('./output/campusMap.html')
+campusMap.save('../output/campusMap.html')
 campusMap</code></pre>
 </div>
 <div class="row">
 <div class="alert alert-info">
 <blockquote>
 <p>
-<strong>Hint</strong>: If you are using Spyder, you can view the interactive map by opening the html file that has been generated (<code>./output/campusMap.html</code>). If you are running in the Jupyter Notebook, the interactive map should automatically show.
+<strong>Hint</strong>: If you are using Spyder, you can view the interactive map by opening the html file that has been generated (<code>../output/campusMap.html</code>). If you are running in the Jupyter Notebook, the interactive map should automatically show.
 </p>
 </blockquote>
 </div>
@@ -1513,14 +1515,14 @@ print(gdf_edges.info())</code></pre>
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python"># Origin
-source = ox.distance.get_nearest_node(WageningenRoadsGraph, (51.987817, 5.665779))
+source = ox.distance.get_nearest_node(wageningenRoadsGraph, (51.987817, 5.665779))
 # Destination
-target = ox.distance.get_nearest_node(WageningenRoadsGraph, (51.964870, 5.662409))
+target = ox.distance.get_nearest_node(wageningenRoadsGraph, (51.964870, 5.662409))
 # Compute shortest path 
-shortestroute = ox.distance.shortest_path(G=WageningenRoadsGraph,
+shortestroute = ox.distance.shortest_path(G=wageningenRoadsGraph,
                                     orig=source, dest=target, weight='length')
 # Plot
-ox.plot.plot_graph_route(WageningenRoadsGraph, shortestroute, figsize=(20,20),
+ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20,20),
                          route_alpha=0.6, route_color='darkred',
                          route_linewidth=10, orig_dest_size=100)</code></pre>
 </div>
