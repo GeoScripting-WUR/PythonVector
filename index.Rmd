@@ -28,6 +28,13 @@ Today we will explore a variety of Python packages for vector data handling:
 * [Fiona](http://toblerity.org/fiona/) for geodata access and conversions
 * [osmnx](https://osmnx.readthedocs.io/en/stable/) for network analysis 
 
+## Today’s Learning objectives
+
+- Know how to create a point dataset in Python
+- Be able to write spatial vector formats to disk
+- Be able to read spatial vector formats from web services and files
+- Know how to apply basic operations on vector data, such as buffers and shortest-path algorithms
+- Be able to plot spatial vector data with matplotlib
 
 ## Setting up the Python Environment
 Make a folder structure for this tutorial:
@@ -36,7 +43,6 @@ Make a folder structure for this tutorial:
 cd ~/Documents/
 mkdir PythonVector #or give the directory a name to your liking
 cd ./PythonVector
-mkdir scripts
 mkdir data
 mkdir output
 spyder
@@ -63,7 +69,7 @@ dependencies:
   - contextily
 ```
 
-Use this file to create an environment for this tutorial, as you have learned in the previous lesson. Activate the environment, open Spyder, create a script in the `scripts` folder and start coding.
+Use this file to create an environment for this tutorial, as you have learned in the previous lesson. Activate the environment, open Spyder, create a script in the root folder and start coding.
 
 ## Vector Geometries
 
@@ -284,15 +290,15 @@ geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 # Add the geometries to the DataFrame and thereby make it into a GeoDataFrame
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
 # Save to disk
-wageningenGDF.to_file(filename='../data/wageningenPOI.geojson', driver='GeoJSON')
-wageningenGDF.to_file(filename='../data/wageningenPOI.shp', driver='ESRI Shapefile')
+wageningenGDF.to_file(filename='./data/wageningenPOI.geojson', driver='GeoJSON')
+wageningenGDF.to_file(filename='./data/wageningenPOI.shp', driver='ESRI Shapefile')
 ```
 
 Reading files is just as intuitive:
 
 ```{Python, eval=FALSE}
-jsonGDF = gpd.read_file('../data/wageningenPOI.geojson')
-shpGDF = gpd.read_file('../data/wageningenPOI.shp')
+jsonGDF = gpd.read_file('./data/wageningenPOI.geojson')
+shpGDF = gpd.read_file('./data/wageningenPOI.shp')
 ```
 
 ## Reading from Web Services
@@ -323,7 +329,6 @@ Load some roads from the WFS service for the campus area and plot them:
 
 ```{Python, eval=FALSE}
 import geopandas as gpd
-import json
 
 # Get the WFS
 wfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
@@ -336,10 +341,10 @@ xmin, xmax, ymin, ymax = x-1000, x+350, y-1000, y+350
 # Get the features for the study area
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax))
 # Save them to disk
-with open('../data/Roads.gml', 'wb') as file:
+with open('./data/Roads.gml', 'wb') as file:
     file.write(response.read())
 # Read in again with geopandas
-roadsGDF = gpd.read_file('../data/Roads.gml')
+roadsGDF = gpd.read_file('./data/Roads.gml')
 # Check and plot to get a quick view
 print(type(roadsGDF))
 roadsGDF.plot()
@@ -355,6 +360,7 @@ Load some building from another WFS service (BAG) and plot them too.
 
 ```{Python, eval=FALSE}
 from matplotlib import pyplot as plt
+import json
 
 # Get the WFS of the BAG
 wfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
@@ -381,7 +387,7 @@ buildingsGDF.plot(ax=roadlayer, color='red')
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
 # Save to disk
-plt.savefig('../output/BuildingsAndRoads.png')
+plt.savefig('./output/BuildingsAndRoads.png')
 ```
 
 <img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%">
@@ -448,6 +454,8 @@ ax.set_axis_off()
 
 <img src="./images/NewBuildings.png" alt="Parcels at Wageningen University Campus" width = "60%">
 
+(Figures shown here and in the next section may differ slightly from the ones you obtain.)
+
 ## Geometric Manipulations
 
 GeoDataFrames and GeoSeries have several [constructive methods](http://geopandas.org/geometric_manipulations.html) to modify the geometry: buffer, boundary, centroid, convex hull, envelope, simplify, unary union, rotate, scale, skew and translate. When modifying the geometries in the DataFrames, it is a good practice to keep track of your geometry types and your geometry data. Have a look at the geometry types of the roads.
@@ -488,7 +496,7 @@ print('There was an overlap of ' + round((roadsPolygonGDF.area.sum() - roadsUnio
 > **Question 7**: What coordinate system does RoadsUnionGS have?
 ```
 
-GeoPandas can perform various [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. Clip the roads with convexed parcels by using intersection. As an example, let us focus on the area around the new buildings on the campus and extract the existing roads close to them. To do so we buffer the new buildings with 100 meter, merge them with a unary_union and create a convex hull around the merged (multipolygon) buildings. Finally we clip the roads with this single polygon.
+GeoPandas can perform various [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. We will clip the roads with convexed parcels by using intersection. As an example, let us focus on the area around the new buildings on the campus and extract the existing roads close to them. To do so we buffer the new buildings with 100 meter, merge them with a unary_union and create a convex hull around the merged (multipolygon) buildings. Finally we clip the roads with this single polygon.
 ```{Python, eval=FALSE}
 
 # Re-project
@@ -517,7 +525,7 @@ newBuildingsGDF.plot(ax=roadlayer, color='red')
 In summary, the advantage of GeoPandas is that it allows both geometric and dataframe manipulations. For example, GeoPandas can select the roads within (and maintained by) Wageningen Municipality and calculate total road surface area.
 
 ```{Python, eval=FALSE}
-wageningenRoadsGDF = RoadsPolygonGDF.loc[roadsPolygonGDF['gme_naam']=='Wageningen']
+wageningenRoadsGDF = roadsPolygonGDF.loc[roadsPolygonGDF['gme_naam']=='Wageningen']
 print(sum(wageningenRoadsGDF.area))
 wageningenRoadsGDF.plot(edgecolor='purple')
 ```
@@ -548,12 +556,12 @@ campusMap.choropleth(buildingsGDF, name='Building construction years',
 campusMap.choropleth(roadsPolygonGDF, name='Roads')
 folium.LayerControl().add_to(campusMap)
 # Save and show
-campusMap.save('../output/campusMap.html')
+campusMap.save('./output/campusMap.html')
 campusMap
 ```
 
 ```{block, type="alert alert-info"}
-> **Hint**: If you are using Spyder, you can view the interactive map by opening the html file that has been generated (`../output/campusMap.html`). If you are running in the Jupyter Notebook, the interactive map should automatically show.
+> **Hint**: If you are using Spyder, you can view the interactive map by opening the html file that has been generated (`./output/campusMap.html`). If you are running in the Jupyter Notebook, the interactive map should automatically show.
 ```
 <img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%">
 
