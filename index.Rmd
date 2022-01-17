@@ -45,14 +45,13 @@ mkdir PythonVector #or give the directory a name to your liking
 cd ./PythonVector
 mkdir data
 mkdir output
-spyder
 ```
 
-Next, create a text file, (re)name it (to) `vector.yaml`, and copy the following content into the file:
+The conda environment we are using today contains more (and larger) packages than yesterday. Because the Virtual Machine has limited memory, it cannot create this conda environment at once. A solution is to create a conda environment with one `.yaml` file, and then update it with a second `.yaml` file.
+
+Hereto, create a text file, (re)name it (to) `vector1.yaml`, and copy the following content into the file:
 ```
 name: vector
-channels:
-  - conda-forge
 dependencies:
   - python
   - numpy
@@ -64,12 +63,26 @@ dependencies:
   - geopandas
   - fiona
   - owslib
+```
+
+Use this file to create an environment for this tutorial, as you have learned in the previous lesson. Next, create a second text file, (re)name it (to) `vector2.yaml`, and copy the following content into the file:
+
+```
+name: vector
+channels:
+  - conda-forge
+dependencies:
   - folium
   - osmnx
   - contextily
 ```
+Now, update the environment you created before with:
 
-Use this file to create an environment for this tutorial, as you have learned in the previous lesson. Activate the environment, open Spyder, create a script in the root folder and start coding.
+```{r, eval=FALSE,engine='bash'}
+conda env update --file vector2.yaml
+```
+
+Conda automatically knows which environment to update, because of the `name` in `vector2.yaml`. Finally, activate the environment, open Spyder, create a script in the root folder and start coding.
 
 ## Vector Geometries
 

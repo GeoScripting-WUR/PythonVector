@@ -873,7 +873,7 @@
 <div class="contents col-xs-12 col-md-10">
 <h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="https://www.wur.nl/upload/854757ab-168f-46d7-b415-f8b501eebaa5_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/></h1>
 <h1 id="week-3-lesson-9-vector-data-handling-with-python">Week 3, Lesson 9: Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil</em> - 2022-01-09</p>
+<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil</em> - 2022-01-17</p>
 <h2 id="introduction">Introduction</h2>
 <p>Today we will explore a variety of Python packages for vector data handling:</p>
 <ul>
@@ -902,13 +902,11 @@
 mkdir PythonVector #or give the directory a name to your liking
 cd ./PythonVector
 mkdir data
-mkdir output
-spyder</code></pre>
+mkdir output</code></pre>
 </div>
-<p>Next, create a text file, (re)name it (to) <code>vector.yaml</code>, and copy the following content into the file:</p>
+<p>The conda environment we are using today contains more (and larger) packages than yesterday. Because the Virtual Machine has limited memory, it cannot create this conda environment at once. A solution is to create a conda environment with one <code>.yaml</code> file, and then update it with a second <code>.yaml</code> file.</p>
+<p>Hereto, create a text file, (re)name it (to) <code>vector1.yaml</code>, and copy the following content into the file:</p>
 <pre><code>name: vector
-channels:
-  - conda-forge
 dependencies:
   - python
   - numpy
@@ -919,11 +917,23 @@ dependencies:
   - pandas
   - geopandas
   - fiona
-  - owslib
+  - owslib</code></pre>
+<p>Use this file to create an environment for this tutorial, as you have learned in the previous lesson. Next, create a second text file, (re)name it (to) <code>vector2.yaml</code>, and copy the following content into the file:</p>
+<pre><code>name: vector
+channels:
+  - conda-forge
+dependencies:
   - folium
   - osmnx
   - contextily</code></pre>
-<p>Use this file to create an environment for this tutorial, as you have learned in the previous lesson. Activate the environment, open Spyder, create a script in the root folder and start coding.</p>
+<p>Now, update the environment you created before with:</p>
+<div class="row">
+<button class="source bash toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> bash source
+</button>
+<pre style=""><code class="source bash">conda env update --file vector2.yaml</code></pre>
+</div>
+<p>Conda automatically knows which environment to update, because of the <code>name</code> in <code>vector2.yaml</code>. Finally, activate the environment, open Spyder, create a script in the root folder and start coding.</p>
 <h2 id="vector-geometries">Vector Geometries</h2>
 <!-- GDAL, potentially add 
 At the backbone of spatial data processing in Python is GDAL. GDAL means Geospatial Data Abstraction Library, it is a ‘translator library’ for raster and vector geospatial data. Although the overarching package is called GDAL, the term is mostly used for the raster handling part. The vector handling part of the GDAL package is called OGR.
