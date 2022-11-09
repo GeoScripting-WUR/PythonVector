@@ -5,33 +5,181 @@
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil" />
-  <title>Week 3, Lesson 9: Python for vector processing | geo-scripting</title>
+  <title>Tutorial 9: Vector data handling with Python</title>
   <style type="text/css">
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
   <!-- jQuery -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-  
+
   <!-- bootstrap -->
   <!--<link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet"  id="style">-->
   <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  
+
   <!-- highlight.js -->
   <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/default.min.css" rel="stylesheet" id="code-style">-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/highlight.min.js"></script>
   <script>
   hljs.LANGUAGES.r=function(a){var b="([a-zA-Z]|\\.[a-zA-Z.])[a-zA-Z0-9._]*";return{c:[a.HCM,{b:b,l:b,k:{keyword:"function if in break next repeat else for return switch while try tryCatch|10 stop warning require library attach detach source setMethod setGeneric setGroupGeneric setClass ...|10",literal:"NULL NA TRUE FALSE T F Inf NaN NA_integer_|10 NA_real_|10 NA_character_|10 NA_complex_|10"},r:0},{cN:"number",b:"0[xX][0-9a-fA-F]+[Li]?\\b",r:0},{cN:"number",b:"\\d+(?:[eE][+\\-]?\\d*)?L\\b",r:0},{cN:"number",b:"\\d+\\.(?!\\d)(?:i\\b)?",r:0},{cN:"number",b:"\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",r:0},{b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[a.BE],r:0},{cN:"string",b:"'",e:"'",c:[a.BE],r:0}]}}(hljs); </script>
   <!--<script type="text/javascript", src="https://yandex.st/highlightjs/7.3/languages/r.min.js"></script>-->
-  
+
   <!-- Manific Popup -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/0.8.9/jquery.magnific-popup.min.js"></script>
-  
+
   <script type="text/javascript"
     src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   </script>
@@ -39,16 +187,16 @@
   // Function to generate the dynamic table of contents
   jQuery.fn.generate_TOC = function () {
     var base = $(this[0]);
-  
+
     var selectors = ['h1', 'h2', 'h3', 'h4'];
-  
+
     var last_ptr = [{}, {}, {}, {}];
-  
+
     var anchors = {};
-  
+
     generate_anchor = function (text) {
       var test = text.replace(/\W/g, '_');
-  
+
       while(test in anchors){
         //if no suffix, add one
         if(test.match(/_\d+$/) === null){
@@ -62,13 +210,13 @@
       anchors[test]=1;
       return(test);
     }
-  
+
     $(selectors.join(',')).filter(function(index) { return $(this).parent().attr("id") != 'header'; }).each(function () {
-  
+
       var heading = $(this);
       var idx = selectors.indexOf(heading.prop('tagName').toLowerCase());
       var itr = 0;
-  
+
       while (itr <= idx) {
         if (jQuery.isEmptyObject(last_ptr[itr])) {
           last_ptr[itr] = $('<ul>').addClass('nav');
@@ -90,10 +238,10 @@
       var a = $('<a>')
       .text(heading.text())
       .attr('href', '#' + anchor);
-  
+
     var li = $('<li>')
       .append(a);
-  
+
     last_ptr[idx].append(li);
     for (i = idx + 1; i < last_ptr.length; i++) {
       last_ptr[i] = {};
@@ -103,35 +251,35 @@
   /* run scripts when document is ready */
   $(function() {
     "use strict";
-  
+
     var $window = $(window);
     var $body = $(document.body);
-  
+
     /* size of thumbnails */
-  
+
     var hidden_types = ['source']
     var output_types = ['output', 'message', 'warning', 'error']
-  
+
     /* style tables */
     $('table').addClass('table table-striped table-bordered table-hover table-condensed');
-  
+
     $('pre code').each(function(i, e) {
       hljs.highlightBlock(e);
     });
-  
+
     /* Magnific Popup */
     $(".thumbnail").each(function(){
       $(this).magnificPopup({
         disableOn: 768,
         closeOnContentClick: true,
-  
+
         type: 'image',
         items: {
           src: $(this).find('img').attr('src'),
         }
       });
     });
-  
+
     function toggle_block(obj, show) {
       var span = obj.find('span');
       if(show === true){
@@ -143,7 +291,7 @@
         obj.next('pre').slideUp();
       }
     }
-  
+
     function toggle_thumbnails(imgs, show){
       if(show === true){
         imgs.parents().show()
@@ -153,7 +301,7 @@
         imgs.slideUp(400, function(){ $(this).parent().hide(); });
       }
     }
-  
+
     function global_toggle(obj){
       var type = obj.attr('type');
       var show = !obj.parent('li').hasClass('active');
@@ -170,14 +318,14 @@
         $('.toggle.' + type).each(function() { toggle_block($(this), show); });
       }
     }
-  
+
     /* onclick toggle next code block */
     $('.toggle').click(function() {
       var span = $(this).find('span');
       toggle_block($(this), !span.hasClass('glyphicon-chevron-down'));
       return false
     })
-  
+
     // global toggles
     $('.toggle-global').click(function(){
       var type = $(this).attr('type');
@@ -203,18 +351,18 @@
       $('body > #wrap > .container > .row').append('<div class="col-md-2"><div id="toc" class="well sidebar sidenav affix hidden-print"/></div>');
       $('#toc').generate_TOC();
     }
-  
+
     $.each(hidden_types, function(i, type) {
       $('li[type=' + type + ']').each(function(){ global_toggle($(this)); });
     });
-  
+
     /* remove paragraphs with no content */
     $('p:empty').remove();
-  
+
     $body.scrollspy({
       target: '.sidebar',
     });
-  
+
     /* theme switch */
     $('.theme-switch').click(function(){
       var css = $('link[title=' + $(this).attr('title') + ']');
@@ -231,14 +379,14 @@
       $(this).closest('li').addClass('active');
       return false;
     });
-  
+
     //TODO refresh on show/hide
     $window.on('load', function () {
       $body.scrollspy('refresh');
     })
-  
+
   });
-  
+
   </script>
   <style>
   /* Knitr_bootstrap styles */
@@ -253,11 +401,11 @@
   .toggle{
     text-transform: capitalize;
   }
-  
+
   .toggle-global{
     text-transform: capitalize;
   }
-  
+
   /* Sticky footer styles */
   * {
     margin:0;
@@ -269,7 +417,7 @@
       /* The html and body elements cannot have any padding or margin. */
       /*overflow-x: hidden;*/
   }
-  
+
   /* Wrapper for page content to push down footer */
   #wrap {
       min-height: 100%;
@@ -278,43 +426,43 @@
       /* Negative indent footer by it's height */
       margin: 0 auto -120px;
   }
-  
+
   /* Set the fixed height of the footer here */
   #push,
   #footer {
       height: 120px;
   }
-  
+
   #footer {
     text-align: center;
   }
-  
+
   /* Top level subheader elements.  These are the first nested items underneath a header element. */
   .header li {
     font-size: 20px;
   }
-  
+
   /* Makes the font smaller for all subheader elements. */
   .sub-header li {
       font-size: 12px;
   }
-  
+
   button.thumbnails {
     margin-left:0px;
   }
-  
+
   /*
    * Side navigation
    *
    * Scrollspy and affixed enhanced navigation to highlight sections and secondary
    * sections of docs content.
    */
-  
+
   /* By default it's not affixed in mobile views, so undo that */
   .sidebar.affix {
     position: static;
   }
-  
+
   /* First level of nav */
   .sidenav {
     margin-top: 30px;
@@ -323,7 +471,7 @@
     padding-bottom: 10px;
     border-radius: 5px;
   }
-  
+
   /* All levels of nav */
   .sidebar .nav > li > a {
     display: block;
@@ -341,7 +489,7 @@
     background-color: transparent;
     border-right: 1px solid;
   }
-  
+
   /* Nav: second level (shown on .active) */
   .sidebar .nav .nav {
     display: none; /* Hide by default, but at >768px, show it */
@@ -353,14 +501,14 @@
     padding-left: 30px;
     font-size: 90%;
   }
-  
+
   .sidebar .nav .nav .nav > li > a {
     padding-left: 40px;
   }
   .sidebar .nav .nav .nav .nav > li > a {
     padding-left: 50px;
   }
-  
+
   /* Show and affix the side nav when space allows it */
   @media screen and (min-width: 992px) {
     .sidebar .nav > .active > ul {
@@ -392,14 +540,14 @@
       width: 263px;
     }
   }
-  
+
   #toc {
     padding: 10px 0px;
     margin:0;
     border:0;
   }
-  
-  
+
+
   .panel pre {
     margin: 0;
     padding: 0;
@@ -424,7 +572,7 @@
     background: #0b0b0b;
     opacity: 0.8;
     filter: alpha(opacity=80); }
-  
+
   .mfp-wrap {
     top: 0;
     left: 0;
@@ -434,7 +582,7 @@
     position: fixed;
     outline: none !important;
     -webkit-backface-visibility: hidden; }
-  
+
   .mfp-container {
     text-align: center;
     position: absolute;
@@ -446,16 +594,16 @@
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box; }
-  
+
   .mfp-container:before {
     content: '';
     display: inline-block;
     height: 100%;
     vertical-align: middle; }
-  
+
   .mfp-align-top .mfp-container:before {
     display: none; }
-  
+
   .mfp-content {
     position: relative;
     display: inline-block;
@@ -463,30 +611,30 @@
     margin: 0 auto;
     text-align: left;
     z-index: 1045; }
-  
+
   .mfp-inline-holder .mfp-content,
   .mfp-ajax-holder .mfp-content {
     width: 100%;
     cursor: auto; }
-  
+
   .mfp-ajax-cur {
     cursor: progress; }
-  
+
   .mfp-zoom-out-cur,
   .mfp-zoom-out-cur .mfp-image-holder .mfp-close {
     cursor: -moz-zoom-out;
     cursor: -webkit-zoom-out;
     cursor: zoom-out; }
-  
+
   .mfp-zoom {
     cursor: pointer;
     cursor: -webkit-zoom-in;
     cursor: -moz-zoom-in;
     cursor: zoom-in; }
-  
+
   .mfp-auto-cursor .mfp-content {
     cursor: auto; }
-  
+
   .mfp-close,
   .mfp-arrow,
   .mfp-preloader,
@@ -494,13 +642,13 @@
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none; }
-  
+
   .mfp-loading.mfp-figure {
     display: none; }
-  
+
   .mfp-hide {
     display: none !important; }
-  
+
   .mfp-preloader {
     color: #cccccc;
     position: absolute;
@@ -511,19 +659,19 @@
     left: 8px;
     right: 8px;
     z-index: 1044; }
-  
+
   .mfp-preloader a {
     color: #cccccc; }
-  
+
   .mfp-preloader a:hover {
     color: white; }
-  
+
   .mfp-s-ready .mfp-preloader {
     display: none; }
-  
+
   .mfp-s-error .mfp-content {
     display: none; }
-  
+
   button.mfp-close,
   button.mfp-arrow {
     overflow: visible;
@@ -536,11 +684,11 @@
     z-index: 1046;
     -webkit-box-shadow: none;
     box-shadow: none; }
-  
+
   button::-moz-focus-inner {
     padding: 0;
     border: 0; }
-  
+
   .mfp-close {
     width: 44px;
     height: 44px;
@@ -560,10 +708,10 @@
       opacity: 1; }
     .mfp-close:active {
       top: 1px; }
-  
+
   .mfp-close-btn-in .mfp-close {
     color: #333333; }
-  
+
   .mfp-image-holder .mfp-close,
   .mfp-iframe-holder .mfp-close {
     color: white;
@@ -571,7 +719,7 @@
     text-align: right;
     padding-right: 6px;
     width: 100%; }
-  
+
   .mfp-counter {
     position: absolute;
     top: 0;
@@ -579,7 +727,7 @@
     color: #cccccc;
     font-size: 12px;
     line-height: 18px; }
-  
+
   .mfp-arrow {
     position: absolute;
     opacity: 0.65;
@@ -590,14 +738,14 @@
     width: 90px;
     height: 110px;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
-  
+
   .mfp-arrow:active {
     margin-top: -54px; }
-  
+
   .mfp-arrow:hover,
   .mfp-arrow:focus {
     opacity: 1; }
-  
+
   .mfp-arrow:before, .mfp-arrow:after,
   .mfp-arrow .mfp-b,
   .mfp-arrow .mfp-a {
@@ -620,7 +768,7 @@
   .mfp-arrow .mfp-b {
     border-top-width: 21px;
     border-bottom-width: 21px; }
-  
+
   .mfp-arrow-left {
     left: 0; }
     .mfp-arrow-left:after,
@@ -631,7 +779,7 @@
     .mfp-arrow-left .mfp-b {
       margin-left: 25px;
       border-right: 27px solid #3f3f3f; }
-  
+
   .mfp-arrow-right {
     right: 0; }
     .mfp-arrow-right:after,
@@ -641,22 +789,22 @@
     .mfp-arrow-right:before,
     .mfp-arrow-right .mfp-b {
       border-left: 27px solid #3f3f3f; }
-  
+
   .mfp-iframe-holder {
     padding-top: 40px;
     padding-bottom: 40px; }
-  
+
   .mfp-iframe-holder .mfp-content {
     line-height: 0;
     width: 100%;
     max-width: 900px; }
-  
+
   .mfp-iframe-scaler {
     width: 100%;
     height: 0;
     overflow: hidden;
     padding-top: 56.25%; }
-  
+
   .mfp-iframe-scaler iframe {
     position: absolute;
     display: block;
@@ -666,10 +814,10 @@
     height: 100%;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
     background: black; }
-  
+
   .mfp-iframe-holder .mfp-close {
     top: -40px; }
-  
+
   /* Main image in popup */
   img.mfp-img {
     width: auto;
@@ -682,7 +830,7 @@
     box-sizing: border-box;
     padding: 40px 0 40px;
     margin: 0 auto; }
-  
+
   /* The shadow behind the image */
   .mfp-figure:after {
     content: '';
@@ -697,10 +845,10 @@
     z-index: -1;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
     background: #444444; }
-  
+
   .mfp-figure {
     line-height: 0; }
-  
+
   .mfp-bottom-bar {
     margin-top: -36px;
     position: absolute;
@@ -708,26 +856,26 @@
     left: 0;
     width: 100%;
     cursor: auto; }
-  
+
   .mfp-title {
     text-align: left;
     line-height: 18px;
     color: #f3f3f3;
     word-wrap: break-word;
     padding-right: 36px; }
-  
+
   .mfp-figure small {
     color: #bdbdbd;
     display: block;
     font-size: 12px;
     line-height: 14px; }
-  
+
   .mfp-image-holder .mfp-content {
     max-width: 100%; }
-  
+
   .mfp-gallery .mfp-image-holder .mfp-figure {
     cursor: pointer; }
-  
+
   @media screen and (max-width: 800px) and (orientation: landscape), screen and (max-height: 300px) {
     /**
      * Remove all paddings around the image on small screen
@@ -735,15 +883,15 @@
     .mfp-img-mobile .mfp-image-holder {
       padding-left: 0;
       padding-right: 0; }
-  
+
     .mfp-img-mobile img.mfp-img {
       padding: 0; }
-  
+
     /* The shadow behind the image */
     .mfp-img-mobile .mfp-figure:after {
       top: 0;
       bottom: 0; }
-  
+
     .mfp-img-mobile .mfp-bottom-bar {
       background: rgba(0, 0, 0, 0.6);
       bottom: 0;
@@ -754,14 +902,14 @@
       -webkit-box-sizing: border-box;
       -moz-box-sizing: border-box;
       box-sizing: border-box; }
-  
+
     .mfp-img-mobile .mfp-bottom-bar:empty {
       padding: 0; }
-  
+
     .mfp-img-mobile .mfp-counter {
       right: 5px;
       top: 3px; }
-  
+
     .mfp-img-mobile .mfp-close {
       top: 0;
       right: 0;
@@ -772,7 +920,7 @@
       position: fixed;
       text-align: center;
       padding: 0; }
-  
+
     .mfp-img-mobile .mfp-figure small {
       display: inline;
       margin-left: 5px; } }
@@ -780,15 +928,15 @@
     .mfp-arrow {
       -webkit-transform: scale(0.75);
       transform: scale(0.75); }
-  
+
     .mfp-arrow-left {
       -webkit-transform-origin: 0;
       transform-origin: 0; }
-  
+
     .mfp-arrow-right {
       -webkit-transform-origin: 100%;
       transform-origin: 100%; }
-  
+
     .mfp-container {
       padding-left: 6px;
       padding-right: 6px; } }
@@ -808,7 +956,7 @@
     top: 0;
     right: 0;
     padding-top: 0; }
-  
+
   //Magnific overrides
   .mfp-image img{
     background: white;
@@ -816,12 +964,12 @@
   .mfp-figure:after {
     background: white;
   }
-  
+
   /*
    * Off Canvas navbar toggle right
    * --------------------------------------------------
    */
-  
+
   @media screen and (max-width: 768px) {
     .row-offcanvas .collapsing {
     -webkit-transition: none 0;
@@ -867,32 +1015,52 @@
   </style>
 </head>
 <body>
+<title>
+Tutorial 9: Vector data handling with Python
+</title>
 <div id="wrap">
 <div class="container">
 <div class="row row-offcanvas row-offcanvas-right">
 <div class="contents col-xs-12 col-md-10">
-<h1 id="wur-geoscripting"><a href="https://geoscripting-wur.github.io/">WUR Geoscripting</a> <img src="https://www.wur.nl/upload/854757ab-168f-46d7-b415-f8b501eebaa5_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/></h1>
-<h1 id="week-3-lesson-9-vector-data-handling-with-python">Week 3, Lesson 9: Vector data handling with Python</h1>
-<p><em>Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil</em> - 2022-01-17</p>
+<style type="text/css">
+body {max-width: none;}
+a:visited {color: #91170a;}
+</style>
+<h1 id="wur-geoscripting"><a
+href="https://geoscripting-wur.github.io/">WUR Geoscripting</a>
+<img src="https://www.wur.nl/upload/854757ab-168f-46d7-b415-f8b501eebaa5_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/></h1>
+<h1 id="week-3-tutorial-9-vector-data-handling-with-python">Week 3,
+Tutorial 9: Vector data handling with Python</h1>
 <h2 id="introduction">Introduction</h2>
-<p>Today we will explore a variety of Python packages for vector data handling:</p>
+<p>Today we will explore a variety of Python packages for vector data
+handling:</p>
 <ul>
-<li><a href="https://gdal.org/api/python.html">GDAL</a>, the backbone of spatial data processing in Python (and R) with high performance</li>
-<li><a href="http://toblerity.org/shapely/">Shapely</a> for geometric operations</li>
-<li><a href="http://geopandas.org/">GeoPandas</a> for exploratory vector data analysis, based on <a href="http://pandas.pydata.org/">Pandas</a> for dataframes and data analysis</li>
-<li><a href="https://github.com/jswhit/pyproj">pyproj</a> for re-projecting</li>
-<li><a href="http://toblerity.org/fiona/">Fiona</a> for geodata access and conversions</li>
-<li><a href="https://osmnx.readthedocs.io/en/stable/">osmnx</a> for network analysis</li>
+<li><a href="https://pypi.org/project/GDAL/">GDAL</a>, the backbone of
+spatial data processing in Python (and R) with high performance</li>
+<li><a href="https://shapely.readthedocs.io/en/stable/">Shapely</a> for
+geometric operations</li>
+<li><a href="http://geopandas.org/">GeoPandas</a> for exploratory vector
+data analysis, based on <a href="http://pandas.pydata.org/">Pandas</a>
+for dataframes and data analysis</li>
+<li><a href="https://github.com/jswhit/pyproj">pyproj</a> for
+re-projecting</li>
+<li><a href="https://fiona.readthedocs.io/en/latest/">Fiona</a> for
+geodata access and conversions</li>
+<li><a href="https://osmnx.readthedocs.io/en/stable/">osmnx</a> for
+network analysis</li>
 </ul>
-<h2 id="todays-learning-objectives">Today’s Learning objectives</h2>
+<h2 id="learning-objectives">Learning objectives</h2>
 <ul>
 <li>Know how to create a point dataset in Python</li>
 <li>Be able to write spatial vector formats to disk</li>
-<li>Be able to read spatial vector formats from web services and files</li>
-<li>Know how to apply basic operations on vector data, such as buffers and shortest-path algorithms</li>
+<li>Be able to read spatial vector formats from web services and
+files</li>
+<li>Know how to apply basic operations on vector data, such as buffers
+and shortest-path algorithms</li>
 <li>Be able to plot spatial vector data with matplotlib</li>
 </ul>
-<h2 id="setting-up-the-python-environment">Setting up the Python Environment</h2>
+<h2 id="setting-up-the-python-environment">Setting up the Python
+Environment</h2>
 <p>Make a folder structure for this tutorial:</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
@@ -904,8 +1072,14 @@ cd ./PythonVector
 mkdir data
 mkdir output</code></pre>
 </div>
-<p>The conda environment we are using today contains more (and larger) packages than yesterday. Because the Virtual Machine has limited memory, it cannot create this conda environment at once. A solution is to create a conda environment with one <code>.yaml</code> file, and then update it with a second <code>.yaml</code> file.</p>
-<p>Hereto, create a text file, (re)name it (to) <code>vector1.yaml</code>, and copy the following content into the file:</p>
+<p>The <code>conda</code> environment we are using today contains more
+(and larger) packages than yesterday. Because the Virtual Machine has
+limited memory, it cannot create this conda environment at once. A
+solution is to create a conda environment with one <code>.yaml</code>
+file, and then update it with a second <code>.yaml</code> file.</p>
+<p>Hereto, create a text file, (re)name it (to)
+<code>vector1.yaml</code>, and copy the following content into the
+file:</p>
 <pre><code>name: vector
 dependencies:
   - python
@@ -918,7 +1092,10 @@ dependencies:
   - geopandas
   - fiona
   - owslib</code></pre>
-<p>Use this file to create an environment for this tutorial, as you have learned in the previous lesson. Next, create a second text file, (re)name it (to) <code>vector2.yaml</code>, and copy the following content into the file:</p>
+<p>Use this file to create an environment for this tutorial, as you have
+learned in the previous tutorial. Next, create a second text file,
+(re)name it (to) <code>vector2.yaml</code>, and copy the following
+content into the file:</p>
 <pre><code>name: vector
 channels:
   - conda-forge
@@ -931,22 +1108,30 @@ dependencies:
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
-<pre style=""><code class="source bash">conda env update --file vector2.yaml</code></pre>
+<pre style=""><code class="source bash">mamba env update --file vector2.yaml</code></pre>
 </div>
-<p>Conda automatically knows which environment to update, because of the <code>name</code> in <code>vector2.yaml</code>. Finally, activate the environment, open Spyder, create a script in the root folder and start coding.</p>
+<p>Mamba automatically knows which environment to update, because of the
+<code>name</code> in <code>vector2.yaml</code>. Finally, activate the
+environment, open Spyder, create a script in the root folder and start
+coding.</p>
 <h2 id="vector-geometries">Vector Geometries</h2>
-<!-- GDAL, potentially add 
-At the backbone of spatial data processing in Python is GDAL. GDAL means Geospatial Data Abstraction Library, it is a ‘translator library’ for raster and vector geospatial data. Although the overarching package is called GDAL, the term is mostly used for the raster handling part. The vector handling part of the GDAL package is called OGR.
-
-In this tutorial, we will not work much with OGR separately. However, it is at the basis of many other packages. Therefore, to understand object structures in these packages, it is convenient to know how various objects in OGR are related to each other:
-* When you open a file (e.g. shapefile), you have a DataSource object
-* A Data source can have one or more Layer objects
-* A Layer can have one or more Feature objects
-* Features have Geometry and Attribute objects
-
-<img src="./images/ogr_structure.png" alt="OGR class structure, source: Garrard, 2016, Geoprocessing with Python" width = "70%">
--->
-<p>WKT (<a href="https://en.wikipedia.org/wiki/Well-known_text">Well Known Text</a>) is a markup language that describes spatial information in a clean text format. WKT can represent the following distinct (OGC-defined) vector objects:</p>
+<p>At the backbone of spatial data processing in Python is GDAL. GDAL
+means Geospatial Data Abstraction Library, it is a ‘translator library’
+for raster and vector geospatial data. Although the overarching package
+is called GDAL, the term is mostly used for the raster handling part.
+The vector handling part of the GDAL package is called OGR.</p>
+<p>In this tutorial, we will not work much with OGR separately. However,
+it is at the basis of many other packages. Therefore, to understand
+object structures in these packages, it is convenient to know how
+various objects in OGR are related to each other: * When you open a file
+(e.g. shapefile), you have a DataSource object * A Data source can have
+one or more Layer objects * A Layer can have one or more Feature objects
+* Features have Geometry and Attribute objects</p>
+<p><img src="./images/ogr_structure.png" alt="OGR class structure, source: Garrard, 2016, Geoprocessing with Python" width = "70%"></p>
+<p>WKT (<a href="https://en.wikipedia.org/wiki/Well-known_text">Well
+Known Text</a>) is a markup language that describes spatial information
+in a clean text format. WKT can represent the following distinct
+(OGC-defined) vector objects:</p>
 <ul>
 <li>Geometry primitives (single entity, basic types):
 <ul>
@@ -966,22 +1151,29 @@ In this tutorial, we will not work much with OGR separately. However, it is at t
 </ul></li>
 <li>Other, less used objects</li>
 </ul>
-<p>Geometric objects in any Python package (e.g. GDAL, shapely) are usually based on the geometries that can be represented in WKT strings. As such, it is useful to know how to write geometries in WKT; then you do not need to learn the specific way of each individual Python package. GDAL (OGR) example:</p>
+<p>Geometric objects in any Python package (e.g. GDAL, shapely) are
+usually based on the geometries that can be represented in WKT strings.
+As such, it is useful to know how to write geometries in WKT; then you
+do not need to learn the specific way of each individual Python package.
+GDAL (OGR) example:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python">from osgeo import ogr
 
-# Here, define the WKT string
+# Define the WKT string
 wktstring = "POINT (1120351.5712494177 741921.4223245403)"
-# Transform to a gdal (ogr) object
+
+# Transform to a GDAL (OGR) object
 point = ogr.CreateGeometryFromWkt(wktstring)
+
 # Get properties
 print(type(point))
 print("%d,%d" % (point.GetX(), point.GetY()))</code></pre>
 </div>
-<p>Shapely example, from WKT or make the Point object directly:</p>
+<p>A Shapely example, where we create a point from WKT or make the Point
+object directly:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -998,7 +1190,8 @@ print(type(wageningen_campus))
 wageningen_campus = Point([173994.1578792833, 444133.60329471016])
 print(type(wageningen_campus))</code></pre>
 </div>
-<p>There is an equivalent in binary format called WKB, easier for computers to process and more efficient for data transfer.</p>
+<p>There is an equivalent in binary format called WKB, easier for
+computers to process and more efficient for data transfer.</p>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
@@ -1008,9 +1201,21 @@ print(type(wageningen_campus))</code></pre>
 </blockquote>
 </div>
 </div>
-<h2 id="geopandas-geoseries-and-geodataframes">Geopandas: GeoSeries and GeoDataFrames</h2>
-<p>GeoPandas strives to make vector processing in Python easier and has many functions available for exploratory vector data analysis. GeoPandas is based on Pandas. Pandas has two main data structures: the Pandas Series and the DataFrame. Correspondingly, Geopandas has two main data structures: the GeoSeries and the GeoDataFrame.</p>
-<p>A GeoSeries is a vector of features, where each feature contains: 1) an index, and 2) a geometry. The latter is a shapely.geometry object, and therefore inherits attributes and methods from shapely geometries, such as area, bounds, distance, etc. Finally, a GeoSeries can contain a coordinate reference system (crs). Geopandas functions, such as buffering, can be applied to GeoSeries:</p>
+<h2 id="geopandas-geoseries-and-geodataframes">Geopandas: GeoSeries and
+GeoDataFrames</h2>
+<p>GeoPandas strives to make vector processing in Python easier and has
+many functions available for exploratory vector data analysis. GeoPandas
+is based on Pandas. Pandas has two main data structures: the
+<code>Series</code> and the <code>DataFrame</code>. Correspondingly,
+GeoPandas has two main data structures: the <code>GeoSeries</code> and
+the <code>GeoDataFrame</code>.</p>
+<p>A <code>GeoSeries</code> is a vector of features, where each feature
+contains: 1) an index, and 2) a geometry. The latter is a
+<code>shapely.geometry</code> object, and therefore inherits attributes
+and methods from shapely geometries, such as area, bounds, distance,
+etc. Finally, a <code>GeoSeries</code> can contain a coordinate
+reference system (crs). GeoPandas functions, such as buffering, can be
+applied to <code>GeoSeries</code>:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1020,18 +1225,34 @@ from shapely.wkt import loads
 
 # Define a point
 wktstring = 'POINT(173994.1578792833 444133.6032947102)'
+
 # Convert to a GeoSeries
 gs = gpd.GeoSeries([loads(wktstring)])
+
+# Inspect the properties
 print(type(gs), len(gs))
+
 # Specify the projection
 gs.crs = "EPSG:28992" 
-# Apply function, here a buffer of 100 m
+
+# We can now apply a function
+# As an example, we add a buffer of 100 m
 gs_buffer = gs.buffer(100)
+
+# Inspect the results
 print(gs.geometry)
 print(gs_buffer.geometry)</code></pre>
 </div>
-<p>A GeoDataFrame is a tabular data structure with multiple columns, where one column is a GeoSeries. GeoDataFrames can be loaded from a file, created with data or loaded from a Pandas dataframe. A Pandas DataFrame is, just like the structured numpy array you learned about in the previous lesson, a dataframe equivalent of R in Python.</p>
-<p>A Pandas DataFrame plus a list of shapely geometries can be converted into a GeoSeries or directly to a GeoDataFrame.</p>
+<p>A <code>GeoDataFrame</code> is a tabular data structure with multiple
+columns, where one column is a <code>GeoSeries</code>.
+<code>GeoDataFrames</code> can be loaded from a file, created with data
+or loaded from a Pandas <code>DataFrame</code>. A Pandas
+<code>DataFrame</code> is, just like the structured NumPy array you
+learned about in the previous tutorial, a dataframe equivalent of R in
+Python.</p>
+<p>A Pandas <code>DataFrame</code> plus a list of shapely geometries can
+be converted into a <code>GeoSeries</code> or directly to a
+<code>GeoDataFrame</code>.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1042,34 +1263,49 @@ print(gs_buffer.geometry)</code></pre>
 data = {'name': ['a', 'b', 'c'],
         'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
         'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
-# Turn the data into a Pandas DataFrame, column names are extracted automatically
+
+# Turn the data into a Pandas DataFrame (column names are extracted automatically)
 df = pd.DataFrame(data)
+
+# Inspect the DataFrame
 print(df.head)
 
 # Use the coordinates to make shapely Point geometries
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
+
 # Pandas DataFrame and shapely Points can together become a GeoPandas GeoDataFrame
-wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry, crs = "EPSG:28992") # note that we here specify the CRS (projection) directly while reading to GDF
+# Note that we specify the CRS (projection) directly while reading to GDF
+wageningenGDF = gpd.GeoDataFrame(df, geometry = geometry, crs = "EPSG:28992") 
+
+# Inspect wageningenGDF
 print(type(wageningenGDF), len(wageningenGDF))</code></pre>
 </div>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 2</strong>: What is the difference between a GeoSeries and a GeoDataFrame?
+<strong>Question 2</strong>: What is the difference between a GeoSeries
+and a GeoDataFrame?
 </p>
 </blockquote>
 </div>
 </div>
-<p>Geopandas provides a high-level interface to the matplotlib library (see previous lesson) for visualization. Vector data can simply be mapped by using the plot() method on a GeoSeries or GeoDataFrame. Several other arguments to customize the plot can still be used. Note that the aspect of the axes (see previous tutorial) is set to equal automatically when using Geopandas plot, i.e. the horizontal and vertical scale are automatically made the same.</p>
+<p>Geopandas provides a high-level interface to the Matplotlib library
+(see previous tutorial) for visualization. Vector data can simply be
+mapped by using the <code>plot()</code> method on a
+<code>GeoSeries</code> or <code>GeoDataFrame</code>. Several other
+arguments to customize the plot can still be used. Note that the aspect
+of the axes (see previous tutorial) is set to equal automatically when
+using Geopandas plot, i.e. the horizontal and vertical scale are
+automatically made the same.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python">from matplotlib import pyplot as plt
-# plotting a map of the GeoDataFrame directly
-wageningenGDF.plot(marker='*', color='green', markersize=50)
-</code></pre>
+
+# Plotting a map of the GeoDataFrame directly
+wageningenGDF.plot(marker='*', color='green', markersize=50)</code></pre>
 </div>
 <p><img src="./images/wageningenGDF.png" alt="Landmarks in Wageningen" width = "60%"></p>
 <!-- This part has been removed in 2021/2022 to make space for more explanation on geometries
@@ -1095,43 +1331,28 @@ x, y = Transformer.from_crs(4326, 28992).transform(location.latitude, location.l
 print([x, y]) # always inspect results of your data handling, in this case double-check the coordinates due to potential swap in axis order.
 </code></pre></div>
 -->
-<p>An important step in the pre-processing of geodata is to get all datasets in a projection that suits the analysis to be performed. GeoPandas uses PyProj in the backend to reproject the geometry of the dataframe. Reproject a GeoDataFrame from Dutch RD New (EPSG:28992) to WGS84 (EPSG:4326):</p>
+<p>An important step in the pre-processing of geodata is to get all
+datasets in a projection that suits the analysis to be performed.
+GeoPandas uses PyProj in the backend to reproject the geometry of the
+GeoDataFrame. Here is an example of how to reproject the
+<code>wageningenGDF</code> <code>GeoDataFrame</code> we created earlier
+from Dutch RD New (EPSG:28992) to WGS84 (EPSG:4326):</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python"># Create some data, with three points, a, b, and c, same as before
-data = {'name': ['a', 'b', 'c'],
-        'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
-        'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
-# Turn the data into a Pandas DataFrame
-df = pd.DataFrame(data)
-
-# Use the coordinates to make shapely Point geometries
-geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
-# Pandas DataFrame and shapely Points can together become a GeoPandas GeoDataFrame
-wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
-
-# Check the current crs
-print(wageningenGDF.crs)
-# Define the crs of the data and check again
-wageningenGDF.crs = 'EPSG:28992'
+<pre style=""><code class="source python"># Check the current crs
 print(wageningenGDF.crs)
 
 # Re-project the points to WGS84
 wageningenGDF = wageningenGDF.to_crs('EPSG:4326')
+
+# Check the crs again to see if the changes were succesful
 print(wageningenGDF.crs)</code></pre>
 </div>
 <h2 id="writing-and-reading-files">Writing and Reading Files</h2>
-<p>GeoPandas uses Fiona for file access, while Fiona, in its turn, builds on GDAL/OGR. You can find out what file formats Fiona supports with a simple script.</p>
-<div class="row">
-<button class="source Python toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> Python source
-</button>
-<pre style=""><code class="source python">import fiona
-print(fiona.supported_drivers)</code></pre>
-</div>
-<p>Fiona has drivers for:</p>
+<p>GeoPandas uses Fiona for file access, while Fiona, in its turn,
+builds on GDAL/OGR. Fiona has drivers for:</p>
 <ul>
 <li>Open formats such as GeoJSON and GPX</li>
 <li>ESRI formats such as shapefiles and OpenFileGDB</li>
@@ -1139,89 +1360,120 @@ print(fiona.supported_drivers)</code></pre>
 </ul>
 <p>But Fiona lacks some other popular file formats:</p>
 <ul>
-<li>Open formats such as <a href="https://github.com/Toblerity/Fiona/issues/97">KML</a> or <a href="https://github.com/Toblerity/Fiona/pull/96">GML</a> based on the XML format. Solution: <a href="https://docs.python.org/3/library/xml.etree.elementtree.html">xml.etree.ElementTree</a>.</li>
-<li>Databases such as PostgreSQL. Solution: <a href="https://pypi.org/project/psycopg2/">psycopg2</a>.</li>
-<li>Webservices such as Web Feature Service [WFS] or Web Map Service [WMS]. Solution: <a href="https://geopython.github.io/OWSLib/">OWSLib</a>.</li>
-<li>Columnar formats, such as CSV or xls. Solution: Pandas can read <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html">csv</a> or <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_excel.html">excel</a> columns.</li>
+<li>Open formats such as <a
+href="https://github.com/Toblerity/Fiona/issues/97">KML</a> or <a
+href="https://github.com/Toblerity/Fiona/pull/96">GML</a> based on the
+XML format. Solution: <a
+href="https://docs.python.org/3/library/xml.etree.elementtree.html">xml.etree.ElementTree</a>.</li>
+<li>Databases such as PostgreSQL. Solution: <a
+href="https://pypi.org/project/psycopg2/">psycopg2</a>.</li>
+<li>Webservices such as Web Feature Service [WFS] or Web Map Service
+[WMS]. Solution: <a
+href="https://geopython.github.io/OWSLib/">OWSLib</a>.</li>
+<li>Columnar formats, such as CSV or xls. Solution: Pandas can read <a
+href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html">csv</a>
+or <a
+href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_excel.html">excel</a>
+columns.</li>
 </ul>
-<p>If none of these packages are helpful to access your files, <a href="http://www.gdal.org/ogr_formats.html">OGR might still be able to help</a>.</p>
-<p>A GeoDataFrame can be written directly to a GeoJSON file or a shapefile. <a href="http://switchfromshapefile.org/">GeoJSON is a recommended format</a> to use for geographic data in WGS84 coordinate system since JSON dictionaries are easy to read and use on the web, and GeoJSON is supported in popular GIS software. <a href="http://geojson.org/">GeoJSON</a> is a standard format to encode Geographic data structures in a dictionary. We assume that you are working in the main repository in which you have a data repository. Write some files to a GeoJSON and shapefile:</p>
+<p>If none of these packages are helpful to access your files, <a
+href="http://www.gdal.org/ogr_formats.html">OGR might still be able to
+help</a>.</p>
+<p>A <code>GeoDataFrame</code> can be written directly to a GeoJSON file
+or a shapefile. <a href="http://switchfromshapefile.org/">GeoJSON is a
+recommended format</a> to use for geographic data in WGS84 coordinate
+system since JSON dictionaries are easy to read and use on the web, and
+GeoJSON is supported in popular GIS software. <a
+href="http://geojson.org/">GeoJSON</a> is a standard format to encode
+Geographic data structures in a dictionary. We assume that you are
+working in the main repository in which you have a data repository.
+Write some files to a GeoJSON and shapefile:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">data = {'name': ['a', 'b', 'c'],
-        'x': [173994.1578792833, 173974.1578792833, 173910.1578792833],
-        'y': [444135.6032947102, 444186.6032947102, 444111.6032947102]}
-# Create a Pandas DataFrame (is not yet a GeoDataFrame!)
-df = pd.DataFrame(data)
-# Loop over each x,y combination and convert to a Shapely point
-geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
-# Add the geometries to the DataFrame and thereby make it into a GeoDataFrame
-wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry)
-# Save to disk
-wageningenGDF.to_file(filename='./data/wageningenPOI.geojson', driver='GeoJSON')
-wageningenGDF.to_file(filename='./data/wageningenPOI.shp', driver='ESRI Shapefile')</code></pre>
+<pre style=""><code class="source python"># Save to disk
+wageningenGDF.to_file(filename = './data/wageningenPOI.geojson', driver = 'GeoJSON')
+wageningenGDF.to_file(filename = './data/wageningenPOI.shp', driver = 'ESRI Shapefile')</code></pre>
 </div>
 <p>Reading files is just as intuitive:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">jsonGDF = gpd.read_file('./data/wageningenPOI.geojson')
+<pre style=""><code class="source python"># Read from disk
+jsonGDF = gpd.read_file('./data/wageningenPOI.geojson')
 shpGDF = gpd.read_file('./data/wageningenPOI.shp')</code></pre>
 </div>
 <h2 id="reading-from-web-services">Reading from Web Services</h2>
-<p>The web has a lot of geodata available. The OpenGeoSpatial Consortium has specified standard protocols for geo web services, such as <a href="http://www.opengeospatial.org/standards/wfs">Web Feature Service</a> [WFS] and <a href="http://www.opengeospatial.org/standards/wms">Web Map Service</a> [WMS]. The standard web service protocols make it easy to access data. For example, the following WFS provides geodata on roads and is extracted from the Dutch national database of roads in the Netherlands:</p>
+<p>The web has a lot of geodata available. The OpenGeoSpatial Consortium
+has specified standard protocols for geo-webservices, such as <a
+href="http://www.opengeospatial.org/standards/wfs">Web Feature
+Service</a> [WFS] and <a
+href="http://www.opengeospatial.org/standards/wms">Web Map Service</a>
+[WMS]. The standard web service protocols make it easy to access data.
+For example, the following WFS provides geodata on roads and is
+extracted from the Dutch national database of roads in the
+Netherlands:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python">from owslib.wfs import WebFeatureService
 
-# put the url in a variable
+# Put the WFS url in a variable
 wfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
-# create a wfs object
-wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
 
-# get the title from the object
+# Create a WFS object
+wfs = WebFeatureService(url = wfsUrl, version = '2.0.0')
+
+# Get the title from the object
 print(wfs.identification.title)
-# print to check the contents of the WFS
+
+# Check the contents of the WFS
 print(list(wfs.contents))</code></pre>
 </div>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 3</strong>: How many feature sets does this WFS contain?
+<strong>Question 3</strong>: How many feature sets does this WFS
+contain?
 </p>
 </blockquote>
 </div>
 </div>
-<p>WFS are used to make webmaps, to allow a quick view of the data, and to make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from other available repositories and not from a WFS, as it typically has limits on the number of features that can be requested, such as 100 or 1000 features. In the WFS above, they are very generous with a limit of max 15.000 features per request.</p>
-<p>Load some roads from the WFS service for the campus area and plot them:</p>
+<p>WFS are used to make webmaps, which allow a quick view of the data
+and make geodata accessible for all. If you want to do a large analysis,
+it is better to download the geodata from other available repositories
+and not from a WFS, as it typically has limits on the number of features
+that can be requested, such as 100 or 1000 features. In the WFS above,
+they are very generous with a limit of max 15.000 features per
+request.</p>
+<p>Load some roads from the WFS service for the campus area and plot
+them:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python">import geopandas as gpd
 
-# Get the WFS
-wfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
-wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
-layer = list(wfs.contents)[0]
 
 # Define center point and create bbox for study area
 x, y = (173994.1578792833, 444133.60329471016)
-xmin, xmax, ymin, ymax = x-1000, x+350, y-1000, y+350
-# Get the features for the study area
-response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax))
+xmin, xmax, ymin, ymax = x - 1000, x + 350, y - 1000, y + 350
+
+# Get the features for the study area (using the wfs from the previous code block)
+response = wfs.getfeature(typename = list(wfs.contents)[0], bbox = (xmin, ymin, xmax, ymax))
+
 # Save them to disk
 with open('./data/Roads.gml', 'wb') as file:
     file.write(response.read())
-# Read in again with geopandas
+
+# Read in again with GeoPandas
 roadsGDF = gpd.read_file('./data/Roads.gml')
-# Check and plot to get a quick view
+
+# Inspect and plot to get a quick view
 print(type(roadsGDF))
 roadsGDF.plot()</code></pre>
 </div>
@@ -1230,12 +1482,15 @@ roadsGDF.plot()</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 4</strong>: How many roads are there in the resulting GeoDataFrame (hint: <em>len()</em> or <em>.info()</em>)? Do we miss roads in the extent?
+<strong>Question 4</strong>: How many roads are there in the resulting
+GeoDataFrame (hint: <em>len()</em> or <em>.info()</em>)? Do we miss
+roads in the extent?
 </p>
 </blockquote>
 </div>
 </div>
-<p>Load some building from another WFS service (BAG) and plot them too.</p>
+<p>Now let’s load some buildings from another WFS service (BAG) and plot
+them too.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1250,24 +1505,28 @@ layer = list(wfs.contents)[1]
 
 # Define center point and create bbox for study area
 x, y = (173994.1578792833, 444133.60329471016)
-xmin, xmax, ymin, ymax = x-500, x+500, y-500, y+500
+xmin, xmax, ymin, ymax = x - 500, x + 500, y - 500, y + 500
+
 # Get the features for the study area
-# notice that we get them as json, in contrast to before
-response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
+# notice that we now get them as json, in contrast to before
+response = wfs.getfeature(typename = layer, bbox = (xmin, ymin, xmax, ymax), outputFormat = 'json')
 data = json.loads(response.read())
 
-# Create geodataframe, without saving first
+# Create GeoDataFrame, without saving first
 buildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
-buildingsGDF.crs = 28992 # Set crs to RD New
-print(type(buildingsGDF))
+
+# Set crs to RD New
+buildingsGDF.crs = 28992
 
 # Plot roads and buildings together
 roadlayer = roadsGDF.plot(color='grey')
 buildingsGDF.plot(ax=roadlayer, color='red')
+
 # Set the limits of the x and y axis
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
-# Save to disk
+
+# Save the figure to disk
 plt.savefig('./output/BuildingsAndRoads.png')</code></pre>
 </div>
 <p><img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%"></p>
@@ -1275,71 +1534,102 @@ plt.savefig('./output/BuildingsAndRoads.png')</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 5</strong>: How many buildings do you get? (hint: <em>len()</em>) Do you miss buildings? How can we extract missing buildings in our extent?
+<strong>Question 5</strong>: How many buildings do you get? (hint:
+<em>len()</em>) Do you miss buildings? How can we extract missing
+buildings in our extent?
 </p>
 </blockquote>
 </div>
 </div>
 <h2 id="selecting-data">Selecting Data</h2>
-<p>GeoDataFrames store rows and columns in a tabular format. To select specific rows, you can make use of the DataFrame functionality of Pandas. Inspect the content of your data:</p>
+<p>GeoDataFrames store rows and columns in a tabular format. To select
+specific rows, you can make use of the DataFrame functionality of
+Pandas. Inspect the content of your data:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python"># Pandas function that returns the column labels of the DataFrame.
+<pre style=""><code class="source python"># Pandas function that returns the column labels of the DataFrame
 print(buildingsGDF.columns)
-# Pandas function that returns the first n rows, default n=5.
+
+# Pandas function that returns the first n rows, default n = 5
 print(buildingsGDF.head())
+
 # shape area (in the units of the projection)
 print(buildingsGDF.area)</code></pre>
 </div>
-<p>Columns can be selected using the name of the column. Let us take the construction year (‘bouwjaar’) of the buildings.</p>
+<p>Columns can be selected using the name of the column. Let us take a
+look at the construction year (‘bouwjaar’) of the buildings.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python"># Select column (attribute)
-print(buildingsGDF['bouwjaar'])
-</code></pre>
+<pre style=""><code class="source python"># Inspect building year column
+print(buildingsGDF['bouwjaar'])</code></pre>
 </div>
-<p>For selecting rows, GeoPandas inherits the pandas methods for selecting data: label based indexing with loc, and integer position based indexing with iloc, which apply to both GeoSeries and GeoDataFrame objects. For more information on indexing/selecting, see the <a href="https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html">pandas documentation</a>. In addition to these, GeoPandas provides coordinate based indexing with the cx indexer, which slices using a bounding box.</p>
-<p>Let us select buildings (rows) with a larger surface area than 1000 m2 with the .loc method.</p>
+<p>For selecting rows, GeoPandas inherits the pandas methods for
+selecting data: label based indexing with <code>loc</code>, and integer
+position based indexing with <code>iloc</code>, which apply to both
+<code>GeoSeries</code> and <code>GeoDataFrame</code> objects. For more
+information on indexing/selecting, see the <a
+href="https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html">pandas
+documentation</a>. In addition to these, GeoPandas provides coordinate
+based indexing with the <code>cx</code> indexer, which slices using a
+bounding box.</p>
+<p>Let us select buildings (rows) with a larger surface area than 1000
+m2 with the <code>.loc</code> method.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python"># Check beforehand
+<pre style=""><code class="source python"># Inspect first
 print(buildingsGDF.area > 1000)
+
 # Make the selection, select all rows with area > 1000 m2, and all columns
 # Using 'label based' indexing with loc, here with a Boolean array
 largeBuildingsGDF = buildingsGDF.loc[buildingsGDF.area > 1000, :]
+
 # Plot
 largeBuildingsGDF.plot()</code></pre>
 </div>
-<p>Similarly, the isin() method of Series returns a boolean vector that is true wherever the Series elements exist in the passed list. This allows selecting rows where one or more columns have the required value(s). Here we select buildings that are under construction (status = building phase has started (‘Bouw gestart’)).</p>
+<p>Similarly, the <code>isin()</code> method of Series returns a Boolean
+vector that is true wherever the Series elements exist in the passed
+list. This allows selecting rows where one or more columns have the
+required value(s). Here we select buildings that are under construction
+(status = building phase has started (‘Bouw gestart’)).</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python"># Check beforehand
+<pre style=""><code class="source python"># Inspect first
 print(buildingsGDF['status'].isin(['Bouw gestart']))
+
 # Make the selection, the list of required values can contain more than one item
 newBuildingsGDF = buildingsGDF[buildingsGDF['status'].isin(['Bouw gestart'])]
 
-## Plot the new buildings with a basemap for reference
-## based on https://geopandas.org/gallery/plotting_basemap_background.html
+# Plot the new buildings with a basemap for reference
+# based on https://geopandas.org/gallery/plotting_basemap_background.html
 import contextily as ctx
-# re-project
+
+# Re-project
 newBuildingsGDF = newBuildingsGDF.to_crs(epsg=3857)
-# plot with 50% transparency
+
+# Plot with 50% transparency
 ax = newBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
 ctx.add_basemap(ax, source=ctx.providers.Stamen.TonerLite)
 ax.set_axis_off()</code></pre>
 </div>
 <p><img src="./images/NewBuildings.png" alt="Parcels at Wageningen University Campus" width = "60%"></p>
-<p>(Figures shown here and in the next section may differ slightly from the ones you obtain.)</p>
+<p>(Figures shown here and in the next section may differ slightly from
+the ones you obtain.)</p>
 <h2 id="geometric-manipulations">Geometric Manipulations</h2>
-<p>GeoDataFrames and GeoSeries have several <a href="http://geopandas.org/geometric_manipulations.html">constructive methods</a> to modify the geometry: buffer, boundary, centroid, convex hull, envelope, simplify, unary union, rotate, scale, skew and translate. When modifying the geometries in the DataFrames, it is a good practice to keep track of your geometry types and your geometry data. Have a look at the geometry types of the roads.</p>
+<p>GeoDataFrames and GeoSeries have several <a
+href="http://geopandas.org/geometric_manipulations.html">constructive
+methods</a> to modify the geometry: buffer, boundary, centroid, convex
+hull, envelope, simplify, unary union, rotate, scale, skew and
+translate. When modifying the geometries in the DataFrames, it is a good
+practice to keep track of your geometry types and your geometry data.
+Have a look at the geometry types of the roads.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1348,27 +1638,34 @@ ax.set_axis_off()</code></pre>
 print(type(roadsGDF.geometry))
 print(roadsGDF['geometry'])</code></pre>
 </div>
-<p>Let’s create a buffer around the roads to represent coverage of roads, assuming roads have all a width of 3 meters.</p>
+<p>Let’s create a buffer around the roads to represent coverage of
+roads, assuming roads have all a width of 3 meters.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python"># buffer of 1.5 m on both sides
-roadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=1.5)) 
-# plot
-roadsPolygonGDF.plot(color='blue', edgecolor='blue')
-# check the total coverage of buffers
+<pre style=""><code class="source python"># Buffer of 1.5 m on both sides
+roadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry = roadsGDF.buffer(distance = 1.5)) 
+
+# Plot
+roadsPolygonGDF.plot(color = 'blue', edgecolor = 'blue')
+
+# Check the total coverage of buffers
 print(roadsPolygonGDF.area.sum())</code></pre>
 </div>
-<p>As we created buffers around many connected lines, we expect overlap of these buffer features. Therefore, let us merge all road buffer (polygon) features together in a unary_union and check again for the total coverage of buffers.</p>
+<p>As we created buffers around many connected lines, we expect overlap
+of these buffer features. Therefore, let us merge all road buffer
+(polygon) features together in a <code>unary_union</code> and check
+again for the total coverage of buffers.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python"># Apply unary_union
-# This returns a geometry, which we convert to a GeoSeries to be able to apply geopandas methods again
+# This returns a geometry, which we convert to a GeoSeries to be able to apply GeoPandas methods again
 roadsUnionGS = gpd.GeoSeries(roadsPolygonGDF.unary_union)
-# check the new total coverage of buffers and compute the overlap
+
+# Check the new total coverage of buffers and compute the overlap
 print(roadsUnionGS.area)
 print('There was an overlap of ' + round((roadsPolygonGDF.area.sum() - roadsUnionGS.area[0]), 1).astype(str) + ' square meters.')</code></pre>
 </div>
@@ -1385,31 +1682,41 @@ print('There was an overlap of ' + round((roadsPolygonGDF.area.sum() - roadsUnio
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 7</strong>: What coordinate system does RoadsUnionGS have?
+<strong>Question 7</strong>: What coordinate system does RoadsUnionGS
+have?
 </p>
 </blockquote>
 </div>
 </div>
-GeoPandas can perform various <a href="http://geopandas.org/set_operations.html">overlay operations</a>: intersection, union, symmetrical difference and difference. We will clip the roads with convexed parcels by using intersection. As an example, let us focus on the area around the new buildings on the campus and extract the existing roads close to them. To do so we buffer the new buildings with 100 meter, merge them with a unary_union and create a convex hull around the merged (multipolygon) buildings. Finally we clip the roads with this single polygon.
+GeoPandas can perform various <a
+href="http://geopandas.org/set_operations.html">overlay operations</a>:
+intersection, union, symmetrical difference and difference. We will clip
+the roads with convexed parcels by using intersection. As an example,
+let us focus on the area around the new buildings on the campus and
+extract the existing roads close to them. To do so we buffer the new
+buildings with 100 meter, merge them with a <code>unary_union</code> and
+create a convex hull around the merged (multipolygon) buildings. Finally
+we clip the roads with this single polygon.
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">
-# Re-project
-newBuildingsGDF = newBuildingsGDF.to_crs(epsg=28992)
+<pre style=""><code class="source python"># Re-project
+newBuildingsGDF = newBuildingsGDF.to_crs(epsg = 28992)
+
 # Buffer, returns geometry, convert to GeoSeries
-areaOfInterestGS = gpd.GeoSeries(newBuildingsGDF.buffer(distance=100).unary_union)
+areaOfInterestGS = gpd.GeoSeries(newBuildingsGDF.buffer(distance = 100).unary_union)
+
 # Convex hull, returns a GeoSeries of geometries, convert to GeoDataFrame
 areaOfInterestGDF = gpd.GeoDataFrame(areaOfInterestGS.convex_hull)
+
 # Adapt metadata
-areaOfInterestGDF = areaOfInterestGDF.rename(columns={0:'geometry'}).set_geometry('geometry')
+areaOfInterestGDF = areaOfInterestGDF.rename(columns = {0:'geometry'}).set_geometry('geometry')
 areaOfInterestGDF.crs = 'EPSG:28992'
-##areaOfInterestGDF.plot()
 
 # Perform an intersection overlay
-roadsIntersectionGDF = gpd.overlay(areaOfInterestGDF, roadsPolygonGDF, how="intersection")
-##roadsIntersectionGDF.plot(color='blue', edgecolor='blue')
+roadsIntersectionGDF = gpd.overlay(areaOfInterestGDF, roadsPolygonGDF, how = "intersection")
+
 # Plot the results
 roadlayer = roadsIntersectionGDF.plot(color='grey', edgecolor='grey')
 roadlayer.set_xlim(xmin, xmax)
@@ -1417,54 +1724,129 @@ roadlayer.set_ylim(ymin, ymax)
 newBuildingsGDF.plot(ax=roadlayer, color='red')</code></pre>
 </div>
 <p><img src="./images/roadsIntersectionGDF.png" alt="New buildings at Wageningen University Campus and roads close to it" width = "60%"></p>
-<p>In summary, the advantage of GeoPandas is that it allows both geometric and dataframe manipulations. For example, GeoPandas can select the roads within (and maintained by) Wageningen Municipality and calculate total road surface area.</p>
+<p>In summary, the advantage of GeoPandas is that it allows both
+geometric and dataframe manipulations. For example, GeoPandas can select
+the roads within (and maintained by) Wageningen Municipality and
+calculate total road surface area.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">wageningenRoadsGDF = roadsPolygonGDF.loc[roadsPolygonGDF['gme_naam']=='Wageningen']
+<pre style=""><code class="source python">wageningenRoadsGDF = roadsPolygonGDF.loc[roadsPolygonGDF['gme_naam'] == 'Wageningen']
 print(sum(wageningenRoadsGDF.area))
-wageningenRoadsGDF.plot(edgecolor='purple')</code></pre>
+wageningenRoadsGDF.plot(edgecolor = 'purple')</code></pre>
 </div>
 <p><img src="./images/WageningenRoadsGDF.png" alt="Roads within the Wageningen Municipality" width = "60%"></p>
-<h2 id="visualizing-spatial-information">Visualizing spatial information</h2>
-<p>There are multiple solutions to visualize your geodata: GIS software (QGIS), web maps (leaflet/Folium) and images (matplotlib).</p>
-<p>Folium uses leaflet on the backend to make web maps, easily visualized on a webpage. <a href="https://leafletjs.com/">Leaflet</a> is an open-source JavaScript library for mobile-friendly interactive maps. Folium handles GeoDataFrames or JSON files as input for the interactive map. The Python script below makes a .html file in your working directory, which you can open in a web browser:</p>
+<h2 id="network-analysis">Network analysis</h2>
+<p><a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a>
+retrieves, constructs, analyzes and visualizes street networks from <a
+href="https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368">OpenStreetMap</a>.
+In short, a network analysis is investigating structures of relations
+between entities with the use of networks and graph theory. In spatial
+data, such entities are typically animals or people, and the relations
+between them, for example social networks. But relations can also be
+between multiple points in time for the same person, e.g. movement
+processes like walking, cycling, and driving.</p>
+<p>The following script downloads the street network of Wageningen from
+Open Street Map as a graph, plots it, and saves it.</p>
+<div class="row">
+<button class="source Python toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> Python source
+</button>
+<pre style=""><code class="source python">import osmnx as ox
+
+# Using a geocoder to get the extent
+city = ox.geocoder.geocode_to_gdf('Wageningen, Netherlands')
+ox.plot.plot_footprints(ox.project_gdf(city))
+
+# Get bike network and create graph
+wageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', network_type = 'bike')
+
+# Plot and save
+ox.plot.plot_graph(wageningenRoadsGraph, figsize = (10, 10), node_size = 2)
+ox.io.save_graph_shapefile(G = wageningenRoadsGraph, filepath = 'OSMnetwork_Wageningen.shp')
+
+# Metadata
+gdf_nodes, gdf_edges = ox.graph_to_gdfs(G = wageningenRoadsGraph)
+print(gdf_nodes.info())
+print(gdf_edges.info())</code></pre>
+</div>
+<p><img src="./images/osmnxGraph.png" alt="Roads in Wageningen" width = "50%"></p>
+<p>OSMnx can store the downloaded street network (the Graph) as a
+shapefile or as a <code>GeoDataFrame</code>. Furthermore, the main
+purpose of the module is to perform network analyses, such as a shortest
+path from source to target location. Let us calculate the shortest path
+from Wageningen campus to Wageningen city center. Is this the route you
+would take?</p>
+<div class="row">
+<button class="source Python toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> Python source
+</button>
+<pre style=""><code class="source python"># Origin
+source = ox.distance.get_nearest_node(wageningenRoadsGraph, (51.987817, 5.665779))
+
+# Destination
+target = ox.distance.get_nearest_node(wageningenRoadsGraph, (51.964870, 5.662409))
+
+# Compute shortest path 
+shortestroute = ox.distance.shortest_path(G = wageningenRoadsGraph,
+                                          orig = source, 
+                                          dest = target, 
+                                          weight = 'length')
+
+# Plot
+ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize = (20, 20),
+                         route_alpha = 0.6, route_color = 'darkred',
+                         route_linewidth = 10, orig_dest_size = 100)</code></pre>
+</div>
+<p><img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%"></p>
+<h2 id="visualizing-spatial-information">Visualizing spatial
+information</h2>
+<p>There are multiple options to visualize your geodata: GIS software
+(QGIS), web maps (leaflet/Folium) and images (Matplotlib). We have
+already explored some of them previously during the tutorials, but we
+will go a bit more in depth in this section. Let’s first take a look at
+creating interactive web maps using Folium.</p>
+<p>Folium uses leaflet on the backend to make web maps, easily
+visualized on a webpage. <a href="https://leafletjs.com/">Leaflet</a> is
+an open-source JavaScript library for mobile-friendly interactive maps.
+Folium handles GeoDataFrames or JSON files as input for the interactive
+map. The Python script below makes a <code>.html</code> file in your
+working directory, which you can open in a web browser:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python">import folium
 
+# Initialize the map
 campusMap = folium.Map([51.98527485, 5.66370505205543], zoom_start=17)
-buildingsGDF.crs = 'EPSG:28992'
+
 # Re-project
+buildingsGDF.crs = 'EPSG:28992'
 buildingsGDF = buildingsGDF.to_crs(4326)
 roadsPolygonGDF = roadsPolygonGDF.to_crs(4326)
+
 # Make choropleth map of building construction years
 # Note that a continuous color scale is used as if the attribute is continuous, while it is not
-campusMap.choropleth(buildingsGDF, name='Building construction years',
-                     data=buildingsGDF, columns=['gid', 'bouwjaar'],
-                     key_on='feature.properties.gid', fill_color='RdYlGn',
-                     fill_opacity=0.7, line_opacity=0.2,legend_name='Construction year')
+campusMap.choropleth(buildingsGDF, name = 'Building construction years',
+                     data = buildingsGDF, columns = ['gid', 'bouwjaar'],
+                     key_on = 'feature.properties.gid', fill_color = 'RdYlGn',
+                     fill_opacity = 0.7, line_opacity = 0.2,legend_name = 'Construction year')
+
 # Add the roads
-campusMap.choropleth(roadsPolygonGDF, name='Roads')
+campusMap.choropleth(roadsPolygonGDF, name = 'Roads')
 folium.LayerControl().add_to(campusMap)
-# Save and show
-campusMap.save('./output/campusMap.html')
-campusMap</code></pre>
-</div>
-<div class="row">
-<div class="alert alert-info">
-<blockquote>
-<p>
-<strong>Hint</strong>: If you are using Spyder, you can view the interactive map by opening the html file that has been generated (<code>./output/campusMap.html</code>). If you are running in the Jupyter Notebook, the interactive map should automatically show.
-</p>
-</blockquote>
-</div>
+
+# Save (you can now open the generated .html file from the output directory)
+campusMap.save('./output/campusMap.html')</code></pre>
 </div>
 <p><img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%"></p>
-<p>Matplotlib allows you to make good quality maps for reports or publications.</p>
+<p>Another visualization option is Matplotlib, which we have already
+explored during this and the previous tutorial. Matplotlib allows you to
+make good quality maps for reports or publications. Here is another
+example of its capabilities, including some of what we explored in the
+tutorial today.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1473,7 +1855,8 @@ campusMap</code></pre>
 from owslib.wfs import WebFeatureService
 from matplotlib import pyplot as plt
 
-# extract only buildings on and around WUR campus
+### Extract only buildings on and around WUR campus
+# Connect to WFS
 wfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
 wfs = WebFeatureService(url=wfsUrl, version='1.1.0')
 layer = list(wfs.contents)[1]
@@ -1485,66 +1868,37 @@ xmin, xmax, ymin, ymax = x-300, x+600, y-300, y+300
 response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
 data = json.loads(response.read())
 buildingsGDF = gpd.GeoDataFrame.from_features(data['features'], crs=28992)
-# create visualization
+
+# Create visualization
 f, ax = plt.subplots(1, figsize=(10, 5))
+
 # Give the plot a title (do not do this for a scientific report, rather use a caption)
 ax.set_title('WUR campus buildings')
+
 # Background color of the map
 ax.set_facecolor("grey")
+
 # The plotting itself, of the roads
-roadlayer = roadsPolygonGDF.plot(ax=ax, legend=True)
+roadlayer = roadsPolygonGDF.plot(ax = ax, legend = True)
+
 # Set the range of the x and y axis
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
-# Add the buildings to the matplotlib axes with already plotted roads
-buildingslayer = buildingsGDF.plot(ax=roadlayer, column='bouwjaar',
-                                   cmap='brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
-                                   legend=True,
-                                   legend_kwds={'label': "Construction year",'orientation': "vertical"})</code></pre>
+
+# Add the buildings to the Matplotlib axes with already plotted roads
+buildingslayer = buildingsGDF.plot(ax = roadlayer, column = 'bouwjaar',
+                                   cmap = 'brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
+                                   legend = True,
+                                   legend_kwds = {'label': "Construction year", 'orientation': "vertical"})</code></pre>
 </div>
 <p><img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus" width = "100%"></p>
-<p>Be aware, matplotlib supports automatic legend creation for colorbars (continuous data, see above) as well as for point and lines marker, but not for polygons. A legend with polygon shapes should be made manually using proxy artists, see <a href="https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html">the legend guide</a>. In the example above, you would need this if you want a square in the legend with the label ‘building’.</p>
-<h2 id="network-analysis">Network analysis</h2>
-<p><a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a> retrieves, constructs, analyzes and visualizes street networks from <a href="https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368">OpenStreetMap</a>. In short, a network analysis is investigating structures of relations between entities with the use of networks and graph theory. In spatial data, such entities are typically animals or people, and the relations between them, for example social networks. But relations can also be between multiple points in time for the same person, e.g. movement processes like walking, cycling, and driving.</p>
-<p>The following script downloads the street network of Wageningen from Open Street Map as a graph, plots it, and saves it.</p>
-<div class="row">
-<button class="source Python toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> Python source
-</button>
-<pre style=""><code class="source python">import osmnx as ox
-
-# Using a geocoder to get the extent
-city = ox.geocoder.geocode_to_gdf('Wageningen, Netherlands')
-ox.plot.plot_footprints(ox.project_gdf(city))
-# Get bike network and create graph
-wageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', network_type='bike')
-# Plot and save
-ox.plot.plot_graph(wageningenRoadsGraph, figsize=(10,10), node_size=2)
-ox.io.save_graph_shapefile(G=wageningenRoadsGraph, filepath='OSMnetwork_Wageningen.shp')
-# Metadata
-gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=wageningenRoadsGraph)
-print(gdf_nodes.info())
-print(gdf_edges.info())</code></pre>
-</div>
-<p><img src="./images/osmnxGraph.png" alt="Roads in Wageningen" width = "50%"></p>
-<p>OSMnx can store the downloaded street network (the Graph) as a shapefile or as a GeoDataFrame. Furthermore, the main purpose of the module is to perform network analyses, such as a shortest path from source to target location. Let us calculate the shortest path from Wageningen campus to Wageningen city center. Is this the route you would take?</p>
-<div class="row">
-<button class="source Python toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> Python source
-</button>
-<pre style=""><code class="source python"># Origin
-source = ox.distance.get_nearest_node(wageningenRoadsGraph, (51.987817, 5.665779))
-# Destination
-target = ox.distance.get_nearest_node(wageningenRoadsGraph, (51.964870, 5.662409))
-# Compute shortest path 
-shortestroute = ox.distance.shortest_path(G=wageningenRoadsGraph,
-                                    orig=source, dest=target, weight='length')
-# Plot
-ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20,20),
-                         route_alpha=0.6, route_color='darkred',
-                         route_linewidth=10, orig_dest_size=100)</code></pre>
-</div>
-<p><img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%"></p>
+<p>Be aware, Matplotlib supports automatic legend creation for colorbars
+(continuous data, see above) as well as for point and lines marker, but
+not for polygons. A legend with polygon shapes should be made manually
+using proxy artists, see <a
+href="https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html">the
+legend guide</a>. In the example above, you would need this if you want
+a square in the legend with the label ‘building’.</p>
 <h1 id="what-have-we-learned">What have we learned?</h1>
 <ol style="list-style-type: decimal">
 <li>The structure of vector geometries,</li>
@@ -1554,14 +1908,17 @@ ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20,20),
 <li>Reading webservices</li>
 <li>Selecting data</li>
 <li>Geometric manipulations</li>
-<li>Geo-visualization</li>
 <li>Network analysis</li>
+<li>Geo-visualization</li>
 </ol>
 <h1 id="more-info">More info</h1>
 <ul>
-<li><a href="https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks#earth-science-and-geo-spatial-data">Geo-Spatial Notebooks</a></li>
+<li><a
+href="https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks#earth-science-and-geo-spatial-data">Geo-Spatial
+Notebooks</a></li>
 <li><a href="https://geo-python.github.io">Geo Python course</a></li>
-<li><a href="https://gdal.org/api/python.html#tutorials">GDAL tutorials</a>
+<li><a href="https://gdal.org/api/python.html#tutorials">GDAL
+tutorials</a>
 </div>
 </div>
 </div>
@@ -1571,7 +1928,8 @@ ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20,20),
 <div id="footer">
 <div class="container">
 <p class="text-muted" id="credit">
-Styled with <a href="https://github.com/jimhester/knitrBootstrap">knitrBootstrap</a>
+Styled with
+<a href="https://github.com/jimhester/knitrBootstrap">knitrBootstrap</a>
 </p>
 </div>
 </div>
