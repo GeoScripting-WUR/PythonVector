@@ -1057,7 +1057,7 @@ network analysis</li>
 files</li>
 <li>Know how to apply basic operations on vector data, such as buffers
 and shortest-path algorithms</li>
-<li>Be able to plot spatial vector data with matplotlib</li>
+<li>Be able to plot spatial vector data with Matplotlib</li>
 </ul>
 <h2 id="setting-up-the-python-environment">Setting up the Python
 Environment</h2>
@@ -1073,12 +1073,9 @@ mkdir data
 mkdir output</code></pre>
 </div>
 <p>The <code>conda</code> environment we are using today contains more
-(and larger) packages than yesterday. Because the Virtual Machine has
-limited memory, it cannot create this conda environment at once. A
-solution is to create a conda environment with one <code>.yaml</code>
-file, and then update it with a second <code>.yaml</code> file.</p>
-<p>Hereto, create a text file, (re)name it (to)
-<code>vector1.yaml</code>, and copy the following content into the
+(and larger) packages than yesterday, but the process we use to create
+and activat it is the same. Create a text file, (re)name it (to)
+<code>vector.yaml</code>, and copy the following content into the
 file:</p>
 <pre><code>name: vector
 dependencies:
@@ -1091,30 +1088,20 @@ dependencies:
   - pandas
   - geopandas
   - fiona
-  - owslib</code></pre>
-<p>Use this file to create an environment for this tutorial, as you have
-learned in the previous tutorial. Next, create a second text file,
-(re)name it (to) <code>vector2.yaml</code>, and copy the following
-content into the file:</p>
-<pre><code>name: vector
-channels:
-  - conda-forge
-dependencies:
+  - owslib
   - folium
   - osmnx
   - contextily</code></pre>
-<p>Now, update the environment you created before with:</p>
+<p>Now, create the environment with:</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> bash source
 </button>
-<pre style=""><code class="source bash">mamba env update --file vector2.yaml</code></pre>
+<pre style=""><code class="source bash">mamba env create --file vector.yaml</code></pre>
 </div>
-<p>Mamba automatically knows which environment to update, because of the
-<code>name</code> in <code>vector2.yaml</code>. Finally, activate the
-environment, open Spyder, create a script in the root folder and start
-coding.</p>
-<h2 id="vector-geometries">Vector Geometries</h2>
+<p>Activate the environment, open Spyder, create a script in the root
+folder and start coding.</p>
+<h1 id="vector-geometries-and-python">Vector Geometries and Python</h1>
 <p>At the backbone of spatial data processing in Python is GDAL. GDAL
 means Geospatial Data Abstraction Library, it is a ‘translator library’
 for raster and vector geospatial data. Although the overarching package
@@ -1201,8 +1188,8 @@ computers to process and more efficient for data transfer.</p>
 </blockquote>
 </div>
 </div>
-<h2 id="geopandas-geoseries-and-geodataframes">Geopandas: GeoSeries and
-GeoDataFrames</h2>
+<h1 id="geopandas-geoseries-and-geodataframes">Geopandas: GeoSeries and
+GeoDataFrames</h1>
 <p>GeoPandas strives to make vector processing in Python easier and has
 many functions available for exploratory vector data analysis. GeoPandas
 is based on Pandas. Pandas has two main data structures: the
@@ -1275,7 +1262,7 @@ geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 
 # Pandas DataFrame and shapely Points can together become a GeoPandas GeoDataFrame
 # Note that we specify the CRS (projection) directly while reading to GDF
-wageningenGDF = gpd.GeoDataFrame(df, geometry = geometry, crs = "EPSG:28992") 
+wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:28992") 
 
 # Inspect wageningenGDF
 print(type(wageningenGDF), len(wageningenGDF))</code></pre>
@@ -1320,7 +1307,7 @@ print((location.latitude, location.longitude))
 # It should print two coordinates: (lat: 51.98527485, lon:5.66370505205543)</code></pre></div>
 
 Try to locate the coordinates of your own house. -->
-<h2 id="re-projecting">Re-projecting</h2>
+<h1 id="re-projecting">Re-projecting</h1>
 <!-- 
 From the geocoder you got a latitude and longitude. On the web it is very common to use latitude and longitude in [WGS84 geographic coordinate system](http://spatialreference.org/ref/epsg/wgs-84). In local projects often projected coordinate systems are required to perform accurate geometric calculations. PyProj reprojects your coordinates from any input projection to an output projection. Use PyProj to do a simple conversion on a coordinate pair:
 
@@ -1350,7 +1337,7 @@ wageningenGDF = wageningenGDF.to_crs('EPSG:4326')
 # Check the crs again to see if the changes were succesful
 print(wageningenGDF.crs)</code></pre>
 </div>
-<h2 id="writing-and-reading-files">Writing and Reading Files</h2>
+<h1 id="writing-and-reading-files">Writing and Reading Files</h1>
 <p>GeoPandas uses Fiona for file access, while Fiona, in its turn,
 builds on GDAL/OGR. Fiona has drivers for:</p>
 <ul>
@@ -1393,8 +1380,8 @@ Write some files to a GeoJSON and shapefile:</p>
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python"># Save to disk
-wageningenGDF.to_file(filename = './data/wageningenPOI.geojson', driver = 'GeoJSON')
-wageningenGDF.to_file(filename = './data/wageningenPOI.shp', driver = 'ESRI Shapefile')</code></pre>
+wageningenGDF.to_file(filename='data/wageningenPOI.geojson', driver='GeoJSON')
+wageningenGDF.to_file(filename='data/wageningenPOI.shp', driver='ESRI Shapefile')</code></pre>
 </div>
 <p>Reading files is just as intuitive:</p>
 <div class="row">
@@ -1402,10 +1389,10 @@ wageningenGDF.to_file(filename = './data/wageningenPOI.shp', driver = 'ESRI Shap
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python"># Read from disk
-jsonGDF = gpd.read_file('./data/wageningenPOI.geojson')
-shpGDF = gpd.read_file('./data/wageningenPOI.shp')</code></pre>
+jsonGDF = gpd.read_file('data/wageningenPOI.geojson')
+shpGDF = gpd.read_file('data/wageningenPOI.shp')</code></pre>
 </div>
-<h2 id="reading-from-web-services">Reading from Web Services</h2>
+<h1 id="reading-from-webservices">Reading from webservices</h1>
 <p>The web has a lot of geodata available. The OpenGeoSpatial Consortium
 has specified standard protocols for geo-webservices, such as <a
 href="http://www.opengeospatial.org/standards/wfs">Web Feature
@@ -1425,7 +1412,7 @@ Netherlands:</p>
 wfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
 
 # Create a WFS object
-wfs = WebFeatureService(url = wfsUrl, version = '2.0.0')
+wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
 
 # Get the title from the object
 print(wfs.identification.title)
@@ -1456,26 +1443,24 @@ them:</p>
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">import geopandas as gpd
-
-
-# Define center point and create bbox for study area
+<pre style=""><code class="source python"># Define center point and create bbox for study area
 x, y = (173994.1578792833, 444133.60329471016)
 xmin, xmax, ymin, ymax = x - 1000, x + 350, y - 1000, y + 350
 
 # Get the features for the study area (using the wfs from the previous code block)
-response = wfs.getfeature(typename = list(wfs.contents)[0], bbox = (xmin, ymin, xmax, ymax))
+response = wfs.getfeature(typename=list(wfs.contents)[0], bbox=(xmin, ymin, xmax, ymax))
 
 # Save them to disk
-with open('./data/Roads.gml', 'wb') as file:
+with open('data/Roads.gml', 'wb') as file:
     file.write(response.read())
 
 # Read in again with GeoPandas
-roadsGDF = gpd.read_file('./data/Roads.gml')
+roadsGDF = gpd.read_file('data/Roads.gml')
 
 # Inspect and plot to get a quick view
 print(type(roadsGDF))
-roadsGDF.plot()</code></pre>
+roadsGDF.plot()
+plt.show()</code></pre>
 </div>
 <p><img src="./images/roadsGDF.png" alt="Roads in Wageningen" width = "60%"></p>
 <div class="row">
@@ -1495,13 +1480,12 @@ them too.</p>
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">from matplotlib import pyplot as plt
-import json
+<pre style=""><code class="source python">import json
 
 # Get the WFS of the BAG
-wfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
-wfs = WebFeatureService(url=wfsUrl, version='1.1.0')
-layer = list(wfs.contents)[1]
+wfsUrl = 'https://service.pdok.nl/lv/bag/wfs/v2_0'
+wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
+layer = list(wfs.contents)[0]
 
 # Define center point and create bbox for study area
 x, y = (173994.1578792833, 444133.60329471016)
@@ -1509,7 +1493,7 @@ xmin, xmax, ymin, ymax = x - 500, x + 500, y - 500, y + 500
 
 # Get the features for the study area
 # notice that we now get them as json, in contrast to before
-response = wfs.getfeature(typename = layer, bbox = (xmin, ymin, xmax, ymax), outputFormat = 'json')
+response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
 data = json.loads(response.read())
 
 # Create GeoDataFrame, without saving first
@@ -1541,7 +1525,7 @@ buildings in our extent?
 </blockquote>
 </div>
 </div>
-<h2 id="selecting-data">Selecting Data</h2>
+<h1 id="selecting-data">Selecting data</h1>
 <p>GeoDataFrames store rows and columns in a tabular format. To select
 specific rows, you can make use of the DataFrame functionality of
 Pandas. Inspect the content of your data:</p>
@@ -1595,8 +1579,12 @@ largeBuildingsGDF.plot()</code></pre>
 <p>Similarly, the <code>isin()</code> method of Series returns a Boolean
 vector that is true wherever the Series elements exist in the passed
 list. This allows selecting rows where one or more columns have the
-required value(s). Here we select buildings that are under construction
-(status = building phase has started (‘Bouw gestart’)).</p>
+required value(s). Here we selected buildings that were under
+construction (status = building phase has started (‘Bouw gestart’)).
+Note that this might be outdated by the time you do this tutorial. If
+you only see one building (which causes the demo to be not-so-nice), try
+changing <code>Bouw gestart</code> to <code>Pand in gebruik</code> for
+an overview of buildings currently in use.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1616,13 +1604,13 @@ newBuildingsGDF = newBuildingsGDF.to_crs(epsg=3857)
 
 # Plot with 50% transparency
 ax = newBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
-ctx.add_basemap(ax, source=ctx.providers.Stamen.TonerLite)
+ctx.add_basemap(ax, source=ctx.providers.Stamen.TonerLite, zoom=17)
 ax.set_axis_off()</code></pre>
 </div>
 <p><img src="./images/NewBuildings.png" alt="Parcels at Wageningen University Campus" width = "60%"></p>
 <p>(Figures shown here and in the next section may differ slightly from
 the ones you obtain.)</p>
-<h2 id="geometric-manipulations">Geometric Manipulations</h2>
+<h1 id="geometric-manipulations">Geometric manipulations</h1>
 <p>GeoDataFrames and GeoSeries have several <a
 href="http://geopandas.org/geometric_manipulations.html">constructive
 methods</a> to modify the geometry: buffer, boundary, centroid, convex
@@ -1645,10 +1633,10 @@ roads, assuming roads have all a width of 3 meters.</p>
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python"># Buffer of 1.5 m on both sides
-roadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry = roadsGDF.buffer(distance = 1.5)) 
+roadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=1.5)) 
 
 # Plot
-roadsPolygonGDF.plot(color = 'blue', edgecolor = 'blue')
+roadsPolygonGDF.plot(color='blue', edgecolor='blue')
 
 # Check the total coverage of buffers
 print(roadsPolygonGDF.area.sum())</code></pre>
@@ -1702,20 +1690,20 @@ we clip the roads with this single polygon.
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python"># Re-project
-newBuildingsGDF = newBuildingsGDF.to_crs(epsg = 28992)
+newBuildingsGDF = newBuildingsGDF.to_crs(epsg=28992)
 
 # Buffer, returns geometry, convert to GeoSeries
-areaOfInterestGS = gpd.GeoSeries(newBuildingsGDF.buffer(distance = 100).unary_union)
+areaOfInterestGS = gpd.GeoSeries(newBuildingsGDF.buffer(distance=100).unary_union)
 
 # Convex hull, returns a GeoSeries of geometries, convert to GeoDataFrame
 areaOfInterestGDF = gpd.GeoDataFrame(areaOfInterestGS.convex_hull)
 
 # Adapt metadata
-areaOfInterestGDF = areaOfInterestGDF.rename(columns = {0:'geometry'}).set_geometry('geometry')
+areaOfInterestGDF = areaOfInterestGDF.rename(columns={0:'geometry'}).set_geometry('geometry')
 areaOfInterestGDF.crs = 'EPSG:28992'
 
 # Perform an intersection overlay
-roadsIntersectionGDF = gpd.overlay(areaOfInterestGDF, roadsPolygonGDF, how = "intersection")
+roadsIntersectionGDF = gpd.overlay(areaOfInterestGDF, roadsPolygonGDF, how="intersection")
 
 # Plot the results
 roadlayer = roadsIntersectionGDF.plot(color='grey', edgecolor='grey')
@@ -1726,18 +1714,32 @@ newBuildingsGDF.plot(ax=roadlayer, color='red')</code></pre>
 <p><img src="./images/roadsIntersectionGDF.png" alt="New buildings at Wageningen University Campus and roads close to it" width = "60%"></p>
 <p>In summary, the advantage of GeoPandas is that it allows both
 geometric and dataframe manipulations. For example, GeoPandas can select
-the roads within (and maintained by) Wageningen Municipality and
-calculate total road surface area.</p>
+the roads within a set bounding box <strong>and</strong> within (and
+maintained by) Wageningen Municipality.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">wageningenRoadsGDF = roadsPolygonGDF.loc[roadsPolygonGDF['gme_naam'] == 'Wageningen']
-print(sum(wageningenRoadsGDF.area))
-wageningenRoadsGDF.plot(edgecolor = 'purple')</code></pre>
+<pre style=""><code class="source python"># Put the WFS url in a variable
+wfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
+
+# Create a WFS object
+wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
+
+# Let's create a bit bigger bounding box for this example than last time
+x, y = (173994.1578792833, 444133.60329471016)
+xmin, xmax, ymin, ymax = x - 3000, x + 3000, y - 3000, y + 3000
+
+# Get the features for the study area
+response = wfs.getfeature(typename=list(wfs.contents)[0], bbox=(xmin, ymin, xmax, ymax))
+
+roadsGDF = gpd.read_file(response)
+
+wageningenRoadsGDF = roadsGDF.loc[roadsGDF['gme_naam'] == 'Wageningen']
+wageningenRoadsGDF.plot(edgecolor='purple')</code></pre>
 </div>
 <p><img src="./images/WageningenRoadsGDF.png" alt="Roads within the Wageningen Municipality" width = "60%"></p>
-<h2 id="network-analysis">Network analysis</h2>
+<h1 id="network-analysis">Network analysis</h1>
 <p><a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a>
 retrieves, constructs, analyzes and visualizes street networks from <a
 href="https://www.openstreetmap.org/search?query=Wageningen%20university#map=18/51.98528/5.66368">OpenStreetMap</a>.
@@ -1760,14 +1762,14 @@ city = ox.geocoder.geocode_to_gdf('Wageningen, Netherlands')
 ox.plot.plot_footprints(ox.project_gdf(city))
 
 # Get bike network and create graph
-wageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', network_type = 'bike')
+wageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', network_type='bike')
 
 # Plot and save
-ox.plot.plot_graph(wageningenRoadsGraph, figsize = (10, 10), node_size = 2)
-ox.io.save_graph_shapefile(G = wageningenRoadsGraph, filepath = 'OSMnetwork_Wageningen.shp')
+ox.plot.plot_graph(wageningenRoadsGraph, figsize=(10, 10), node_size=2)
+ox.io.save_graph_shapefile(G=wageningenRoadsGraph, filepath='data/OSMnetwork_Wageningen.shp')
 
 # Metadata
-gdf_nodes, gdf_edges = ox.graph_to_gdfs(G = wageningenRoadsGraph)
+gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=wageningenRoadsGraph)
 print(gdf_nodes.info())
 print(gdf_edges.info())</code></pre>
 </div>
@@ -1783,30 +1785,32 @@ would take?</p>
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python"># Origin
-source = ox.distance.get_nearest_node(wageningenRoadsGraph, (51.987817, 5.665779))
+source = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.665779, 51.987817)
 
 # Destination
-target = ox.distance.get_nearest_node(wageningenRoadsGraph, (51.964870, 5.662409))
+target = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.662409, 51.964870)
 
 # Compute shortest path 
-shortestroute = ox.distance.shortest_path(G = wageningenRoadsGraph,
-                                          orig = source, 
-                                          dest = target, 
-                                          weight = 'length')
+shortestroute = ox.distance.shortest_path(G=wageningenRoadsGraph,
+                                          orig=source, 
+                                          dest=target, 
+                                          weight='length')
 
 # Plot
-ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize = (20, 20),
-                         route_alpha = 0.6, route_color = 'darkred',
-                         route_linewidth = 10, orig_dest_size = 100)</code></pre>
+ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20, 20), 
+                         route_alpha=.6, route_color='darkred',  bgcolor='#FFFFFF', 
+                         node_color='#AAAAAA', edge_color='#AAAAAA',
+                         route_linewidth=10, orig_dest_size=100)</code></pre>
 </div>
 <p><img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%"></p>
-<h2 id="visualizing-spatial-information">Visualizing spatial
-information</h2>
+<h1 id="more-on-visualizing-spatial-information">More on visualizing
+spatial information</h1>
 <p>There are multiple options to visualize your geodata: GIS software
 (QGIS), web maps (leaflet/Folium) and images (Matplotlib). We have
 already explored some of them previously during the tutorials, but we
 will go a bit more in depth in this section. Let’s first take a look at
 creating interactive web maps using Folium.</p>
+<h2 id="folium">Folium</h2>
 <p>Folium uses leaflet on the backend to make web maps, easily
 visualized on a webpage. <a href="https://leafletjs.com/">Leaflet</a> is
 an open-source JavaScript library for mobile-friendly interactive maps.
@@ -1819,29 +1823,33 @@ working directory, which you can open in a web browser:</p>
 </button>
 <pre style=""><code class="source python">import folium
 
+import folium
+
 # Initialize the map
 campusMap = folium.Map([51.98527485, 5.66370505205543], zoom_start=17)
 
 # Re-project
-buildingsGDF.crs = 'EPSG:28992'
 buildingsGDF = buildingsGDF.to_crs(4326)
 roadsPolygonGDF = roadsPolygonGDF.to_crs(4326)
 
-# Make choropleth map of building construction years
-# Note that a continuous color scale is used as if the attribute is continuous, while it is not
-campusMap.choropleth(buildingsGDF, name = 'Building construction years',
-                     data = buildingsGDF, columns = ['gid', 'bouwjaar'],
-                     key_on = 'feature.properties.gid', fill_color = 'RdYlGn',
-                     fill_opacity = 0.7, line_opacity = 0.2,legend_name = 'Construction year')
+# Add the buildings
+folium.Choropleth(buildingsGDF, name='Building construction years',
+                  data=buildingsGDF, columns=['identificatie', 'bouwjaar'],
+                  key_on='feature.properties.identificatie', fill_color='RdYlGn',
+                  fill_opacity=0.7, line_opacity=0.2,
+                  legend_name='Construction year').add_to(campusMap)
 
 # Add the roads
-campusMap.choropleth(roadsPolygonGDF, name = 'Roads')
+folium.GeoJson(roadsPolygonGDF).add_to(campusMap)
+
+# Add layer control
 folium.LayerControl().add_to(campusMap)
 
 # Save (you can now open the generated .html file from the output directory)
-campusMap.save('./output/campusMap.html')</code></pre>
+campusMap.save('output/campusMap.html')</code></pre>
 </div>
 <p><img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%"></p>
+<h2 id="matplotlib">Matplotlib</h2>
 <p>Another visualization option is Matplotlib, which we have already
 explored during this and the previous tutorial. Matplotlib allows you to
 make good quality maps for reports or publications. Here is another
@@ -1851,23 +1859,8 @@ tutorial today.</p>
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">import geopandas as gpd
-from owslib.wfs import WebFeatureService
-from matplotlib import pyplot as plt
-
-### Extract only buildings on and around WUR campus
-# Connect to WFS
-wfsUrl = 'https://geodata.nationaalgeoregister.nl/bag/wfs/v1_1'
-wfs = WebFeatureService(url=wfsUrl, version='1.1.0')
-layer = list(wfs.contents)[1]
-
-# Define center point and create bbox for study area
-x, y = (173994.1578792833, 444133.60329471016)
-xmin, xmax, ymin, ymax = x-300, x+600, y-300, y+300
-
-response = wfs.getfeature(typename=layer, bbox=(xmin, ymin, xmax, ymax), outputFormat='json')
-data = json.loads(response.read())
-buildingsGDF = gpd.GeoDataFrame.from_features(data['features'], crs=28992)
+<pre style=""><code class="source python"># Adjust crs
+buildingsGDF = buildingsGDF.to_crs(28992)
 
 # Create visualization
 f, ax = plt.subplots(1, figsize=(10, 5))
@@ -1879,17 +1872,17 @@ ax.set_title('WUR campus buildings')
 ax.set_facecolor("grey")
 
 # The plotting itself, of the roads
-roadlayer = roadsPolygonGDF.plot(ax = ax, legend = True)
+roadlayer = roadsPolygonGDF.plot(ax=ax, legend=True)
 
 # Set the range of the x and y axis
 roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
 
 # Add the buildings to the Matplotlib axes with already plotted roads
-buildingslayer = buildingsGDF.plot(ax = roadlayer, column = 'bouwjaar',
-                                   cmap = 'brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
-                                   legend = True,
-                                   legend_kwds = {'label': "Construction year", 'orientation': "vertical"})</code></pre>
+buildingslayer = buildingsGDF.plot(ax=roadlayer, column='bouwjaar',
+                                   cmap='brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
+                                   legend=True,
+                                   legend_kwds={'label': "Construction year", 'orientation': "vertical"})</code></pre>
 </div>
 <p><img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus" width = "100%"></p>
 <p>Be aware, Matplotlib supports automatic legend creation for colorbars
@@ -1899,18 +1892,6 @@ using proxy artists, see <a
 href="https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html">the
 legend guide</a>. In the example above, you would need this if you want
 a square in the legend with the label ‘building’.</p>
-<h1 id="what-have-we-learned">What have we learned?</h1>
-<ol style="list-style-type: decimal">
-<li>The structure of vector geometries,</li>
-<li>Creating GeoPandas GeoSeries and GeoDataFrames</li>
-<li>Re-projecting</li>
-<li>Reading and writing data</li>
-<li>Reading webservices</li>
-<li>Selecting data</li>
-<li>Geometric manipulations</li>
-<li>Network analysis</li>
-<li>Geo-visualization</li>
-</ol>
 <h1 id="more-info">More info</h1>
 <ul>
 <li><a
