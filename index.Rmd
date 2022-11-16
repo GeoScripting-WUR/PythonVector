@@ -603,16 +603,13 @@ ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20, 20),
 
 <img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%">
 
-# More on visualizing spatial information
+# Interactive visualization
 
-There are multiple options to visualize your geodata: GIS software (QGIS), web maps (leaflet/Folium) and images (Matplotlib). We have already explored some of them previously during the tutorials, but we will go a bit more in depth in this section. Let's first take a look at creating interactive web maps using Folium.
+There are multiple options to visualize your geodata: GIS software (QGIS), web maps (leaflet/Folium) and images (Matplotlib). We have already explored some of them previously during the tutorials, but here we will take a closer look at creating interactive web maps using Folium.
 
-## Folium
 Folium uses leaflet on the backend to make web maps, easily visualized on a webpage. [Leaflet](https://leafletjs.com/) is an open-source JavaScript library for mobile-friendly interactive maps. Folium handles GeoDataFrames or JSON files as input for the interactive map. The Python script below makes a `.html` file in your working directory, which you can open in a web browser:
 
 ```{Python, eval=FALSE}
-import folium
-
 import folium
 
 # Initialize the map
@@ -640,40 +637,6 @@ campusMap.save('output/campusMap.html')
 ```
 
 <img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%">
-
-## Matplotlib
-Another visualization option is Matplotlib, which we have already explored during this and the previous tutorial. Matplotlib allows you to make good quality maps for reports or publications. Here is another example of its capabilities, including some of what we explored in the tutorial today.
-
-```{Python, eval=FALSE}
-# Adjust crs
-buildingsGDF = buildingsGDF.to_crs(28992)
-
-# Create visualization
-f, ax = plt.subplots(1, figsize=(10, 5))
-
-# Give the plot a title (do not do this for a scientific report, rather use a caption)
-ax.set_title('WUR campus buildings')
-
-# Background color of the map
-ax.set_facecolor("grey")
-
-# The plotting itself, of the roads
-roadlayer = roadsPolygonGDF.plot(ax=ax, legend=True)
-
-# Set the range of the x and y axis
-roadlayer.set_xlim(xmin, xmax)
-roadlayer.set_ylim(ymin, ymax)
-
-# Add the buildings to the Matplotlib axes with already plotted roads
-buildingslayer = buildingsGDF.plot(ax=roadlayer, column='bouwjaar',
-                                   cmap='brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
-                                   legend=True,
-                                   legend_kwds={'label': "Construction year", 'orientation': "vertical"})
-```
-
-<img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus" width = "100%">
-
-Be aware, Matplotlib supports automatic legend creation for colorbars (continuous data, see above) as well as for point and lines marker, but not for polygons. A legend with polygon shapes should be made manually using proxy artists, see [the legend guide](https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html). In the example above, you would need this if you want a square in the legend with the label 'building'.
 
 # More info
 - [Geo-Spatial Notebooks](https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks#earth-science-and-geo-spatial-data)
