@@ -1713,9 +1713,10 @@ newBuildingsGDF.plot(ax=roadlayer, color='red')</code></pre>
 </div>
 <p><img src="./images/roadsIntersectionGDF.png" alt="New buildings at Wageningen University Campus and roads close to it" width = "60%"></p>
 <p>In summary, the advantage of GeoPandas is that it allows both
-geometric and dataframe manipulations. For example, GeoPandas can select
-the roads within a set bounding box <strong>and</strong> within (and
-maintained by) Wageningen Municipality.</p>
+geometric and dataframe manipulations/selections. As a result, GeoPandas
+can for example select the roads within a set bounding box
+<strong>and</strong> within (and maintained by) Wageningen
+Municipality.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1732,10 +1733,12 @@ xmin, xmax, ymin, ymax = x - 3000, x + 3000, y - 3000, y + 3000
 
 # Get the features for the study area
 response = wfs.getfeature(typename=list(wfs.contents)[0], bbox=(xmin, ymin, xmax, ymax))
-
 roadsGDF = gpd.read_file(response)
 
+# Select the roads within Wageningen municipality
 wageningenRoadsGDF = roadsGDF.loc[roadsGDF['gme_naam'] == 'Wageningen']
+
+# Plot
 wageningenRoadsGDF.plot(edgecolor='purple')</code></pre>
 </div>
 <p><img src="./images/WageningenRoadsGDF.png" alt="Roads within the Wageningen Municipality" width = "60%"></p>
@@ -1803,27 +1806,24 @@ ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20, 20),
                          route_linewidth=10, orig_dest_size=100)</code></pre>
 </div>
 <p><img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%"></p>
-<h1 id="more-on-visualizing-spatial-information">More on visualizing
-spatial information</h1>
+<h1 id="interactive-visualization">Interactive visualization</h1>
 <p>There are multiple options to visualize your geodata: GIS software
 (QGIS), web maps (leaflet/Folium) and images (Matplotlib). We have
-already explored some of them previously during the tutorials, but we
-will go a bit more in depth in this section. Let’s first take a look at
-creating interactive web maps using Folium.</p>
-<h2 id="folium">Folium</h2>
+already explored some of them previously during the tutorials, but here
+we will take a closer look at creating interactive web maps using
+Folium.</p>
 <p>Folium uses leaflet on the backend to make web maps, easily
 visualized on a webpage. <a href="https://leafletjs.com/">Leaflet</a> is
 an open-source JavaScript library for mobile-friendly interactive maps.
 Folium handles GeoDataFrames or JSON files as input for the interactive
 map. The Python script below makes a <code>.html</code> file in your
-working directory, which you can open in a web browser:</p>
+working directory, which you can open in a <a href="campusMap.html">web
+browser</a>:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python">import folium
-
-import folium
 
 # Initialize the map
 campusMap = folium.Map([51.98527485, 5.66370505205543], zoom_start=17)
@@ -1848,50 +1848,6 @@ folium.LayerControl().add_to(campusMap)
 # Save (you can now open the generated .html file from the output directory)
 campusMap.save('output/campusMap.html')</code></pre>
 </div>
-<p><img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%"></p>
-<h2 id="matplotlib">Matplotlib</h2>
-<p>Another visualization option is Matplotlib, which we have already
-explored during this and the previous tutorial. Matplotlib allows you to
-make good quality maps for reports or publications. Here is another
-example of its capabilities, including some of what we explored in the
-tutorial today.</p>
-<div class="row">
-<button class="source Python toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> Python source
-</button>
-<pre style=""><code class="source python"># Adjust crs
-buildingsGDF = buildingsGDF.to_crs(28992)
-
-# Create visualization
-f, ax = plt.subplots(1, figsize=(10, 5))
-
-# Give the plot a title (do not do this for a scientific report, rather use a caption)
-ax.set_title('WUR campus buildings')
-
-# Background color of the map
-ax.set_facecolor("grey")
-
-# The plotting itself, of the roads
-roadlayer = roadsPolygonGDF.plot(ax=ax, legend=True)
-
-# Set the range of the x and y axis
-roadlayer.set_xlim(xmin, xmax)
-roadlayer.set_ylim(ymin, ymax)
-
-# Add the buildings to the Matplotlib axes with already plotted roads
-buildingslayer = buildingsGDF.plot(ax=roadlayer, column='bouwjaar',
-                                   cmap='brg', #see https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
-                                   legend=True,
-                                   legend_kwds={'label': "Construction year", 'orientation': "vertical"})</code></pre>
-</div>
-<p><img src="./images/WURcampusMapBuildings.png" alt="Road types at Wageningen University Campus" width = "100%"></p>
-<p>Be aware, Matplotlib supports automatic legend creation for colorbars
-(continuous data, see above) as well as for point and lines marker, but
-not for polygons. A legend with polygon shapes should be made manually
-using proxy artists, see <a
-href="https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html">the
-legend guide</a>. In the example above, you would need this if you want
-a square in the legend with the label ‘building’.</p>
 <h1 id="more-info">More info</h1>
 <ul>
 <li><a

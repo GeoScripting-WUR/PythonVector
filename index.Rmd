@@ -41,6 +41,7 @@ Today we will explore a variety of Python packages for vector data handling:
 - Be able to plot spatial vector data with Matplotlib
 
 ## Setting up the Python Environment
+
 Make a folder structure for this tutorial:
 
 ```{r, eval=FALSE,engine='bash'}
@@ -527,7 +528,7 @@ newBuildingsGDF.plot(ax=roadlayer, color='red')
 
 <img src="./images/roadsIntersectionGDF.png" alt="New buildings at Wageningen University Campus and roads close to it" width = "60%">
 
-In summary, the advantage of GeoPandas is that it allows both geometric and dataframe manipulations. For example, GeoPandas can select the roads within a set bounding box **and** within (and maintained by) Wageningen Municipality.
+In summary, the advantage of GeoPandas is that it allows both geometric and dataframe manipulations/selections. As a result, GeoPandas can for example select the roads within a set bounding box **and** within (and maintained by) Wageningen Municipality.
 
 ```{Python, eval=FALSE}
 # Put the WFS url in a variable
@@ -542,10 +543,12 @@ xmin, xmax, ymin, ymax = x - 3000, x + 3000, y - 3000, y + 3000
 
 # Get the features for the study area
 response = wfs.getfeature(typename=list(wfs.contents)[0], bbox=(xmin, ymin, xmax, ymax))
-
 roadsGDF = gpd.read_file(response)
 
+# Select the roads within Wageningen municipality
 wageningenRoadsGDF = roadsGDF.loc[roadsGDF['gme_naam'] == 'Wageningen']
+
+# Plot
 wageningenRoadsGDF.plot(edgecolor='purple')
 ```
 
@@ -607,7 +610,7 @@ ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20, 20),
 
 There are multiple options to visualize your geodata: GIS software (QGIS), web maps (leaflet/Folium) and images (Matplotlib). We have already explored some of them previously during the tutorials, but here we will take a closer look at creating interactive web maps using Folium.
 
-Folium uses leaflet on the backend to make web maps, easily visualized on a webpage. [Leaflet](https://leafletjs.com/) is an open-source JavaScript library for mobile-friendly interactive maps. Folium handles GeoDataFrames or JSON files as input for the interactive map. The Python script below makes a `.html` file in your working directory, which you can open in a web browser:
+Folium uses leaflet on the backend to make web maps, easily visualized on a webpage. [Leaflet](https://leafletjs.com/) is an open-source JavaScript library for mobile-friendly interactive maps. Folium handles GeoDataFrames or JSON files as input for the interactive map. The Python script below makes a `.html` file in your working directory, which you can open in a [web browser](campusMap.html):
 
 ```{Python, eval=FALSE}
 import folium
@@ -635,8 +638,6 @@ folium.LayerControl().add_to(campusMap)
 # Save (you can now open the generated .html file from the output directory)
 campusMap.save('output/campusMap.html')
 ```
-
-<img src="./images/WageningenFoliumMapBuildingYear.png" alt="Folium map of Wageningen University Campus" width = "100%">
 
 # More info
 - [Geo-Spatial Notebooks](https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks#earth-science-and-geo-spatial-data)
