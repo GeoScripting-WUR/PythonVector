@@ -42,7 +42,7 @@ Today we will explore a variety of Python packages for vector data handling:
 
 ## Setting up the Python Environment
 
-Make a folder structure for this tutorial:
+Make a directory structure for this tutorial:
 
 ```{r, eval=FALSE,engine='bash'}
 cd ~/Documents/
@@ -78,7 +78,7 @@ Now, create the environment with:
 mamba env create --file vector.yaml
 ```
 
-Activate the environment, open Spyder, create a script in the root folder and start coding.
+Activate the environment, open Spyder, create a script in the root directory and start coding.
 
 # Vector Geometries and Python
 
