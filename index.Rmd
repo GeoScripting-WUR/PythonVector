@@ -52,7 +52,7 @@ mkdir data
 mkdir output
 ```
 
-The `conda` environment we are using today contains more (and larger) packages than yesterday, but the process we use to create and activat it is the same. Create a text file, (re)name it (to) `vector.yaml`, and copy the following content into the file:
+The conda environment we are using today contains more (and larger) packages than yesterday, but the process we use to create and activate it is the same. Create a text file, (re)name it (to) `vector.yaml`, and copy the following content into the file:
 
 ```
 name: vector
@@ -175,9 +175,9 @@ print(gs.geometry)
 print(gs_buffer.geometry)
 ```
 
-A `GeoDataFrame` is a tabular data structure with multiple columns, where one column is a `GeoSeries`. `GeoDataFrames` can be loaded from a file, created with data or loaded from a Pandas `DataFrame`. A Pandas `DataFrame` is, just like the structured NumPy array you learned about in the previous tutorial, a dataframe equivalent of R in Python.
+A `GeoDataFrame` is a tabular data structure with multiple columns, where one column is a `GeoSeries`. `GeoDataFrames` can be loaded from a file, created with data or loaded from a Pandas `DataFrame`. A Pandas `DataFrame` is, just like the structured NumPy array you learned about in the previous tutorial, a dataframe equivalent of R in Python. Note that a `GeoSeries` is thus an equivalent to a `geometry` column/vector in R.
 
-A Pandas `DataFrame` plus a list of shapely geometries can be converted into a `GeoSeries` or directly to a `GeoDataFrame`.
+A Pandas `DataFrame` plus a list of shapely geometries can be converted into a `GeoSeries` or directly to a `GeoDataFrame`. 
 
 ```{Python, eval=FALSE}
 import pandas as pd
@@ -197,7 +197,7 @@ print(df.head)
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 
 # Pandas DataFrame and shapely Points can together become a GeoPandas GeoDataFrame
-# Note that we specify the CRS (projection) directly while reading to GDF
+# Note that we specify the CRS (projection) directly while creating a GDF
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:28992") 
 
 # Inspect wageningenGDF
@@ -209,7 +209,7 @@ print(type(wageningenGDF), len(wageningenGDF))
 > **Question 2**: What is the difference between a GeoSeries and a GeoDataFrame?
 ```
 
-Geopandas provides a high-level interface to the Matplotlib library (see previous tutorial) for visualization. Vector data can simply be mapped by using the `plot()` method on a `GeoSeries` or `GeoDataFrame`. Several other arguments to customize the plot can still be used. Note that the aspect of the axes (see previous tutorial) is set to equal automatically when using Geopandas plot, i.e. the horizontal and vertical scale are automatically made the same.
+Geopandas provides a high-level interface to the Matplotlib library (see previous tutorial) for visualization. Vector data can simply be mapped by using the `plot()` method in a `GeoSeries` or `GeoDataFrame`. Several other arguments to customize the plot can still be used. Note that the aspect of the axes (see previous tutorial) is set to equal automatically when using Geopandas plot, i.e. the horizontal and vertical scale are automatically made the same.
 
 ```{Python, eval=FALSE}
 from matplotlib import pyplot as plt
@@ -592,15 +592,13 @@ source = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.665779, 51.987817)
 target = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.662409, 51.964870)
 
 # Compute shortest path 
-shortestroute = ox.distance.shortest_path(G=wageningenRoadsGraph,
-                                          orig=source, 
-                                          dest=target, 
-                                          weight='length')
+shortestroute = ox.distance.shortest_path(G=wageningenRoadsGraph, orig=source, 
+                                          dest=target, weight='length')
 
 # Plot
 ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20, 20), 
-                         route_alpha=.6, route_color='darkred',  bgcolor='#FFFFFF', 
-                         node_color='#AAAAAA', edge_color='#AAAAAA',
+                         route_alpha=0.6, route_color='darkred',  bgcolor='white', 
+                         node_color='darkgrey', edge_color='darkgrey',
                          route_linewidth=10, orig_dest_size=100)
 ```
 

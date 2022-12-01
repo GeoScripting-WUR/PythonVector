@@ -1072,9 +1072,9 @@ cd ./PythonVector
 mkdir data
 mkdir output</code></pre>
 </div>
-<p>The <code>conda</code> environment we are using today contains more
-(and larger) packages than yesterday, but the process we use to create
-and activat it is the same. Create a text file, (re)name it (to)
+<p>The conda environment we are using today contains more (and larger)
+packages than yesterday, but the process we use to create and activate
+it is the same. Create a text file, (re)name it (to)
 <code>vector.yaml</code>, and copy the following content into the
 file:</p>
 <pre><code>name: vector
@@ -1236,7 +1236,8 @@ columns, where one column is a <code>GeoSeries</code>.
 or loaded from a Pandas <code>DataFrame</code>. A Pandas
 <code>DataFrame</code> is, just like the structured NumPy array you
 learned about in the previous tutorial, a dataframe equivalent of R in
-Python.</p>
+Python. Note that a <code>GeoSeries</code> is thus an equivalent to a
+<code>geometry</code> column/vector in R.</p>
 <p>A Pandas <code>DataFrame</code> plus a list of shapely geometries can
 be converted into a <code>GeoSeries</code> or directly to a
 <code>GeoDataFrame</code>.</p>
@@ -1261,7 +1262,7 @@ print(df.head)
 geometry = [Point(xy) for xy in zip(df['x'], df['y'])]
 
 # Pandas DataFrame and shapely Points can together become a GeoPandas GeoDataFrame
-# Note that we specify the CRS (projection) directly while reading to GDF
+# Note that we specify the CRS (projection) directly while creating a GDF
 wageningenGDF = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:28992") 
 
 # Inspect wageningenGDF
@@ -1279,7 +1280,7 @@ and a GeoDataFrame?
 </div>
 <p>Geopandas provides a high-level interface to the Matplotlib library
 (see previous tutorial) for visualization. Vector data can simply be
-mapped by using the <code>plot()</code> method on a
+mapped by using the <code>plot()</code> method in a
 <code>GeoSeries</code> or <code>GeoDataFrame</code>. Several other
 arguments to customize the plot can still be used. Note that the aspect
 of the axes (see previous tutorial) is set to equal automatically when
@@ -1794,15 +1795,13 @@ source = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.665779, 51.987817)
 target = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.662409, 51.964870)
 
 # Compute shortest path 
-shortestroute = ox.distance.shortest_path(G=wageningenRoadsGraph,
-                                          orig=source, 
-                                          dest=target, 
-                                          weight='length')
+shortestroute = ox.distance.shortest_path(G=wageningenRoadsGraph, orig=source, 
+                                          dest=target, weight='length')
 
 # Plot
 ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20, 20), 
-                         route_alpha=.6, route_color='darkred',  bgcolor='#FFFFFF', 
-                         node_color='#AAAAAA', edge_color='#AAAAAA',
+                         route_alpha=0.6, route_color='darkred',  bgcolor='white', 
+                         node_color='darkgrey', edge_color='darkgrey',
                          route_linewidth=10, orig_dest_size=100)</code></pre>
 </div>
 <p><img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%"></p>
