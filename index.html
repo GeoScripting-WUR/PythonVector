@@ -8,9 +8,6 @@
   <title>Tutorial 9: Vector data handling with Python</title>
   <style type="text/css">
     html {
-      line-height: 1.5;
-      font-family: Georgia, serif;
-      font-size: 20px;
       color: #1a1a1a;
       background-color: #fdfdfd;
     }
@@ -29,13 +26,16 @@
     @media (max-width: 600px) {
       body {
         font-size: 0.9em;
-        padding: 1em;
+        padding: 12px;
       }
       h1 {
         font-size: 1.8em;
       }
     }
     @media print {
+      html {
+        background-color: white;
+      }
       body {
         background-color: transparent;
         color: black;
@@ -85,9 +85,10 @@
       color: #606060;
     }
     code {
-      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
+      hyphens: manual;
     }
     pre {
       margin: 1em 0;
@@ -180,8 +181,8 @@
   <!-- Manific Popup -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/0.8.9/jquery.magnific-popup.min.js"></script>
 
-  <script type="text/javascript"
-    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   </script>
   <script defer="defer">
   // Function to generate the dynamic table of contents
@@ -1339,34 +1340,21 @@ wageningenGDF = wageningenGDF.to_crs('EPSG:4326')
 print(wageningenGDF.crs)</code></pre>
 </div>
 <h1 id="writing-and-reading-files">Writing and Reading Files</h1>
-<p>GeoPandas uses Fiona for file access, while Fiona, in its turn,
-builds on GDAL/OGR. Fiona has drivers for:</p>
+<p>GeoPandas uses <a
+href="https://pyogrio.readthedocs.io/en/latest/">pyogrio</a> for file
+reading and writing files, while pyogrio, in its turn, builds on
+GDAL/OGR.Pygrio has drivers for most spatial datatypes, for example:</p>
 <ul>
 <li>Open formats such as GeoJSON and GPX</li>
 <li>ESRI formats such as shapefiles and OpenFileGDB</li>
 <li>Other formats such as MapInfo and DGN</li>
 </ul>
-<p>But Fiona lacks some other popular file formats:</p>
-<ul>
-<li>Open formats such as <a
-href="https://github.com/Toblerity/Fiona/issues/97">KML</a> or <a
-href="https://github.com/Toblerity/Fiona/pull/96">GML</a> based on the
-XML format. Solution: <a
-href="https://docs.python.org/3/library/xml.etree.elementtree.html">xml.etree.ElementTree</a>.</li>
-<li>Databases such as PostgreSQL. Solution: <a
-href="https://pypi.org/project/psycopg2/">psycopg2</a>.</li>
-<li>Webservices such as Web Feature Service [WFS] or Web Map Service
-[WMS]. Solution: <a
-href="https://geopython.github.io/OWSLib/">OWSLib</a>.</li>
-<li>Columnar formats, such as CSV or xls. Solution: Pandas can read <a
-href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_csv.html">csv</a>
-or <a
-href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_excel.html">excel</a>
-columns.</li>
-</ul>
-<p>If none of these packages are helpful to access your files, <a
-href="http://www.gdal.org/ogr_formats.html">OGR might still be able to
-help</a>.</p>
+<p>In some cases, especially when connection external datasources such
+as webservices or databases Geopandas needs an external library to
+handle this connection, like OwsLib for webservices or Psycopg2 (or
+alternative) for databases. If none of these packages are helpful to
+access your files, <a href="http://www.gdal.org/ogr_formats.html">OGR
+might still be able to help</a>.</p>
 <p>A <code>GeoDataFrame</code> can be written directly to a GeoJSON file
 or a shapefile. <a href="http://switchfromshapefile.org/">GeoJSON is a
 recommended format</a> to use for geographic data in WGS84 coordinate
@@ -1394,15 +1382,15 @@ jsonGDF = gpd.read_file('data/wageningenPOI.geojson')
 shpGDF = gpd.read_file('data/wageningenPOI.shp')</code></pre>
 </div>
 <h1 id="reading-from-webservices">Reading from webservices</h1>
-<p>The web has a lot of geodata available. The OpenGeoSpatial Consortium
-has specified standard protocols for geo-webservices, such as <a
+<p>The web has a lot of geodata available. The Open GeoSpatial
+Consortium (<a href="https://www.ogc.org/">OGC</a>) has specified
+standard protocols for geo-webservices, such as <a
 href="http://www.opengeospatial.org/standards/wfs">Web Feature
-Service</a> [WFS] and <a
+Service</a> (WFS) and <a
 href="http://www.opengeospatial.org/standards/wms">Web Map Service</a>
-[WMS]. The standard web service protocols make it easy to access data.
-For example, the following WFS provides geodata on roads and is
-extracted from the Dutch national database of roads in the
-Netherlands:</p>
+(WMS). The standard web service protocols make it easy to access data.
+For example, the following WFS provides data from the administrative
+boundaries and is extracted from the Dutch Kadaster:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1410,7 +1398,7 @@ Netherlands:</p>
 <pre style=""><code class="source python">from owslib.wfs import WebFeatureService
 
 # Put the WFS url in a variable
-wfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
+wfsUrl = 'https://service.pdok.nl/kadaster/bestuurlijkegebieden/wfs/v1_0?'
 
 # Create a WFS object
 wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
@@ -1431,13 +1419,13 @@ contain?
 </blockquote>
 </div>
 </div>
-<p>WFS are used to make webmaps, which allow a quick view of the data
-and make geodata accessible for all. If you want to do a large analysis,
-it is better to download the geodata from other available repositories
-and not from a WFS, as it typically has limits on the number of features
-that can be requested, such as 100 or 1000 features. In the WFS above,
-they are very generous with a limit of max 15.000 features per
-request.</p>
+<p>WFS give acces to data in vector format. , which allow a quick view
+of the data and make geodata accessible for all. If you want to do a
+large analysis, it is better to download the geodata from other
+available repositories and not from a WFS, as it typically has limits on
+the number of features that can be requested, such as 100 or 1000
+features. In the WFS above, they are very generous with a limit of max
+15.000 features per request.</p>
 <p>Load some roads from the WFS service for the campus area and plot
 them:</p>
 <div class="row">
