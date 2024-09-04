@@ -5,7 +5,7 @@
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil" />
-  <title>Tutorial 9: Vector data handling with Python</title>
+  <title>Vector data handling with Python</title>
   <style type="text/css">
     html {
       color: #1a1a1a;
@@ -1017,7 +1017,7 @@
 </head>
 <body>
 <title>
-Tutorial 9: Vector data handling with Python
+Vector data handling with Python
 </title>
 <div id="wrap">
 <div class="container">
@@ -1030,8 +1030,8 @@ a:visited {color: #91170a;}
 <h1 id="wur-geoscripting"><a
 href="https://geoscripting-wur.github.io/">WUR Geoscripting</a>
 <img src="https://www.wur.nl/upload/854757ab-168f-46d7-b415-f8b501eebaa5_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/></h1>
-<h1 id="week-3-tutorial-9-vector-data-handling-with-python">Week 3,
-Tutorial 9: Vector data handling with Python</h1>
+<h1 id="vector-data-handling-with-python">Vector data handling with
+Python</h1>
 <h2 id="introduction">Introduction</h2>
 <p>Today we will explore a variety of Python packages for vector data
 handling:</p>
@@ -1111,10 +1111,14 @@ The vector handling part of the GDAL package is called OGR.</p>
 <p>In this tutorial, we will not work much with OGR separately. However,
 it is at the basis of many other packages. Therefore, to understand
 object structures in these packages, it is convenient to know how
-various objects in OGR are related to each other: * When you open a file
-(e.g. shapefile), you have a DataSource object * A Data source can have
-one or more Layer objects * A Layer can have one or more Feature objects
-* Features have Geometry and Attribute objects</p>
+various objects in OGR are related to each other:</p>
+<ul>
+<li>When you open a file (e.g. shapefile), you have a DataSource
+object</li>
+<li>A Data source can have one or more Layer objects</li>
+<li>A Layer can have one or more Feature objects</li>
+<li>Features have Geometry and Attribute objects</li>
+</ul>
 <p><img src="./images/ogr_structure.png" alt="OGR class structure, source: Garrard, 2016, Geoprocessing with Python" width = "70%"></p>
 <p>WKT (<a href="https://en.wikipedia.org/wiki/Well-known_text">Well
 Known Text</a>) is a markup language that describes spatial information
@@ -1343,13 +1347,14 @@ print(wageningenGDF.crs)</code></pre>
 <p>GeoPandas uses <a
 href="https://pyogrio.readthedocs.io/en/latest/">pyogrio</a> for file
 reading and writing files, while pyogrio, in its turn, builds on
-GDAL/OGR.Pygrio has drivers for most spatial datatypes, for example:</p>
+GDAL/OGR. Pygrio has drivers for most spatial datatypes, for
+example:</p>
 <ul>
 <li>Open formats such as GeoJSON and GPX</li>
 <li>ESRI formats such as shapefiles and OpenFileGDB</li>
 <li>Other formats such as MapInfo and DGN</li>
 </ul>
-<p>In some cases, especially when connection external datasources such
+<p>In some cases, especially when connection external data sources such
 as webservices or databases Geopandas needs an external library to
 handle this connection, like OwsLib for webservices or Psycopg2 (or
 alternative) for databases. If none of these packages are helpful to
@@ -1419,15 +1424,15 @@ contain?
 </blockquote>
 </div>
 </div>
-<p>WFS give acces to data in vector format. , which allow a quick view
-of the data and make geodata accessible for all. If you want to do a
-large analysis, it is better to download the geodata from other
-available repositories and not from a WFS, as it typically has limits on
-the number of features that can be requested, such as 100 or 1000
-features. In the WFS above, they are very generous with a limit of max
-15.000 features per request.</p>
+<p>WFS give access to data in vector format and allow a quick view of
+the data making geodata accessible for everyone. If you want to do a
+large analysis, it is better to download geodata from other available
+repositories and not from a WFS, as it typically has limits on the
+number of features that can be requested, such as 100 or 1000 features.
+In the WFS above, they are very generous with a limit of max 15.000
+features per request.</p>
 <p>Load some roads from the WFS service for the campus area and plot
-them:</p>
+them: —–UPDATE NEEDED——–</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
