@@ -1,10 +1,10 @@
 ---
-pagetitle: "Tutorial 9: Vector data handling with Python"
+pagetitle: "Vector data handling with Python"
 author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   knitrBootstrap::bootstrap_document:
-    title: "Tutorial 9: Vector data handling with Python"
+    title: "Vector data handling with Python"
     theme: "simplex"
     highlight: Tomorrow Night Bright
     menu: FALSE
@@ -19,7 +19,7 @@ a:visited {color: #91170a;}
 
 # [WUR Geoscripting](https://geoscripting-wur.github.io/) <img src="https://www.wur.nl/upload/854757ab-168f-46d7-b415-f8b501eebaa5_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/>
 
-# Week 3, Tutorial 9: Vector data handling with Python
+# Vector data handling with Python
 
 ## Introduction
 
@@ -85,6 +85,7 @@ Activate the environment, open Spyder, create a script in the root directory and
 At the backbone of spatial data processing in Python is GDAL. GDAL means Geospatial Data Abstraction Library, it is a ‘translator library’ for raster and vector geospatial data. Although the overarching package is called GDAL, the term is mostly used for the raster handling part. The vector handling part of the GDAL package is called OGR.
 
 In this tutorial, we will not work much with OGR separately. However, it is at the basis of many other packages. Therefore, to understand object structures in these packages, it is convenient to know how various objects in OGR are related to each other:
+
 * When you open a file (e.g. shapefile), you have a DataSource object
 * A Data source can have one or more Layer objects
 * A Layer can have one or more Feature objects
@@ -264,13 +265,13 @@ print(wageningenGDF.crs)
 
 # Writing and Reading Files
 
-GeoPandas uses [pyogrio](https://pyogrio.readthedocs.io/en/latest/) for file reading and writing files, while pyogrio, in its turn, builds on GDAL/OGR.Pygrio has drivers for most spatial datatypes, for example:
+GeoPandas uses [pyogrio](https://pyogrio.readthedocs.io/en/latest/) for file reading and writing files, while pyogrio, in its turn, builds on GDAL/OGR. Pygrio has drivers for most spatial datatypes, for example:
 
 * Open formats such as GeoJSON and GPX
 * ESRI formats such as shapefiles and OpenFileGDB
 * Other formats such as MapInfo and DGN
 
-In some cases, especially when connection external datasources such as webservices or databases Geopandas needs an external library to handle this connection, like OwsLib for webservices or Psycopg2 (or alternative) for databases. If none of these packages are helpful to access your files, [OGR might still be able to help](http://www.gdal.org/ogr_formats.html).
+In some cases, especially when connection external data sources such as webservices or databases Geopandas needs an external library to handle this connection, like OwsLib for webservices or Psycopg2 (or alternative) for databases. If none of these packages are helpful to access your files, [OGR might still be able to help](http://www.gdal.org/ogr_formats.html).
 
 A `GeoDataFrame` can be written directly to a GeoJSON file or a shapefile. [GeoJSON is a recommended format](http://switchfromshapefile.org/) to use for geographic data in WGS84 coordinate system since JSON dictionaries are easy to read and use on the web, and GeoJSON is supported in popular GIS software. [GeoJSON](http://geojson.org/) is a standard format to encode Geographic data structures in a dictionary. We assume that you are working in the main repository in which you have a data repository. Write some files to a GeoJSON and shapefile:
 
@@ -312,9 +313,10 @@ print(list(wfs.contents))
 > **Question 3**: How many feature sets does this WFS contain?
 ```
 
-WFS give acces to data in vector format. , which allow a quick view of the data and make geodata accessible for all. If you want to do a large analysis, it is better to download the geodata from other available repositories and not from a WFS, as it typically has limits on the number of features that can be requested, such as 100 or 1000 features. In the WFS above, they are very generous with a limit of max 15.000 features per request.
+WFS give access to data in vector format and allow a quick view of the data making geodata accessible for everyone. If you want to do a large analysis, it is better to download geodata from other available repositories and not from a WFS, as it typically has limits on the number of features that can be requested, such as 100 or 1000 features. In the WFS above, they are very generous with a limit of max 15.000 features per request.
 
 Load some roads from the WFS service for the campus area and plot them:
+-----UPDATE NEEDED--------
 
 ```{Python, eval=FALSE}
 # Define center point and create bbox for study area
