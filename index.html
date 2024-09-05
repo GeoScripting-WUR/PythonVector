@@ -1099,7 +1099,8 @@ dependencies:
   - owslib
   - folium
   - osmnx
-  - contextily</code></pre>
+  - contextily
+  - geodatasets</code></pre>
 <p>Now, create the environment with:</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
@@ -1401,8 +1402,9 @@ href="http://www.opengeospatial.org/standards/wfs">Web Feature
 Service</a> (WFS) and <a
 href="http://www.opengeospatial.org/standards/wms">Web Map Service</a>
 (WMS). The standard web service protocols make it easy to access data.
-For example, the following WFS provides data from the administrative
-boundaries and is extracted from the Dutch Kadaster:</p>
+For example, the following WFS provides data from the central bureau of
+statistics, containing statistics about each postal code and is provided
+by the Dutch Kadaster:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1410,7 +1412,7 @@ boundaries and is extracted from the Dutch Kadaster:</p>
 <pre style=""><code class="source python">from owslib.wfs import WebFeatureService
 
 # Put the WFS url in a variable
-wfsUrl = 'https://service.pdok.nl/kadaster/bestuurlijkegebieden/wfs/v1_0?'
+wfsUrl = 'https://service.pdok.nl/cbs/postcode6/2022/wfs/v1_0?'
 
 # Create a WFS object
 wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
@@ -1438,8 +1440,8 @@ repositories and not from a WFS, as it typically has limits on the
 number of features that can be requested, such as 100 or 1000 features.
 In the WFS above, they are very generous with a limit of max 15.000
 features per request.</p>
-<p>Load some roads from the WFS service for the campus area and plot
-them: —–UPDATE NEEDED——–</p>
+<p>Load some postal code geometries from the WFS service for the campus
+area and plot them:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1452,15 +1454,15 @@ xmin, xmax, ymin, ymax = x - 1000, x + 350, y - 1000, y + 350
 response = wfs.getfeature(typename=list(wfs.contents)[0], bbox=(xmin, ymin, xmax, ymax))
 
 # Save them to disk
-with open('data/Roads.gml', 'wb') as file:
+with open('data/postal_codes.gml', 'wb') as file:
     file.write(response.read())
 
-# Read in again with GeoPandas
-roadsGDF = gpd.read_file('data/Roads.gml')
+# Read again with GeoPandas
+pc_gdf = gpd.read_file('data/postal_codes.gml')
 
 # Inspect and plot to get a quick view
-print(type(roadsGDF))
-roadsGDF.plot()
+print(type(pc_gdf))
+pc_gdf.plot()
 plt.show()</code></pre>
 </div>
 <p><img src="./images/roadsGDF.png" alt="Roads in Wageningen" width = "60%"></p>
@@ -1504,15 +1506,15 @@ buildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
 buildingsGDF.crs = 28992
 
 # Plot roads and buildings together
-roadlayer = roadsGDF.plot(color='grey')
-buildingsGDF.plot(ax=roadlayer, color='red')
+pc_layer = pc_gdf.plot(color='grey')
+buildingsGDF.plot(ax=pc_layer, color='red')
 
 # Set the limits of the x and y axis
-roadlayer.set_xlim(xmin, xmax)
-roadlayer.set_ylim(ymin, ymax)
+pc_layer.set_xlim(xmin, xmax)
+pc_layer.set_ylim(ymin, ymax)
 
 # Save the figure to disk
-plt.savefig('./output/BuildingsAndRoads.png')</code></pre>
+plt.savefig('./output/postalcoades_roads.png')</code></pre>
 </div>
 <p><img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%"></p>
 <div class="row">
@@ -1577,24 +1579,22 @@ largeBuildingsGDF = buildingsGDF.loc[buildingsGDF.area > 1000, :]
 # Plot
 largeBuildingsGDF.plot()</code></pre>
 </div>
-<p>Similarly, the <code>isin()</code> method of Series returns a Boolean
-vector that is true wherever the Series elements exist in the passed
-list. This allows selecting rows where one or more columns have the
-required value(s). Here we selected buildings that were under
-construction (status = building phase has started (‘Bouw gestart’)).
-Note that this might be outdated by the time you do this tutorial. If
-you only see one building (which causes the demo to be not-so-nice), try
-changing <code>Bouw gestart</code> to <code>Pand in gebruik</code> for
-an overview of buildings currently in use.</p>
+<p>When selecting rows based on a conditional rule we can ask pandas to
+check whether a value from a row is equal to a value. In the example
+below we select the rows where the buildings are not in use. We do this
+by checking where the state (‘status’ in Dutch) is not equal (!=) to in
+use (‘Pand in gebruik’). This returns a boolean array, which we can use
+to select rows. All rows where this array returns True are selected and
+the False rows are discarded.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python"># Inspect first
-print(buildingsGDF['status'].isin(['Bouw gestart']))
+print( buildingsGDF['status'] != 'Pand in gebruik' )
 
 # Make the selection, the list of required values can contain more than one item
-newBuildingsGDF = buildingsGDF[buildingsGDF['status'].isin(['Bouw gestart'])]
+newBuildingsGDF = buildingsGDF[buildingsGDF['status'] != 'Pand in gebruik']
 
 # Plot the new buildings with a basemap for reference
 # based on https://geopandas.org/gallery/plotting_basemap_background.html
@@ -1605,7 +1605,7 @@ newBuildingsGDF = newBuildingsGDF.to_crs(epsg=3857)
 
 # Plot with 50% transparency
 ax = newBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
-ctx.add_basemap(ax, source=ctx.providers.Stamen.TonerLite, zoom=17)
+ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, zoom=17)
 ax.set_axis_off()</code></pre>
 </div>
 <p><img src="./images/NewBuildings.png" alt="Parcels at Wageningen University Campus" width = "60%"></p>
@@ -1618,23 +1618,31 @@ methods</a> to modify the geometry: buffer, boundary, centroid, convex
 hull, envelope, simplify, unary union, rotate, scale, skew and
 translate. When modifying the geometries in the DataFrames, it is a good
 practice to keep track of your geometry types and your geometry data.
-Have a look at the geometry types of the roads.</p>
+Have a look at the geometry types of the rivers.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python">print(type(roadsGDF))
-print(type(roadsGDF.geometry))
-print(roadsGDF['geometry'])</code></pre>
+<pre style=""><code class="source python"># We will use a sample data library called geodatasets
+import geodatasets
+
+# For this example we will look at the european rivers
+riversGDF = gpd.read_file(geodatasets.get_path('eea.large_rivers'))
+rivers_GDF = riversGDF.to_crs(3857)
+
+
+print(type(riversGDF))
+print(type(riversGDF))
+print(riversGDF['geometry'])</code></pre>
 </div>
-<p>Let’s create a buffer around the roads to represent coverage of
-roads, assuming roads have all a width of 3 meters.</p>
+<p>Let’s create a buffer around the rivers to represent coverage of
+roads, assuming roads have all a width of 1000 meters.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python"># Buffer of 1.5 m on both sides
-roadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=1.5)) 
+riversbufferGDF = gpd.GeoDataFrame(riversGDF, geometry=riversGDF(distance=500)) 
 
 # Plot
 roadsPolygonGDF.plot(color='blue', edgecolor='blue')
@@ -1872,5 +1880,9 @@ Styled with
 <link rel="stylesheet" id="theme" href="https://netdna.bootstrapcdn.com/bootswatch/3.0.0/simplex/bootstrap.min.css" media="screen"></link><link rel="stylesheet" id="highlight" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/tomorrow-night-bright.min.css" media="screen"></link>
 </div></li>
 </ul>
+</div>
+</div>
+</div>
+</div>
 </body>
 </html>
