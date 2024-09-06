@@ -1465,7 +1465,7 @@ print(type(pc_gdf))
 pc_gdf.plot()
 plt.show()</code></pre>
 </div>
-<p><img src="./images/roadsGDF.png" alt="Roads in Wageningen" width = "60%"></p>
+<p><img src="./images/postal_codes.png" alt="Roads in Wageningen" width = "60%"></p>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
@@ -1514,9 +1514,9 @@ pc_layer.set_xlim(xmin, xmax)
 pc_layer.set_ylim(ymin, ymax)
 
 # Save the figure to disk
-plt.savefig('./output/postalcoades_roads.png')</code></pre>
+plt.savefig('./output/postalcodes_buildings.png')</code></pre>
 </div>
-<p><img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%"></p>
+<p><img src="./images/postalcodes_buildings.png" alt="Buildings in Wageningen" width = "60%"></p>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
@@ -1606,9 +1606,10 @@ newBuildingsGDF = newBuildingsGDF.to_crs(epsg=3857)
 # Plot with 50% transparency
 ax = newBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
 ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, zoom=17)
-ax.set_axis_off()</code></pre>
+ax.set_axis_off()
+plt.savefile()</code></pre>
 </div>
-<p><img src="./images/NewBuildings.png" alt="Parcels at Wageningen University Campus" width = "60%"></p>
+<p><img src="./images/unused_buildings.png" alt="Parcels at Wageningen University Campus" width = "60%"></p>
 <p>(Figures shown here and in the next section may differ slightly from
 the ones you obtain.)</p>
 <h1 id="geometric-manipulations">Geometric manipulations</h1>

@@ -339,7 +339,7 @@ pc_gdf.plot()
 plt.show()
 ```
 
-<img src="./images/roadsGDF.png" alt="Roads in Wageningen" width = "60%">
+<img src="./images/postal_codes.png" alt="Roads in Wageningen" width = "60%">
 
 
 ```{block, type="alert alert-success"}
@@ -380,10 +380,10 @@ pc_layer.set_xlim(xmin, xmax)
 pc_layer.set_ylim(ymin, ymax)
 
 # Save the figure to disk
-plt.savefig('./output/postalcoades_roads.png')
+plt.savefig('./output/postalcodes_buildings.png')
 ```
 
-<img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%">
+<img src="./images/postalcodes_buildings.png" alt="Buildings in Wageningen" width = "60%">
 
 ```{block, type="alert alert-success"}
 > **Question 5**: How many buildings do you get? (hint: _len()_) Do you miss buildings? How can we extract missing buildings in our extent?
@@ -447,9 +447,10 @@ newBuildingsGDF = newBuildingsGDF.to_crs(epsg=3857)
 ax = newBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
 ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, zoom=17)
 ax.set_axis_off()
+plt.savefile()
 ```
 
-<img src="./images/NewBuildings.png" alt="Parcels at Wageningen University Campus" width = "60%">
+<img src="./images/unused_buildings.png" alt="Parcels at Wageningen University Campus" width = "60%">
 
 (Figures shown here and in the next section may differ slightly from the ones you obtain.)
 
