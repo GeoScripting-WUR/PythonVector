@@ -57,20 +57,14 @@ The conda environment we are using today contains more (and larger) packages tha
 ```
 name: vector
 dependencies:
-  - python
-  - numpy
   - matplotlib
   - spyder
   - gdal
   - shapely
-  - pandas
-  - geopandas
-  - fiona
+  - geopandas=>1.0
   - owslib
-  - folium
   - osmnx
   - contextily
-  - geodatasets
 ```
 
 Now, create the environment with:
