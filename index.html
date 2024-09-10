@@ -61,10 +61,6 @@
     img {
       max-width: 100%;
     }
-    svg {
-      height: auto;
-      max-width: 100%;
-    }
     h1, h2, h3, h4, h5, h6 {
       margin-top: 1.4em;
     }
@@ -157,11 +153,8 @@
     div.columns{display: flex; gap: min(4vw, 1.5em);}
     div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
+    ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
       width: 0.8em;
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
@@ -1087,20 +1080,14 @@ it is the same. Create a text file, (re)name it (to)
 file:</p>
 <pre><code>name: vector
 dependencies:
-  - python
-  - numpy
   - matplotlib
   - spyder
   - gdal
   - shapely
-  - pandas
-  - geopandas
-  - fiona
+  - geopandas=&gt;1.0
   - owslib
-  - folium
   - osmnx
-  - contextily
-  - geodatasets</code></pre>
+  - contextily</code></pre>
 <p>Now, create the environment with:</p>
 <div class="row">
 <button class="source bash toggle btn btn-xs btn-primary">
@@ -1402,9 +1389,9 @@ href="http://www.opengeospatial.org/standards/wfs">Web Feature
 Service</a> (WFS) and <a
 href="http://www.opengeospatial.org/standards/wms">Web Map Service</a>
 (WMS). The standard web service protocols make it easy to access data.
-For example, the following WFS provides data from the central bureau of
-statistics, containing statistics about each postal code and is provided
-by the Dutch Kadaster:</p>
+For example, the following WFS provided by Rijkswaterstaat on roads and
+is extracted from the Dutch national database of roads in the
+Netherlands:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1412,7 +1399,7 @@ by the Dutch Kadaster:</p>
 <pre style=""><code class="source python">from owslib.wfs import WebFeatureService
 
 # Put the WFS url in a variable
-wfsUrl = 'https://service.pdok.nl/cbs/postcode6/2022/wfs/v1_0?'
+wfsUrl = 'https://geo.rijkswaterstaat.nl/services/ogc/gdr/nwb_wegen/ows?service=WFS&request=getcapabilities&version=2.0.0 '
 
 # Create a WFS object
 wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
@@ -1440,8 +1427,8 @@ repositories and not from a WFS, as it typically has limits on the
 number of features that can be requested, such as 100 or 1000 features.
 In the WFS above, they are very generous with a limit of max 15.000
 features per request.</p>
-<p>Load some postal code geometries from the WFS service for the campus
-area and plot them:</p>
+<p>Load some roads from the WFS service for the campus area and plot
+them:</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1451,28 +1438,27 @@ x, y = (173994.1578792833, 444133.60329471016)
 xmin, xmax, ymin, ymax = x - 1000, x + 350, y - 1000, y + 350
 
 # Get the features for the study area (using the wfs from the previous code block)
-response = wfs.getfeature(typename=list(wfs.contents)[0], bbox=(xmin, ymin, xmax, ymax))
+response = wfs.getfeature(typename=list(wfs.contents)[-1], bbox=(xmin, ymin, xmax, ymax))
 
 # Save them to disk
-with open('data/postal_codes.gml', 'wb') as file:
+with open('data/Roads.gml', 'wb') as file:
     file.write(response.read())
 
-# Read again with GeoPandas
-pc_gdf = gpd.read_file('data/postal_codes.gml')
+# Read in again with GeoPandas
+roadsGDF = gpd.read_file('data/Roads.gml')
 
 # Inspect and plot to get a quick view
-print(type(pc_gdf))
-pc_gdf.plot()
+print(type(roadsGDF))
+roadsGDF.plot()
 plt.show()</code></pre>
 </div>
-<p><img src="./images/postal_codes.png" alt="Roads in Wageningen" width = "60%"></p>
+<p><img src="./images/roadsGDF_1.png" alt="Roads in Wageningen" width = "60%"></p>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
 <p>
 <strong>Question 4</strong>: How many roads are there in the resulting
-GeoDataFrame (hint: <em>len()</em> or <em>.info()</em>)? Do we miss
-roads in the extent?
+GeoDataFrame (hint: len() or .info())? Do we miss roads in the extent?
 </p>
 </blockquote>
 </div>
@@ -1506,17 +1492,17 @@ buildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
 buildingsGDF.crs = 28992
 
 # Plot roads and buildings together
-pc_layer = pc_gdf.plot(color='grey')
-buildingsGDF.plot(ax=pc_layer, color='red')
+roadlayer = roadsGDF.plot(color='grey')
+buildingsGDF.plot(ax=roadlayer, color='red')
 
 # Set the limits of the x and y axis
-pc_layer.set_xlim(xmin, xmax)
-pc_layer.set_ylim(ymin, ymax)
+roadlayer.set_xlim(xmin, xmax)
+roadlayer.set_ylim(ymin, ymax)
 
 # Save the figure to disk
-plt.savefig('./output/postalcodes_buildings.png')</code></pre>
+plt.savefig('./output/BuildingsAndRoads.png')</code></pre>
 </div>
-<p><img src="./images/postalcodes_buildings.png" alt="Buildings in Wageningen" width = "60%"></p>
+<p><img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%"></p>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
@@ -1555,10 +1541,10 @@ look at the construction year (‘bouwjaar’) of the buildings.</p>
 print(buildingsGDF['bouwjaar'])</code></pre>
 </div>
 <p>For selecting rows, GeoPandas inherits the pandas methods for
-selecting data: label based indexing with <code>loc</code>, and integer
-position based indexing with <code>iloc</code>, which apply to both
-<code>GeoSeries</code> and <code>GeoDataFrame</code> objects. For more
-information on indexing/selecting, see the <a
+selecting data: label-based indexing with <code>loc</code>, and
+integer-position- based indexing with <code>iloc</code>, which apply to
+both <code>GeoSeries</code> and <code>GeoDataFrame</code> objects. For
+more information on indexing/selecting, see the <a
 href="https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html">pandas
 documentation</a>. In addition to these, GeoPandas provides coordinate
 based indexing with the <code>cx</code> indexer, which slices using a
@@ -1580,12 +1566,12 @@ largeBuildingsGDF = buildingsGDF.loc[buildingsGDF.area > 1000, :]
 largeBuildingsGDF.plot()</code></pre>
 </div>
 <p>When selecting rows based on a conditional rule we can ask pandas to
-check whether a value from a row is equal to a value. In the example
-below we select the rows where the buildings are not in use. We do this
-by checking where the state (‘status’ in Dutch) is not equal (!=) to in
-use (‘Pand in gebruik’). This returns a boolean array, which we can use
-to select rows. All rows where this array returns True are selected and
-the False rows are discarded.</p>
+check whether a value from a row is equal to a specific value. In the
+example below we select the rows where the buildings are not in use. We
+do this by checking where the state (‘status’ in Dutch) is not equal
+(!=) to in use (‘Pand in gebruik’). This returns a boolean array, which
+we can use to select rows. All rows where this array returns True are
+selected and the False rows are discarded.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
@@ -1606,8 +1592,7 @@ newBuildingsGDF = newBuildingsGDF.to_crs(epsg=3857)
 # Plot with 50% transparency
 ax = newBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
 ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, zoom=17)
-ax.set_axis_off()
-plt.savefile()</code></pre>
+ax.set_axis_off()</code></pre>
 </div>
 <p><img src="./images/unused_buildings.png" alt="Parcels at Wageningen University Campus" width = "60%"></p>
 <p>(Figures shown here and in the next section may differ slightly from
@@ -1619,31 +1604,23 @@ methods</a> to modify the geometry: buffer, boundary, centroid, convex
 hull, envelope, simplify, unary union, rotate, scale, skew and
 translate. When modifying the geometries in the DataFrames, it is a good
 practice to keep track of your geometry types and your geometry data.
-Have a look at the geometry types of the rivers.</p>
+Have a look at the geometry types of the roads.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python"># We will use a sample data library called geodatasets
-import geodatasets
-
-# For this example we will look at the european rivers
-riversGDF = gpd.read_file(geodatasets.get_path('eea.large_rivers'))
-rivers_GDF = riversGDF.to_crs(3857)
-
-
-print(type(riversGDF))
-print(type(riversGDF))
-print(riversGDF['geometry'])</code></pre>
+<pre style=""><code class="source python">print(type(roadsGDF))
+print(type(roadsGDF.geometry))
+print(roadsGDF['geometry'])</code></pre>
 </div>
-<p>Let’s create a buffer around the rivers to represent coverage of
-roads, assuming roads have all a width of 1000 meters.</p>
+<p>Let’s create a buffer around the roads to represent coverage of
+roads, assuming roads have all a width of 3 meters.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
 <pre style=""><code class="source python"># Buffer of 1.5 m on both sides
-riversbufferGDF = gpd.GeoDataFrame(riversGDF, geometry=riversGDF(distance=500)) 
+roadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=1.5)) 
 
 # Plot
 roadsPolygonGDF.plot(color='blue', edgecolor='blue')
@@ -1653,15 +1630,15 @@ print(roadsPolygonGDF.area.sum())</code></pre>
 </div>
 <p>As we created buffers around many connected lines, we expect overlap
 of these buffer features. Therefore, let us merge all road buffer
-(polygon) features together in a <code>unary_union</code> and check
-again for the total coverage of buffers.</p>
+(polygon) features together and check again for the total coverage of
+buffers.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python"># Apply unary_union
+<pre style=""><code class="source python"># Apply unary_all()
 # This returns a geometry, which we convert to a GeoSeries to be able to apply GeoPandas methods again
-roadsUnionGS = gpd.GeoSeries(roadsPolygonGDF.unary_union)
+roadsUnionGS = gpd.GeoSeries(roadsPolygonGDF.union_all())
 
 # Check the new total coverage of buffers and compute the overlap
 print(roadsUnionGS.area)
@@ -1686,7 +1663,7 @@ have?
 </blockquote>
 </div>
 </div>
-GeoPandas can perform various <a
+<p>GeoPandas can perform various <a
 href="http://geopandas.org/set_operations.html">overlay operations</a>:
 intersection, union, symmetrical difference and difference. We will clip
 the roads with convexed parcels by using intersection. As an example,
@@ -1694,16 +1671,19 @@ let us focus on the area around the new buildings on the campus and
 extract the existing roads close to them. To do so we buffer the new
 buildings with 100 meter, merge them with a <code>unary_union</code> and
 create a convex hull around the merged (multipolygon) buildings. Finally
-we clip the roads with this single polygon.
+we clip the roads with this single polygon.</p>
 <div class="row">
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python"># Re-project
+<pre style=""><code class="source python"># Specify the coordinate system for roads
+roadsPolygonGDF.crs = 28992
+
+# Re-project new buildings dataset
 newBuildingsGDF = newBuildingsGDF.to_crs(epsg=28992)
 
 # Buffer, returns geometry, convert to GeoSeries
-areaOfInterestGS = gpd.GeoSeries(newBuildingsGDF.buffer(distance=100).unary_union)
+areaOfInterestGS = gpd.GeoSeries(newBuildingsGDF.buffer(distance=100).union_all())
 
 # Convex hull, returns a GeoSeries of geometries, convert to GeoDataFrame
 areaOfInterestGDF = gpd.GeoDataFrame(areaOfInterestGS.convex_hull)
@@ -1717,8 +1697,6 @@ roadsIntersectionGDF = gpd.overlay(areaOfInterestGDF, roadsPolygonGDF, how="inte
 
 # Plot the results
 roadlayer = roadsIntersectionGDF.plot(color='grey', edgecolor='grey')
-roadlayer.set_xlim(xmin, xmax)
-roadlayer.set_ylim(ymin, ymax)
 newBuildingsGDF.plot(ax=roadlayer, color='red')</code></pre>
 </div>
 <p><img src="./images/roadsIntersectionGDF.png" alt="New buildings at Wageningen University Campus and roads close to it" width = "60%"></p>
@@ -1731,8 +1709,8 @@ Municipality.</p>
 <button class="source Python toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> Python source
 </button>
-<pre style=""><code class="source python"># Put the WFS url in a variable
-wfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
+<pre style=""><code class="source python"># Put the WFS url in a variable again
+wfsUrl = 'https://geo.rijkswaterstaat.nl/services/ogc/gdr/nwb_wegen/ows?service=WFS&request=getcapabilities&version=2.0.0'
 
 # Create a WFS object
 wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
@@ -1742,7 +1720,7 @@ x, y = (173994.1578792833, 444133.60329471016)
 xmin, xmax, ymin, ymax = x - 3000, x + 3000, y - 3000, y + 3000
 
 # Get the features for the study area
-response = wfs.getfeature(typename=list(wfs.contents)[0], bbox=(xmin, ymin, xmax, ymax))
+response = wfs.getfeature(typename=list(wfs.contents)[-1], bbox=(xmin, ymin, xmax, ymax))
 roadsGDF = gpd.read_file(response)
 
 # Select the roads within Wageningen municipality
@@ -1772,8 +1750,8 @@ Open Street Map as a graph, plots it, and saves it.</p>
 
 # Using a geocoder to get the extent
 city = ox.geocoder.geocode_to_gdf('Wageningen, Netherlands')
-ox.plot.plot_footprints(ox.project_gdf(city))
-
+ox.plot.plot_footprints(ox.project_gdf(city), color='lightblue', bgcolor='#FFFFFF', 
+                        alpha=0.8, edge_color='grey', edge_linewidth=2)
 # Get bike network and create graph
 wageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', network_type='bike')
 
@@ -1804,7 +1782,7 @@ source = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.665779, 51.987817)
 target = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.662409, 51.964870)
 
 # Compute shortest path 
-shortestroute = ox.distance.shortest_path(G=wageningenRoadsGraph, orig=source, 
+shortestroute = ox.routing.shortest_path(G=wageningenRoadsGraph, orig=source, 
                                           dest=target, weight='length')
 
 # Plot
@@ -1838,6 +1816,10 @@ campusMap = folium.Map([51.98527485, 5.66370505205543], zoom_start=17)
 
 # Re-project
 buildingsGDF = buildingsGDF.to_crs(4326)
+
+# Remove Timestamp objects
+roadsPolygonGDF = roadsPolygonGDF.drop(columns=['wvk_begdat'])
+  # Folium does not support Timestamp objects, thus this column has to be dropped
 roadsPolygonGDF = roadsPolygonGDF.to_crs(4326)
 
 # Add the buildings
@@ -1850,11 +1832,13 @@ folium.Choropleth(buildingsGDF, name='Building construction years',
 # Add the roads
 folium.GeoJson(roadsPolygonGDF).add_to(campusMap)
 
+# roadsPolygonGDF.explore()
+
 # Add layer control
 folium.LayerControl().add_to(campusMap)
 
 # Save (you can now open the generated .html file from the output directory)
-campusMap.save('output/campusMap.html')</code></pre>
+campusMap.save('./output/campusMap.html')</code></pre>
 </div>
 <h1 id="more-info">More info</h1>
 <ul>
@@ -1881,9 +1865,5 @@ Styled with
 <link rel="stylesheet" id="theme" href="https://netdna.bootstrapcdn.com/bootswatch/3.0.0/simplex/bootstrap.min.css" media="screen"></link><link rel="stylesheet" id="highlight" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/tomorrow-night-bright.min.css" media="screen"></link>
 </div></li>
 </ul>
-</div>
-</div>
-</div>
-</div>
 </body>
 </html>

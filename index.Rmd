@@ -57,20 +57,14 @@ The conda environment we are using today contains more (and larger) packages tha
 ```
 name: vector
 dependencies:
-  - python
-  - numpy
   - matplotlib
   - spyder
   - gdal
   - shapely
-  - pandas
-  - geopandas
-  - fiona
+  - geopandas=>1.0
   - owslib
-  - folium
   - osmnx
   - contextily
-  - geodatasets
 ```
 
 Now, create the environment with:
@@ -292,13 +286,15 @@ shpGDF = gpd.read_file('data/wageningenPOI.shp')
 
 # Reading from webservices
 
-The web has a lot of geodata available. The Open GeoSpatial Consortium ([OGC](https://www.ogc.org/)) has specified standard protocols for geo-webservices, such as [Web Feature Service](http://www.opengeospatial.org/standards/wfs) (WFS) and [Web Map Service](http://www.opengeospatial.org/standards/wms) (WMS). The standard web service protocols make it easy to access data. For example, the following WFS provides data from the central bureau of statistics, containing statistics about each postal code and is provided by the Dutch Kadaster:
+The web has a lot of geodata available. The Open GeoSpatial Consortium ([OGC](https://www.ogc.org/)) has specified standard protocols for geo-webservices, such as [Web Feature Service](http://www.opengeospatial.org/standards/wfs) (WFS) and [Web Map Service](http://www.opengeospatial.org/standards/wms) (WMS). The standard web service protocols make it easy to access data. For example, the following WFS provided by Rijkswaterstaat on roads and is extracted from the Dutch national database of roads in the Netherlands:
+
+
 
 ```{Python, eval=FALSE}
 from owslib.wfs import WebFeatureService
 
 # Put the WFS url in a variable
-wfsUrl = 'https://service.pdok.nl/cbs/postcode6/2022/wfs/v1_0?'
+wfsUrl = 'https://geo.rijkswaterstaat.nl/services/ogc/gdr/nwb_wegen/ows?service=WFS&request=getcapabilities&version=2.0.0 '
 
 # Create a WFS object
 wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
@@ -316,7 +312,7 @@ print(list(wfs.contents))
 
 WFS give access to data in vector format and allow a quick view of the data making geodata accessible for everyone. If you want to do a large analysis, it is better to download geodata from other available repositories and not from a WFS, as it typically has limits on the number of features that can be requested, such as 100 or 1000 features. In the WFS above, they are very generous with a limit of max 15.000 features per request.
 
-Load some postal code geometries from the WFS service for the campus area and plot them:
+Load some roads from the WFS service for the campus area and plot them:
 
 ```{Python, eval=FALSE}
 # Define center point and create bbox for study area
@@ -324,26 +320,26 @@ x, y = (173994.1578792833, 444133.60329471016)
 xmin, xmax, ymin, ymax = x - 1000, x + 350, y - 1000, y + 350
 
 # Get the features for the study area (using the wfs from the previous code block)
-response = wfs.getfeature(typename=list(wfs.contents)[0], bbox=(xmin, ymin, xmax, ymax))
+response = wfs.getfeature(typename=list(wfs.contents)[-1], bbox=(xmin, ymin, xmax, ymax))
 
 # Save them to disk
-with open('data/postal_codes.gml', 'wb') as file:
+with open('data/Roads.gml', 'wb') as file:
     file.write(response.read())
 
-# Read again with GeoPandas
-pc_gdf = gpd.read_file('data/postal_codes.gml')
+# Read in again with GeoPandas
+roadsGDF = gpd.read_file('data/Roads.gml')
 
 # Inspect and plot to get a quick view
-print(type(pc_gdf))
-pc_gdf.plot()
+print(type(roadsGDF))
+roadsGDF.plot()
 plt.show()
-```
+``` 
 
-<img src="./images/postal_codes.png" alt="Roads in Wageningen" width = "60%">
+<img src="./images/roadsGDF_1.png" alt="Roads in Wageningen" width = "60%">
 
 
 ```{block, type="alert alert-success"}
-> **Question 4**: How many roads are there in the resulting GeoDataFrame (hint: _len()_ or _.info()_)? Do we miss roads in the extent?
+> **Question 4**: How many roads are there in the resulting GeoDataFrame (hint: len() or .info())? Do we miss roads in the extent?
 ```
 
 Now let's load some buildings from another WFS service (BAG) and plot them too. 
@@ -372,18 +368,18 @@ buildingsGDF = gpd.GeoDataFrame.from_features(data['features'])
 buildingsGDF.crs = 28992
 
 # Plot roads and buildings together
-pc_layer = pc_gdf.plot(color='grey')
-buildingsGDF.plot(ax=pc_layer, color='red')
+roadlayer = roadsGDF.plot(color='grey')
+buildingsGDF.plot(ax=roadlayer, color='red')
 
 # Set the limits of the x and y axis
-pc_layer.set_xlim(xmin, xmax)
-pc_layer.set_ylim(ymin, ymax)
+roadlayer.set_xlim(xmin, xmax)
+roadlayer.set_ylim(ymin, ymax)
 
 # Save the figure to disk
-plt.savefig('./output/postalcodes_buildings.png')
+plt.savefig('./output/BuildingsAndRoads.png')
 ```
 
-<img src="./images/postalcodes_buildings.png" alt="Buildings in Wageningen" width = "60%">
+<img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%">
 
 ```{block, type="alert alert-success"}
 > **Question 5**: How many buildings do you get? (hint: _len()_) Do you miss buildings? How can we extract missing buildings in our extent?
@@ -411,7 +407,7 @@ Columns can be selected using the name of the column. Let us take a look at the 
 print(buildingsGDF['bouwjaar'])
 ```
 
-For selecting rows, GeoPandas inherits the pandas methods for selecting data: label based indexing with `loc`, and integer position based indexing with `iloc`, which apply to both `GeoSeries` and `GeoDataFrame` objects. For more information on indexing/selecting, see the [pandas documentation](https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html). In addition to these, GeoPandas provides coordinate based indexing with the `cx` indexer, which slices using a bounding box. 
+For selecting rows, GeoPandas inherits the pandas methods for selecting data: label-based indexing with `loc`, and integer-position- based indexing with `iloc`, which apply to both `GeoSeries` and `GeoDataFrame` objects. For more information on indexing/selecting, see the [pandas documentation](https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html). In addition to these, GeoPandas provides coordinate based indexing with the `cx` indexer, which slices using a bounding box. 
 
 Let us select buildings (rows) with a larger surface area than 1000 m2 with the `.loc` method.
 
@@ -427,7 +423,7 @@ largeBuildingsGDF = buildingsGDF.loc[buildingsGDF.area > 1000, :]
 largeBuildingsGDF.plot()
 ```
 
-When selecting rows based on a conditional rule we can ask pandas to check whether a value from a row is equal to a value. In the example below we select the rows where the buildings are not in use. We do this by checking where the state ('status' in Dutch) is not equal (!=) to in use ('Pand in gebruik'). This returns a boolean array, which we can use to select rows. All rows where this array returns True are selected and the False rows are discarded. 
+When selecting rows based on a conditional rule we can ask pandas to check whether a value from a row is equal to a specific value. In the example below we select the rows where the buildings are not in use. We do this by checking where the state ('status' in Dutch) is not equal (!=) to in use ('Pand in gebruik'). This returns a boolean array, which we can use to select rows. All rows where this array returns True are selected and the False rows are discarded. 
 
 ```{Python, eval=FALSE}
 # Inspect first
@@ -447,7 +443,6 @@ newBuildingsGDF = newBuildingsGDF.to_crs(epsg=3857)
 ax = newBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
 ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, zoom=17)
 ax.set_axis_off()
-plt.savefile()
 ```
 
 <img src="./images/unused_buildings.png" alt="Parcels at Wageningen University Campus" width = "60%">
@@ -456,27 +451,19 @@ plt.savefile()
 
 # Geometric manipulations
 
-GeoDataFrames and GeoSeries have several [constructive methods](http://geopandas.org/geometric_manipulations.html) to modify the geometry: buffer, boundary, centroid, convex hull, envelope, simplify, unary union, rotate, scale, skew and translate. When modifying the geometries in the DataFrames, it is a good practice to keep track of your geometry types and your geometry data. Have a look at the geometry types of the rivers.
+GeoDataFrames and GeoSeries have several [constructive methods](http://geopandas.org/geometric_manipulations.html) to modify the geometry: buffer, boundary, centroid, convex hull, envelope, simplify, unary union, rotate, scale, skew and translate. When modifying the geometries in the DataFrames, it is a good practice to keep track of your geometry types and your geometry data. Have a look at the geometry types of the roads.
 
 ```{Python, eval=FALSE}
-# We will use a sample data library called geodatasets
-import geodatasets
-
-# For this example we will look at the european rivers
-riversGDF = gpd.read_file(geodatasets.get_path('eea.large_rivers'))
-rivers_GDF = riversGDF.to_crs(3857)
-
-
-print(type(riversGDF))
-print(type(riversGDF))
-print(riversGDF['geometry'])
+print(type(roadsGDF))
+print(type(roadsGDF.geometry))
+print(roadsGDF['geometry'])
 ```
 
-Let's create a buffer around the rivers to represent coverage of roads, assuming roads have all a width of 1000 meters.
+Let’s create a buffer around the roads to represent coverage of roads, assuming roads have all a width of 3 meters.
 
 ```{Python, eval=FALSE}
 # Buffer of 1.5 m on both sides
-riversbufferGDF = gpd.GeoDataFrame(riversGDF, geometry=riversGDF(distance=500)) 
+roadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=1.5)) 
 
 # Plot
 roadsPolygonGDF.plot(color='blue', edgecolor='blue')
@@ -485,12 +472,12 @@ roadsPolygonGDF.plot(color='blue', edgecolor='blue')
 print(roadsPolygonGDF.area.sum())
 ```
 
-As we created buffers around many connected lines, we expect overlap of these buffer features. Therefore, let us merge all road buffer (polygon) features together in a `unary_union` and check again for the total coverage of buffers.
+As we created buffers around many connected lines, we expect overlap of these buffer features. Therefore, let us merge all road buffer (polygon) features together and check again for the total coverage of buffers.
 
 ```{Python, eval=FALSE}
-# Apply unary_union
+# Apply unary_all()
 # This returns a geometry, which we convert to a GeoSeries to be able to apply GeoPandas methods again
-roadsUnionGS = gpd.GeoSeries(roadsPolygonGDF.unary_union)
+roadsUnionGS = gpd.GeoSeries(roadsPolygonGDF.union_all())
 
 # Check the new total coverage of buffers and compute the overlap
 print(roadsUnionGS.area)
@@ -506,12 +493,16 @@ print('There was an overlap of ' + round((roadsPolygonGDF.area.sum() - roadsUnio
 ```
 
 GeoPandas can perform various [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. We will clip the roads with convexed parcels by using intersection. As an example, let us focus on the area around the new buildings on the campus and extract the existing roads close to them. To do so we buffer the new buildings with 100 meter, merge them with a `unary_union` and create a convex hull around the merged (multipolygon) buildings. Finally we clip the roads with this single polygon.
+
 ```{Python, eval=FALSE}
-# Re-project
+# Specify the coordinate system for roads
+roadsPolygonGDF.crs = 28992
+
+# Re-project new buildings dataset
 newBuildingsGDF = newBuildingsGDF.to_crs(epsg=28992)
 
 # Buffer, returns geometry, convert to GeoSeries
-areaOfInterestGS = gpd.GeoSeries(newBuildingsGDF.buffer(distance=100).unary_union)
+areaOfInterestGS = gpd.GeoSeries(newBuildingsGDF.buffer(distance=100).union_all())
 
 # Convex hull, returns a GeoSeries of geometries, convert to GeoDataFrame
 areaOfInterestGDF = gpd.GeoDataFrame(areaOfInterestGS.convex_hull)
@@ -525,8 +516,6 @@ roadsIntersectionGDF = gpd.overlay(areaOfInterestGDF, roadsPolygonGDF, how="inte
 
 # Plot the results
 roadlayer = roadsIntersectionGDF.plot(color='grey', edgecolor='grey')
-roadlayer.set_xlim(xmin, xmax)
-roadlayer.set_ylim(ymin, ymax)
 newBuildingsGDF.plot(ax=roadlayer, color='red')
 ```
 
@@ -535,8 +524,8 @@ newBuildingsGDF.plot(ax=roadlayer, color='red')
 In summary, the advantage of GeoPandas is that it allows both geometric and dataframe manipulations/selections. As a result, GeoPandas can for example select the roads within a set bounding box **and** within (and maintained by) Wageningen Municipality.
 
 ```{Python, eval=FALSE}
-# Put the WFS url in a variable
-wfsUrl = 'https://geodata.nationaalgeoregister.nl/nwbwegen/wfs?'
+# Put the WFS url in a variable again
+wfsUrl = 'https://geo.rijkswaterstaat.nl/services/ogc/gdr/nwb_wegen/ows?service=WFS&request=getcapabilities&version=2.0.0'
 
 # Create a WFS object
 wfs = WebFeatureService(url=wfsUrl, version='2.0.0')
@@ -546,7 +535,7 @@ x, y = (173994.1578792833, 444133.60329471016)
 xmin, xmax, ymin, ymax = x - 3000, x + 3000, y - 3000, y + 3000
 
 # Get the features for the study area
-response = wfs.getfeature(typename=list(wfs.contents)[0], bbox=(xmin, ymin, xmax, ymax))
+response = wfs.getfeature(typename=list(wfs.contents)[-1], bbox=(xmin, ymin, xmax, ymax))
 roadsGDF = gpd.read_file(response)
 
 # Select the roads within Wageningen municipality
@@ -569,8 +558,8 @@ import osmnx as ox
 
 # Using a geocoder to get the extent
 city = ox.geocoder.geocode_to_gdf('Wageningen, Netherlands')
-ox.plot.plot_footprints(ox.project_gdf(city))
-
+ox.plot.plot_footprints(ox.project_gdf(city), color='lightblue', bgcolor='#FFFFFF', 
+                        alpha=0.8, edge_color='grey', edge_linewidth=2)
 # Get bike network and create graph
 wageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', network_type='bike')
 
@@ -596,7 +585,7 @@ source = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.665779, 51.987817)
 target = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.662409, 51.964870)
 
 # Compute shortest path 
-shortestroute = ox.distance.shortest_path(G=wageningenRoadsGraph, orig=source, 
+shortestroute = ox.routing.shortest_path(G=wageningenRoadsGraph, orig=source, 
                                           dest=target, weight='length')
 
 # Plot
@@ -622,6 +611,10 @@ campusMap = folium.Map([51.98527485, 5.66370505205543], zoom_start=17)
 
 # Re-project
 buildingsGDF = buildingsGDF.to_crs(4326)
+
+# Remove Timestamp objects
+roadsPolygonGDF = roadsPolygonGDF.drop(columns=['wvk_begdat'])
+  # Folium does not support Timestamp objects, thus this column has to be dropped
 roadsPolygonGDF = roadsPolygonGDF.to_crs(4326)
 
 # Add the buildings
@@ -634,11 +627,13 @@ folium.Choropleth(buildingsGDF, name='Building construction years',
 # Add the roads
 folium.GeoJson(roadsPolygonGDF).add_to(campusMap)
 
+# roadsPolygonGDF.explore()
+
 # Add layer control
 folium.LayerControl().add_to(campusMap)
 
 # Save (you can now open the generated .html file from the output directory)
-campusMap.save('output/campusMap.html')
+campusMap.save('./output/campusMap.html')
 ```
 
 # More info
