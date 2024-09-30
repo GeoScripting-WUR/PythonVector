@@ -589,10 +589,12 @@ shortestroute = ox.routing.shortest_path(G=wageningenRoadsGraph, orig=source,
                                           dest=target, weight='length')
 
 # Plot
-ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20, 20), 
+fig, ax = ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=(20, 20), 
                          route_alpha=0.6, route_color='darkred',  bgcolor='white', 
                          node_color='darkgrey', edge_color='darkgrey',
                          route_linewidth=10, orig_dest_size=100)
+
+fig.show()
 ```
 
 <img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%">
