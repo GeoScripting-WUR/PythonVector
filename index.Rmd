@@ -41,39 +41,26 @@ Today we will explore a variety of Python packages for vector data handling:
 - Be able to plot spatial vector data with Matplotlib
 
 ## Setting up the Python Environment
-
-Make a directory structure for this tutorial:
+Open Positron and create a new directory for this tutorial using pixi:
 
 ```{r, eval=FALSE,engine='bash'}
 cd ~/Documents/
-mkdir PythonVector #or give the directory a name to your liking
-cd ./PythonVector
-mkdir data
-mkdir output
+pixi init PythonVector #or give the directory a name to your liking
 ```
 
-The conda environment we are using today contains more (and larger) packages than yesterday, but the process we use to create and activate it is the same. Create a text file, (re)name it (to) `vector.yaml`, and copy the following content into the file:
+The environment we are using today contains more (and larger) packages than yesterday, but the process we use to create and activate it is the same. Add the following packages into the environment:
 
 ```
-name: vector
-dependencies:
-  - matplotlib
-  - spyder
-  - gdal
-  - shapely
-  - geopandas=>1.0
-  - owslib
-  - osmnx
-  - contextily
+pixi add matplotlib spyder gdal shapely geopandas>=1.0 owslib osmnx contextily
 ```
 
-Now, create the environment with:
+Activate the shell:
 
-```{r, eval=FALSE,engine='bash'}
-mamba env create --file vector.yaml
+```
+pixi shell
 ```
 
-Activate the environment, open Spyder, create a script in the root directory and start coding.
+Then create a script in the root directory and start coding.
 
 # Vector Geometries and Python
 
@@ -441,7 +428,8 @@ newBuildingsGDF = newBuildingsGDF.to_crs(epsg=3857)
 
 # Plot with 50% transparency
 ax = newBuildingsGDF.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
-ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, zoom=17)
+#Load basemap
+ctx.add_basemap(ax, zoom=17) #Basemap can be adjusted using the 'source' argument of add_basemap()
 ax.set_axis_off()
 ```
 
@@ -558,17 +546,17 @@ import osmnx as ox
 
 # Using a geocoder to get the extent
 city = ox.geocoder.geocode_to_gdf('Wageningen, Netherlands')
-ox.plot.plot_footprints(ox.project_gdf(city), color='lightblue', bgcolor='#FFFFFF', 
-                        alpha=0.8, edge_color='grey', edge_linewidth=2)
+city.plot(color = 'lightblue', edgecolor = 'grey', linewidth = 0.5, alpha = 0.8)
+
 # Get bike network and create graph
 wageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', network_type='bike')
 
 # Plot and save
 ox.plot.plot_graph(wageningenRoadsGraph, figsize=(10, 10), node_size=2)
-ox.io.save_graph_shapefile(G=wageningenRoadsGraph, filepath='data/OSMnetwork_Wageningen.shp')
+gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=wageningenRoadsGraph)
+gdf_edges.to_file('./output/OSMnetwork_Wageningen.shp', driver='ESRI Shapefile')
 
 # Metadata
-gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=wageningenRoadsGraph)
 print(gdf_nodes.info())
 print(gdf_edges.info())
 ```
@@ -608,8 +596,8 @@ Folium uses leaflet on the backend to make web maps, easily visualized on a webp
 ```{Python, eval=FALSE}
 import folium
 
-# Initialize the map
-campusMap = folium.Map([51.98527485, 5.66370505205543], zoom_start=17)
+# Initialize the map with satellite basemap
+campusMap = folium.Map([51.98527485, 5.66370505205543], tiles = "https://server.arcgisonline.com/ArcGIS/rest/services/""World_Imagery/MapServer/tile/{z}/{y}/{x}", attr = "Tiles © ESRI", zoom_start=17)
 
 # Re-project
 buildingsGDF = buildingsGDF.to_crs(4326)
