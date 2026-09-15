@@ -1,7 +1,7 @@
 
 ---
 pagetitle: "Vector data handling with Python"
-author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil"
+author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil, Paolo Dal Lago"
 date: today
 engine: knitr
 format:
@@ -211,7 +211,7 @@ print(type(wageningenGDF), len(wageningenGDF))
 Geopandas provides a high-level interface to the Matplotlib library (see previous tutorial) for visualization. Vector data can simply be mapped by using the `plot()` method in a `GeoSeries` or `GeoDataFrame`. Several other arguments to customize the plot can still be used. Note that the aspect of the axes (see previous tutorial) is set to equal automatically when using Geopandas plot, i.e. the horizontal and vertical scale are automatically made the same.
 
 ```{python}
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 
 # Plotting a map of the GeoDataFrame directly
 wageningenGDF.plot(marker='*', color='green', markersize=50)
