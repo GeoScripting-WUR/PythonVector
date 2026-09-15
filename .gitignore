@@ -2,4 +2,15 @@
 .Rhistory
 .RData
 .Ruserdata
-.idea
+
+
+/.quarto/
+**/*.quarto_ipynb
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+cache/
+_site/
+data/
+
