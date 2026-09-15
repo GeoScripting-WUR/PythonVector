@@ -52,7 +52,7 @@ epsg = 3034
 
 # ax.set_title("Lambert Azimuthal Equal Area Projection")
 # ax.coastlines(linewidth=0.5)
-
+gj['features'][1:3]
 # riversGDF.plot(ax=ax, color='blue', linewidth=1)
 
 
@@ -66,6 +66,7 @@ nax = plt.subplot(1, 1, 1, projection=projEU)
 # nax.set_extent(buildings_3857.total_bounds, crs=projEU)
 
 building_axes = buildings_3857.plot(ax=nax, crs=projEU)
+plt.show()
 # riversbufferGDF = gpd.GeoDataFrame(riversGDF, geometry=riversGDF.buffer(distance=10000)) 
 
 # riversbufferGDF.plot(ax=ax, facecolor = 'blue')
