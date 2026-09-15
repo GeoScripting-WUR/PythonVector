@@ -1,23 +1,40 @@
+
 ---
 pagetitle: "Vector data handling with Python"
-author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
-output:
-  knitrBootstrap::bootstrap_document:
-    title: "Vector data handling with Python"
-    theme: "simplex"
-    highlight: Tomorrow Night Bright
-    menu: FALSE
-    theme.chooser: TRUE
-    highlight.chooser: TRUE
+author: "Jan Verbesselt, Jorge Mendes de Jesus, Aldo Bergsma, Dainius Masiliunas, David Swinkels, Judith Verstegen, Corné Vreugdenhil, Paolo Dal Lago"
+date: today
+engine: knitr
+format:
+  html:
+    theme: simplex
+    highlight-style: zenburn
+    toc: true
+    toc-location: right
+    css: styles.css
+    lightbox: true
+execute:
+  eval: true
+  echo: true
 ---
 
-<style type="text/css">
-body {max-width: none;}
-a:visited {color: #91170a;}
-</style>
 
-# [WUR Geoscripting](https://geoscripting-wur.github.io/) <img src="https://www.wur.nl/upload/854757ab-168f-46d7-b415-f8b501eebaa5_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/>
+``` {r}
+#| include: false
+# This is necessary to show outputs for students, 
+# the include is false hides this for the students. 
+reticulate::py_require("matplotlib")
+reticulate::py_require("shapely")
+reticulate::py_require("geopandas")
+reticulate::py_require("owslib")
+reticulate::py_require("osmnx")
+reticulate::py_require("contextily")
+reticulate::py_require("scikit-learn")
+reticulate::py_require("folium")
+```
+
+
+
+[[WUR Geoscripting](https://geoscripting-wur.github.io/)]{.page-header-title} <img src="https://geoscripting-wur.github.io/figs/WUR_RGB_standard_2025.svg" alt="WUR logo" class="page-header-logo"/>
 
 # Vector data handling with Python
 
@@ -43,20 +60,19 @@ Today we will explore a variety of Python packages for vector data handling:
 ## Setting up the Python Environment
 Open Positron and create a new directory for this tutorial using pixi:
 
-```{r, eval=FALSE,engine='bash'}
-cd ~/Documents/
+```{bash, eval=FALSE}
 pixi init PythonVector #or give the directory a name to your liking
 ```
 
 The environment we are using today contains more (and larger) packages than yesterday, but the process we use to create and activate it is the same. Add the following packages into the environment:
 
-```
-pixi add matplotlib spyder gdal shapely geopandas>=1.0 owslib osmnx contextily
+```{bash, eval=FALSE}
+pixi add python matplotlib gdal shapely geopandas>=1.0 owslib osmnx contextily folium
 ```
 
 Activate the shell:
 
-```
+```{bash, eval=FALSE}
 pixi shell
 ```
 
@@ -91,7 +107,7 @@ WKT ([Well Known Text](https://en.wikipedia.org/wiki/Well-known_text)) is a mark
 
 Geometric objects in any Python package (e.g. GDAL, shapely) are usually based on the geometries that can be represented in WKT strings. As such, it is useful to know how to write geometries in WKT; then you do not need to learn the specific way of each individual Python package. GDAL (OGR) example:
 
-```{Python, eval=FALSE}
+```{python, eval=FALSE}
 from osgeo import ogr
 
 # Define the WKT string
@@ -107,7 +123,7 @@ print("%d,%d" % (point.GetX(), point.GetY()))
 
 A Shapely example, where we create a point from WKT or make the Point object directly:
 
-```{Python, eval=FALSE}
+```{python}
 from shapely.geometry import Point
 from shapely.wkt import loads
 
@@ -133,7 +149,7 @@ GeoPandas strives to make vector processing in Python easier and has many functi
 
 A `GeoSeries` is a vector of features, where each feature contains: 1) an index, and 2) a geometry. The latter is a `shapely.geometry` object, and therefore inherits attributes and methods from shapely geometries, such as area, bounds, distance, etc. Finally, a `GeoSeries` can contain a coordinate reference system (crs). GeoPandas functions, such as buffering, can be applied to `GeoSeries`:
 
-```{Python, eval=FALSE}
+```{python}
 import geopandas as gpd
 from shapely.wkt import loads
 
@@ -162,7 +178,7 @@ A `GeoDataFrame` is a tabular data structure with multiple columns, where one co
 
 A Pandas `DataFrame` plus a list of shapely geometries can be converted into a `GeoSeries` or directly to a `GeoDataFrame`. 
 
-```{Python, eval=FALSE}
+```{python}
 import pandas as pd
 
 # Create some data, with three points, a, b, and c.
@@ -194,8 +210,8 @@ print(type(wageningenGDF), len(wageningenGDF))
 
 Geopandas provides a high-level interface to the Matplotlib library (see previous tutorial) for visualization. Vector data can simply be mapped by using the `plot()` method in a `GeoSeries` or `GeoDataFrame`. Several other arguments to customize the plot can still be used. Note that the aspect of the axes (see previous tutorial) is set to equal automatically when using Geopandas plot, i.e. the horizontal and vertical scale are automatically made the same.
 
-```{Python, eval=FALSE}
-from matplotlib import pyplot as plt
+```{python}
+import matplotlib.pyplot as plt
 
 # Plotting a map of the GeoDataFrame directly
 wageningenGDF.plot(marker='*', color='green', markersize=50)
@@ -207,7 +223,7 @@ wageningenGDF.plot(marker='*', color='green', markersize=50)
 
 Geocoding is the practice of locating the coordinates of addresses, cities, countries, and landmarks across the globe. Python has GeoPy to perform geocoding. GeoPy has a lot of [geocoders available](https://geopy.readthedocs.io/en/stable/) from Bing, Google, HERE, TomTom, MapBox and others. Often you need to have an API key to use the geocoders, which is used by the provider to limit the amount of requests to be able to keep the geocoding service running for everyone. Some geocoders are publicly available, such as Nominatim. Nominatim is made and used by OpenStreetMap. Paste the code below in Spyder and run the geocoder:
 
-```{Python, eval=FALSE}
+```{python}
 from geopy.geocoders import Nominatim
 geolocator = Nominatim(user_agent="specify_random_user_agent")
 location = geolocator.geocode("Wageningen University")
@@ -222,7 +238,7 @@ Try to locate the coordinates of your own house. -->
 <!-- 
 From the geocoder you got a latitude and longitude. On the web it is very common to use latitude and longitude in [WGS84 geographic coordinate system](http://spatialreference.org/ref/epsg/wgs-84). In local projects often projected coordinate systems are required to perform accurate geometric calculations. PyProj reprojects your coordinates from any input projection to an output projection. Use PyProj to do a simple conversion on a coordinate pair:
 
-```{Python, eval=FALSE}
+```{python}
 from pyproj import Transformer
 geolocator = Nominatim(user_agent="specify_random_user_agent")
 location = geolocator.geocode("Wageningen University")
@@ -234,7 +250,7 @@ print([x, y]) # always inspect results of your data handling, in this case doubl
  
 An important step in the pre-processing of geodata is to get all datasets in a projection that suits the analysis to be performed. GeoPandas uses PyProj in the backend to reproject the geometry of the GeoDataFrame. Here is an example of how to reproject the `wageningenGDF` `GeoDataFrame` we created earlier from Dutch RD New (EPSG:28992) to WGS84 (EPSG:4326):
 
-```{Python, eval=FALSE}
+```{python}
 # Check the current crs
 print(wageningenGDF.crs)
 
@@ -257,7 +273,13 @@ In some cases, especially when connection external data sources such as webservi
 
 A `GeoDataFrame` can be written directly to a GeoJSON file or a shapefile. [GeoJSON is a recommended format](http://switchfromshapefile.org/) to use for geographic data in WGS84 coordinate system since JSON dictionaries are easy to read and use on the web, and GeoJSON is supported in popular GIS software. [GeoJSON](http://geojson.org/) is a standard format to encode Geographic data structures in a dictionary. We assume that you are working in the main repository in which you have a data repository. Write some files to a GeoJSON and shapefile:
 
-```{Python, eval=FALSE}
+```{python}
+import os
+if not os.path.exists('data'):
+    os.makedirs('data')
+
+
+
 # Save to disk
 wageningenGDF.to_file(filename='data/wageningenPOI.geojson', driver='GeoJSON')
 wageningenGDF.to_file(filename='data/wageningenPOI.shp', driver='ESRI Shapefile')
@@ -265,7 +287,7 @@ wageningenGDF.to_file(filename='data/wageningenPOI.shp', driver='ESRI Shapefile'
 
 Reading files is just as intuitive:
 
-```{Python, eval=FALSE}
+```{python}
 # Read from disk
 jsonGDF = gpd.read_file('data/wageningenPOI.geojson')
 shpGDF = gpd.read_file('data/wageningenPOI.shp')
@@ -277,7 +299,7 @@ The web has a lot of geodata available. The Open GeoSpatial Consortium ([OGC](ht
 
 
 
-```{Python, eval=FALSE}
+```{python}
 from owslib.wfs import WebFeatureService
 
 # Put the WFS url in a variable
@@ -301,7 +323,7 @@ WFS give access to data in vector format and allow a quick view of the data maki
 
 Load some roads from the WFS service for the campus area and plot them:
 
-```{Python, eval=FALSE}
+```{python}
 # Define center point and create bbox for study area
 x, y = (173994.1578792833, 444133.60329471016)
 xmin, xmax, ymin, ymax = x - 1000, x + 350, y - 1000, y + 350
@@ -331,7 +353,7 @@ plt.show()
 
 Now let's load some buildings from another WFS service (BAG) and plot them too. 
 
-```{Python, eval=FALSE}
+```{python}
 import json
 
 # Get the WFS of the BAG
@@ -363,7 +385,7 @@ roadlayer.set_xlim(xmin, xmax)
 roadlayer.set_ylim(ymin, ymax)
 
 # Save the figure to disk
-plt.savefig('./output/BuildingsAndRoads.png')
+plt.savefig('./data/BuildingsAndRoads.png')
 ```
 
 <img src="./images/BuildingsAndRoads.png" alt="Buildings in Wageningen" width = "60%">
@@ -376,7 +398,7 @@ plt.savefig('./output/BuildingsAndRoads.png')
 
 GeoDataFrames store rows and columns in a tabular format. To select specific rows, you can make use of the DataFrame functionality of Pandas. Inspect the content of your data:
 
-```{Python, eval=FALSE}
+```{python}
 # Pandas function that returns the column labels of the DataFrame
 print(buildingsGDF.columns)
 
@@ -389,7 +411,7 @@ print(buildingsGDF.area)
 
 Columns can be selected using the name of the column. Let us take a look at the construction year ('bouwjaar') of the buildings.
 
-```{Python, eval=FALSE}
+```{python}
 # Inspect building year column
 print(buildingsGDF['bouwjaar'])
 ```
@@ -398,7 +420,7 @@ For selecting rows, GeoPandas inherits the pandas methods for selecting data: la
 
 Let us select buildings (rows) with a larger surface area than 1000 m2 with the `.loc` method.
 
-```{Python, eval=FALSE}
+```{python}
 # Inspect first
 print(buildingsGDF.area > 1000)
 
@@ -412,7 +434,7 @@ largeBuildingsGDF.plot()
 
 When selecting rows based on a conditional rule we can ask pandas to check whether a value from a row is equal to a specific value. In the example below we select the rows where the buildings are not in use. We do this by checking where the state ('status' in Dutch) is not equal (!=) to in use ('Pand in gebruik'). This returns a boolean array, which we can use to select rows. All rows where this array returns True are selected and the False rows are discarded. 
 
-```{Python, eval=FALSE}
+```{python}
 # Inspect first
 print( buildingsGDF['status'] != 'Pand in gebruik' )
 
@@ -441,7 +463,7 @@ ax.set_axis_off()
 
 GeoDataFrames and GeoSeries have several [constructive methods](http://geopandas.org/geometric_manipulations.html) to modify the geometry: buffer, boundary, centroid, convex hull, envelope, simplify, unary union, rotate, scale, skew and translate. When modifying the geometries in the DataFrames, it is a good practice to keep track of your geometry types and your geometry data. Have a look at the geometry types of the roads.
 
-```{Python, eval=FALSE}
+```{python}
 print(type(roadsGDF))
 print(type(roadsGDF.geometry))
 print(roadsGDF['geometry'])
@@ -449,7 +471,7 @@ print(roadsGDF['geometry'])
 
 Let’s create a buffer around the roads to represent coverage of roads, assuming roads have all a width of 3 meters.
 
-```{Python, eval=FALSE}
+```{python}
 # Buffer of 1.5 m on both sides
 roadsPolygonGDF = gpd.GeoDataFrame(roadsGDF, geometry=roadsGDF.buffer(distance=1.5)) 
 
@@ -462,7 +484,7 @@ print(roadsPolygonGDF.area.sum())
 
 As we created buffers around many connected lines, we expect overlap of these buffer features. Therefore, let us merge all road buffer (polygon) features together and check again for the total coverage of buffers.
 
-```{Python, eval=FALSE}
+```{python}
 # Apply unary_all()
 # This returns a geometry, which we convert to a GeoSeries to be able to apply GeoPandas methods again
 roadsUnionGS = gpd.GeoSeries(roadsPolygonGDF.union_all())
@@ -482,7 +504,7 @@ print('There was an overlap of ' + round((roadsPolygonGDF.area.sum() - roadsUnio
 
 GeoPandas can perform various [overlay operations](http://geopandas.org/set_operations.html): intersection, union, symmetrical difference and difference. We will clip the roads with convexed parcels by using intersection. As an example, let us focus on the area around the new buildings on the campus and extract the existing roads close to them. To do so we buffer the new buildings with 100 meter, merge them with a `unary_union` and create a convex hull around the merged (multipolygon) buildings. Finally we clip the roads with this single polygon.
 
-```{Python, eval=FALSE}
+```{python}
 # Specify the coordinate system for roads
 roadsPolygonGDF.crs = 28992
 
@@ -511,7 +533,7 @@ newBuildingsGDF.plot(ax=roadlayer, color='red')
 
 In summary, the advantage of GeoPandas is that it allows both geometric and dataframe manipulations/selections. As a result, GeoPandas can for example select the roads within a set bounding box **and** within (and maintained by) Wageningen Municipality.
 
-```{Python, eval=FALSE}
+```{python}
 # Put the WFS url in a variable again
 wfsUrl = 'https://geo.rijkswaterstaat.nl/services/ogc/gdr/nwb_wegen/ows?service=WFS&request=getcapabilities&version=2.0.0'
 
@@ -541,7 +563,7 @@ wageningenRoadsGDF.plot(edgecolor='purple')
 
 The following script downloads the street network of Wageningen from Open Street Map as a graph, plots it, and saves it.
 
-```{Python, eval=FALSE}
+```{python}
 import osmnx as ox
 
 # Using a geocoder to get the extent
@@ -554,7 +576,7 @@ wageningenRoadsGraph = ox.graph.graph_from_place('Wageningen, Netherlands', netw
 # Plot and save
 ox.plot.plot_graph(wageningenRoadsGraph, figsize=(10, 10), node_size=2)
 gdf_nodes, gdf_edges = ox.graph_to_gdfs(G=wageningenRoadsGraph)
-gdf_edges.to_file('./output/OSMnetwork_Wageningen.shp', driver='ESRI Shapefile')
+gdf_edges.to_file('./data/OSMnetwork_Wageningen.shp', driver='ESRI Shapefile')
 
 # Metadata
 print(gdf_nodes.info())
@@ -565,7 +587,7 @@ print(gdf_edges.info())
 
 OSMnx can store the downloaded street network (the Graph) as a shapefile or as a `GeoDataFrame`. Furthermore, the main purpose of the module is to perform network analyses, such as a shortest path from source to target location. Let us calculate the shortest path from Wageningen campus to Wageningen city center. Is this the route you would take?
 
-```{Python, eval=FALSE}
+```{python}
 # Origin
 source = ox.distance.nearest_nodes(wageningenRoadsGraph, 5.665779, 51.987817)
 
@@ -581,11 +603,8 @@ fig, ax = ox.plot.plot_graph_route(wageningenRoadsGraph, shortestroute, figsize=
                          route_alpha=0.6, route_color='darkred',  bgcolor='white', 
                          node_color='darkgrey', edge_color='darkgrey',
                          route_linewidth=10, orig_dest_size=100)
-
-fig.show()
 ```
 
-<img src="./images/shortestPathGraph.png" alt="Shortest path from Wageningen University Campus to Wageningen City Center" width = "100%">
 
 # Interactive visualization
 
@@ -593,7 +612,7 @@ There are multiple options to visualize your geodata: GIS software (QGIS), web m
 
 Folium uses leaflet on the backend to make web maps, easily visualized on a webpage. [Leaflet](https://leafletjs.com/) is an open-source JavaScript library for mobile-friendly interactive maps. Folium handles GeoDataFrames or JSON files as input for the interactive map. The Python script below makes a `.html` file in your working directory, which you can open in a [web browser](campusMap.html):
 
-```{Python, eval=FALSE}
+```{python}
 import folium
 
 # Initialize the map with satellite basemap
@@ -623,8 +642,10 @@ folium.GeoJson(roadsPolygonGDF).add_to(campusMap)
 folium.LayerControl().add_to(campusMap)
 
 # Save (you can now open the generated .html file from the output directory)
-campusMap.save('./output/campusMap.html')
+campusMap.save('./data/campusMap.html')
 ```
+
+![](data/campusMap.html){width="100%" height="600px"}
 
 # More info
 - [Geo-Spatial Notebooks](https://github.com/jupyter/jupyter/wiki/A-gallery-of-interesting-Jupyter-Notebooks#earth-science-and-geo-spatial-data)
