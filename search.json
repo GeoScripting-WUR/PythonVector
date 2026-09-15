@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Vector data handling with Python",
+    "section": "",
+    "text": "WUR Geoscripting"
+  },
+  {
+    "objectID": "index.html#introduction",
+    "href": "index.html#introduction",
+    "title": "Vector data handling with Python",
+    "section": "Introduction",
+    "text": "Introduction\nToday we will explore a variety of Python packages for vector data handling:\n\nGDAL, the backbone of spatial data processing in Python (and R) with high performance\nShapely for geometric operations\nGeoPandas for exploratory vector data analysis, based on Pandas for dataframes and data analysis\npyproj for re-projecting\nFiona for geodata access and conversions\nosmnx for network analysis"
+  },
+  {
+    "objectID": "index.html#learning-objectives",
+    "href": "index.html#learning-objectives",
+    "title": "Vector data handling with Python",
+    "section": "Learning objectives",
+    "text": "Learning objectives\n\nKnow how to create a point dataset in Python\nBe able to write spatial vector formats to disk\nBe able to read spatial vector formats from web services and files\nKnow how to apply basic operations on vector data, such as buffers and shortest-path algorithms\nBe able to plot spatial vector data with Matplotlib"
+  },
+  {
+    "objectID": "index.html#setting-up-the-python-environment",
+    "href": "index.html#setting-up-the-python-environment",
+    "title": "Vector data handling with Python",
+    "section": "Setting up the Python Environment",
+    "text": "Setting up the Python Environment\nOpen Positron and create a new directory for this tutorial using pixi:\n\npixi init PythonVector #or give the directory a name to your liking\n\nThe environment we are using today contains more (and larger) packages than yesterday, but the process we use to create and activate it is the same. Add the following packages into the environment:\n\npixi add python matplotlib gdal shapely geopandas&gt;=1.0 owslib osmnx contextily folium\n\nActivate the shell:\n\npixi shell\n\nThen create a script in the root directory and start coding."
+  }
+]
